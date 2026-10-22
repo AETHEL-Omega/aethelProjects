@@ -106,10 +106,15 @@ def test_tc014_all_git_calls_use_read_only_subcommands() -> None:
 
 
 def test_gitio_is_the_only_subprocess_entrypoint() -> None:
-    """Nur gitio.py darf subprocess aufrufen — so bleibt der Ausgangspunkt prüfbar."""
+    """Nur gitio.py und codeanalysis.py dürfen subprocess aufrufen.
+
+    gitio.py kapselt den **Git**-Zugang, codeanalysis.py den **Werkzeug**-Zugang
+    zum aethelCodeAnalyzer. Beide Stellen sind damit prüfbar.
+    """
+    allowed = {"gitio.py", "codeanalysis.py"}
     offenders: list[str] = []
     for path in _source_files():
-        if path.name == "gitio.py":
+        if path.name in allowed:
             continue
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         for node in ast.walk(tree):
@@ -118,7 +123,31 @@ def test_gitio_is_the_only_subprocess_entrypoint() -> None:
                 name = func.attr if isinstance(func, ast.Attribute) else getattr(func, "id", "")
                 if name in {"run", "Popen", "call", "check_output", "system"}:
                     offenders.append(f"{path.name}:{node.lineno} → {name}()")
-    assert not offenders, "subprocess außerhalb von gitio.py:\n" + "\n".join(offenders)
+    assert not offenders, "subprocess außerhalb der erlaubten Module:\n" + "\n".join(offenders)
+
+
+def test_tc032_codeanalysis_only_uses_read_only_analyzer_flags() -> None:
+    """TC-032: der Analyzer wird nur mit lesenden Flags aufgerufen."""
+    path = SRC / "codeanalysis.py"
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    command_flags: set[str] = set()
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.List):
+            continue
+        elements = [e.value for e in node.elts if isinstance(e, ast.Constant)]
+        if not elements or not isinstance(elements[0], str):
+            continue
+        if not elements[0].startswith("--"):
+            continue
+        command_flags.update(e for e in elements[1:] if isinstance(e, str) and e.startswith("--"))
+    mutating = command_flags & {
+        "--export-pack",
+        "--capability-output",
+        "--assert-clean",
+        "--base",
+    }
+    assert not mutating, f"Der Analyzer wird mit schreibenden Flags aufgerufen: {sorted(mutating)}"
+    assert command_flags, "keine Analyzer-Flags gefunden — Test wäre wirkungslos"
 
 
 def test_no_filesystem_deletion_helpers() -> None:

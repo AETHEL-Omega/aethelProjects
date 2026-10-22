@@ -1,6 +1,6 @@
 """CLI — eine dünne Hülle um die API.
 
-Subcommands: scan · report · audit · market
+Subcommands: scan · report · audit · market · forensics · code · factory · continuity
 """
 
 from __future__ import annotations
@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from . import market as market_mod
@@ -22,42 +23,88 @@ EXIT_USAGE = 2
 SEVERITY_ORDER = {"critical": 0, "warn": 1, "info": 2}
 
 
+def _common_args(parser: argparse.ArgumentParser, suppress: bool) -> None:
+    """Die gemeinsamen Optionen — vor *und* nach dem Unterbefehl nutzbar.
+
+    ``suppress=True`` verhindert, dass der Subparser den Wert der Hauptzeile
+    überschreibt: ohne SUPPRESS setzt argparse den Default und damit den
+    Wert vor dem Unterbefehl weg.
+    """
+
+    def default(value):
+        return argparse.SUPPRESS if suppress else value
+
+    parser.add_argument(
+        "--root", default=default(str(DEFAULT_ROOT)),
+        help="Workspace-Wurzel (Default: ~/workspace)",
+    )
+    parser.add_argument(
+        "--jobs", type=int, default=default(8),
+        help="Parallelfaktor für den Scan",
+    )
+    parser.add_argument(
+        "--timeout", type=int, default=default(30),
+        help="Timeout je Git-Aufruf in Sekunden",
+    )
+    parser.add_argument(
+        "--manifest", default=default(None), help="Pfad zu projects.yaml",
+    )
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="aethel-projects",
         description="Portfolio-Analyse des AETHEL-Workspace — ausschließlich lesend.",
     )
-    parser.add_argument("--root", default=str(DEFAULT_ROOT), help="Workspace-Wurzel (Default: ~/workspace)")
-    parser.add_argument("--jobs", type=int, default=8, help="Parallelfaktor für den Scan")
-    parser.add_argument("--timeout", type=int, default=30, help="Timeout je Git-Aufruf in Sekunden")
-    parser.add_argument("--manifest", default=None, help="Pfad zu projects.yaml")
+    _common_args(parser, suppress=False)
 
     sub = parser.add_subparsers(dest="command", required=True)
 
-    scan_cmd = sub.add_parser("scan", help="JSON-Snapshot des gesamten Workspace")
+    def add(name: str, help_text: str) -> argparse.ArgumentParser:
+        child = sub.add_parser(name, help=help_text)
+        _common_args(child, suppress=True)
+        return child
+
+    scan_cmd = add("scan", "JSON-Snapshot des gesamten Workspace")
     scan_cmd.add_argument("--json", default="-", help="Zieldatei für JSON ('-' = stdout)")
 
-    report_cmd = sub.add_parser("report", help="Portfolio-Report als Markdown oder HTML")
+    report_cmd = add("report", "Portfolio-Report als Markdown oder HTML")
     report_cmd.add_argument("--format", choices=["md", "html"], default="md")
     report_cmd.add_argument("--out", default=None, help="Ausgabeverzeichnis (Default: ./reports)")
     report_cmd.add_argument("--no-detail", action="store_true", help="Detailtabelle weglassen")
 
-    audit_cmd = sub.add_parser("audit", help="Findings und Aufräum-Vorschläge")
+    audit_cmd = add("audit", "Findings und Aufräum-Vorschläge")
     audit_cmd.add_argument("--format", choices=["md", "json"], default="md")
     audit_cmd.add_argument("--severity", choices=["critical", "warn", "info"], default="info")
     audit_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
 
-    market_cmd = sub.add_parser("market", help="Marktview, USP und Marketing-Claims")
+    market_cmd = add("market", "Marktview, USP und Marketing-Claims")
     market_cmd.add_argument("--format", choices=["md", "json"], default="md")
     market_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
 
-    forensics_cmd = sub.add_parser(
-        "forensics", help="Forensik: das Hässliche, das Schöne, das Interessante"
+    forensics_cmd = add(
+        "forensics", "Forensik: das Hässliche, das Schöne, das Interessante"
     )
     forensics_cmd.add_argument("--format", choices=["md", "json"], default="md")
     forensics_cmd.add_argument("--kind", choices=["hässlich", "schön", "interessant", "alle"], default="alle")
     forensics_cmd.add_argument("--repo", default=None, help="Nur ein Repository betrachten")
     forensics_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
+
+    code_cmd = add("code", "Statische Code-Analyse via aethelCodeAnalyzer")
+    code_cmd.add_argument("--format", choices=["md", "json"], default="md")
+    code_cmd.add_argument("--repo", default=None, help="Nur ein Repository analysieren")
+    code_cmd.add_argument("--limit", type=int, default=0, help="Maximal N Repos (0 = alle)")
+    code_cmd.add_argument("--severity", choices=["critical", "warn", "info"], default="warn")
+    code_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
+
+    factory_cmd = add("factory", "Fabrik- und Firmensicht: Wertschöpfungskette und Lücken")
+    factory_cmd.add_argument("--format", choices=["md", "json"], default="md")
+    factory_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
+
+    continuity_cmd = add("continuity", "Kontinuität: wo war ich, was ist offen, was kommt als Nächstes")
+    continuity_cmd.add_argument("--format", choices=["md", "json"], default="md")
+    continuity_cmd.add_argument("--repo", default=None, help="Nur ein Repository betrachten")
+    continuity_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
 
     return parser
 
@@ -290,12 +337,264 @@ def _cmd_forensics(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _cmd_code(args: argparse.Namespace) -> int:
+    """Statische Code-Analyse via aethelCodeAnalyzer."""
+    from . import codeanalysis as code_mod
+
+    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    binary = code_mod.find_analyzer()
+    if binary is None:
+        sys.stderr.write(
+            "aethelCodeAnalyzer nicht gefunden — setze AETHEL_CODE_ANALYZER_BIN "
+            "oder baue das Binary.\n"
+        )
+        return EXIT_ERROR
+
+    targets = [r for r in result.repos if code_mod.is_analysable(r)]
+    if args.repo:
+        targets = [r for r in targets if r.name == args.repo]
+    if args.limit > 0:
+        targets = targets[: args.limit]
+
+    def run(repo):
+        return repo.name, code_mod.analyse_repo(repo, binary=binary, timeout=max(args.timeout, 120))
+
+    with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
+        analysen = dict(pool.map(run, targets))
+
+    threshold = SEVERITY_ORDER[args.severity]
+    selected = [
+        (name, analysis)
+        for name, analysis in sorted(analysen.items())
+        for finding in analysis.findings
+        if SEVERITY_ORDER.get(finding.severity, 3) <= threshold
+    ]
+
+    if args.format == "json":
+        _write(
+            json.dumps(
+                {
+                    "analyzer": str(binary),
+                    "schema": code_mod.AIX_SCHEMA,
+                    "repos_analysiert": sum(1 for a in analysen.values() if a.analyzed),
+                    "findings": [
+                        {
+                            "repo": name,
+                            "code": f.code,
+                            "severity": f.severity,
+                            "message": f.message,
+                            "action": f.action,
+                        }
+                        for name, f in selected
+                    ],
+                },
+                ensure_ascii=False,
+                indent=2,
+            ),
+            args.out,
+        )
+        return EXIT_OK
+
+    stats = code_mod.summarise(analysen)
+    lines = ["# Code-Analyse (aethelCodeAnalyzer)", ""]
+    lines.append(f"Analyzer: `{binary}`  ")
+    lines.append(f"Schema: `{code_mod.AIX_SCHEMA}`  ")
+    lines.append(
+        f"Analysiert: {stats['repos_analysiert']} von {stats['repos_gefunden']} Repos · "
+        f"Findings: {stats['findings']} (davon {stats['high']} mit Schweregrad high)"
+    )
+    lines.append("")
+    lines.append("> Der Analyzer liest nur. Er schreibt ausser nach stdout nichts.")
+    lines.append("")
+
+    by_repo: dict[str, list] = {}
+    for name, finding in selected:
+        by_repo.setdefault(name, []).append(finding)
+    if not by_repo:
+        lines.append("_Keine Findings oberhalb des Schweregrads._")
+    for name in sorted(by_repo):
+        lines.append(f"## {name}")
+        lines.append("")
+        lines.append("| Schwere | Regel | Befund | Repro |")
+        lines.append("|---|---|---|---|")
+        for finding in by_repo[name]:
+            lines.append(
+                f"| {finding.severity} | `{finding.code.removeprefix('code:')}` | "
+                f"{finding.message} | `{finding.action}` |"
+            )
+        lines.append("")
+
+    notes = [(name, a.note) for name, a in sorted(analysen.items()) if a.note]
+    if notes:
+        lines.append("## Hinweise")
+        lines.append("")
+        for name, note in notes:
+            lines.append(f"- **{name}**: {note}")
+        lines.append("")
+
+    _write("\n".join(lines), args.out)
+    return EXIT_OK
+
+
+def _cmd_factory(args: argparse.Namespace) -> int:
+    """Fabrik- und Firmensicht."""
+    from . import factory as factory_mod
+
+    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    view = factory_mod.build(result.repos)
+
+    if args.format == "json":
+        _write(json.dumps(view.as_dict(), ensure_ascii=False, indent=2), args.out)
+        return EXIT_OK
+
+    lines = ["# Fabrik- und Firmensicht", ""]
+    lines.append(f"Workspace: `{result.workspace_root}`  ")
+    lines.append(f"Erzeugt: {result.generated_at}  ")
+    lines.append(f"**Fabrik-Reifegrad: {view.readiness}/100**  ")
+    lines.append(f"**Kettenintegrität: {view.kettenintegritaet}/100**")
+    lines.append("")
+    lines.append(
+        "> Geprüft wird gegen **Belege** (Dateien, Workflows, Verträge), nicht gegen "
+        "Absichtserklärungen. Ein **Träger** erfüllt *alle* Anforderungen einer Stufe — "
+        "erst er zählt als vorhanden."
+    )
+    lines.append("")
+
+    lines.append("## Wertschöpfungskette")
+    lines.append("")
+    lines.append("| Stufe | Zustand | Träger | Mitwirkende | Bedeutung |")
+    lines.append("|---|---|---|---|---|")
+    for stage in view.stages:
+        mark = {"voll": "🟢", "teilweise": "🟡", "leer": "🔴"}[stage.level]
+        lines.append(
+            f"| **{stage.label}** | {mark} {stage.level} | {len(stage.carriers)} | "
+            f"{len(stage.covered_by)} | {stage.description} |"
+        )
+    lines.append("")
+
+    for stage in view.stages:
+        if not stage.carriers:
+            continue
+        lines.append(f"### {stage.label} — Träger")
+        lines.append("")
+        for name in stage.carriers[:12]:
+            lines.append(f"- **{name}** — {stage.evidence.get(name, '')}")
+        if len(stage.carriers) > 12:
+            lines.append(f"- … und {len(stage.carriers) - 12} weitere")
+        lines.append("")
+
+    if view.end_to_end:
+        lines.append("## End-to-End-Ketten")
+        lines.append("")
+        lines.append(
+            "Diese Repos tragen die Kette von der Marktanforderung bis zur Rückkopplung "
+            "fast vollständig — sie sind das Nächstliegende zu einer digitalen Firma:"
+        )
+        lines.append("")
+        for name in view.end_to_end[:20]:
+            lines.append(f"- **{name}**")
+        lines.append("")
+
+    lines.append("## Rollen im Portfolio")
+    lines.append("")
+    lines.append("| Rolle | Repos | Beispiele |")
+    lines.append("|---|---|---|")
+    role_labels = {
+        "kern": "Kern / Plattform",
+        "produkt": "Produkt",
+        "werkzeug": "Werkzeug der Fabrik",
+        "wissen": "Wissen / DNA",
+        "infrastruktur": "Infrastruktur",
+        "experiment": "Experiment",
+    }
+    for role, names in view.roles.items():
+        examples = ", ".join(names[:5]) + (f" … (+{len(names) - 5})" if len(names) > 5 else "")
+        lines.append(f"| {role_labels.get(role, role)} | {len(names)} | {examples} |")
+    lines.append("")
+
+    lines.append("## Fabrik-Motor und Fabrik-Output")
+    lines.append("")
+    lines.append(f"**Motor** ({len(view.engine)}): {', '.join(view.engine) or '—'}")
+    lines.append("")
+    lines.append(f"**Output** ({len(view.output)}): {', '.join(view.output) or '—'}")
+    lines.append("")
+
+    lines.append("## Lücken")
+    lines.append("")
+    if view.gaps:
+        for gap in view.gaps:
+            lines.append(f"- {gap}")
+    else:
+        lines.append("_Keine Lücke erkennbar._")
+    lines.append("")
+
+    if view.notes:
+        lines.append("## Anmerkungen")
+        lines.append("")
+        for note in view.notes:
+            lines.append(f"- {note}")
+        lines.append("")
+
+    _write("\n".join(lines), args.out)
+    return EXIT_OK
+
+
+def _cmd_continuity(args: argparse.Namespace) -> int:
+    """Kontinuität über den Workspace."""
+    from . import continuity as continuity_mod
+
+    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    repos = result.repos
+    if args.repo:
+        repos = tuple(r for r in repos if r.name == args.repo)
+        if not repos:
+            sys.stderr.write(f"Repository nicht gefunden: {args.repo}\n")
+            return EXIT_ERROR
+
+    view = continuity_mod.build(repos)
+
+    if args.format == "json":
+        _write(json.dumps(view.as_dict(), ensure_ascii=False, indent=2), args.out)
+        return EXIT_OK
+
+    lines = ["# Kontinuität — wo war ich, was ist offen, was kommt", ""]
+    lines.append(f"Workspace: `{result.workspace_root}`  ")
+    lines.append(f"Erzeugt: {result.generated_at}  ")
+    lines.append(f"Offene Arbeit: **{view.offene_arbeit:,} Commits** ausserhalb von main  ")
+    lines.append(f"Repos mit uncommitteten Änderungen: **{view.uncommittet}**")
+    lines.append("")
+    if view.hinweis:
+        lines.append(f"> {view.hinweis}")
+        lines.append("")
+    if view.naechster_schritt:
+        lines.append(f"**Nächster Schritt:** {view.naechster_schritt}")
+        lines.append("")
+
+    lines.append("## Zuletzt angefasst")
+    lines.append("")
+    lines.append("| Repository | Standort | Offen | Nächster Schritt | Dringlichkeit |")
+    lines.append("|---|---|---|---|---|")
+    for state in view.zuletzt:
+        offen = "; ".join(state.offen[:2]) or "—"
+        step = state.naechster_schritt or "—"
+        lines.append(
+            f"| **{state.repo}** | {state.standort} | {offen} | {step} | {state.dringlichkeit} |"
+        )
+    lines.append("")
+
+    _write("\n".join(lines), args.out)
+    return EXIT_OK
+
+
 COMMANDS = {
     "scan": _cmd_scan,
     "report": _cmd_report,
     "audit": _cmd_audit,
     "market": _cmd_market,
     "forensics": _cmd_forensics,
+    "code": _cmd_code,
+    "factory": _cmd_factory,
+    "continuity": _cmd_continuity,
 }
 
 
