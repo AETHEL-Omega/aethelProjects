@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+"""aethel-projects — Portfolio-Analyse des AETHEL-Workspace.
+
+Startet ohne Installation: das Paket liegt eine Ebene höher in `src/`.
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from aethel_projects.cli import main  # noqa: E402
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,123 @@
+# Die SOFTWARE-DNA: vollständiger Bauplan, aus dem ein Agent dieses Projekt
+# NEU erzeugen kann. Akzeptanz = funktionale Equivalenz, verifiziert durch die
+# Invarianten-Tests (nicht byte-identisch).
+# Feldreferenz: workspace-manifest/schema/dna.schema.yaml
+schema: aethel.dna/v1
+
+identity:
+  name: aethelProjects
+  purpose: Portfolio-Analyse des AETHEL-Workspace — Git-Zustand, Intent, Reife, Marktview und Aufräum-Vorschläge in einem read-only Werkzeug.
+  one_liner: Der ganze Workspace auf einen Blick — ohne Doppelzählung, ohne Erfindungen.
+
+lineage:
+  platform: aethel-omega
+  variant_of: ""
+  shares_with: [workspace-manifest]
+
+stack:
+  language: python
+  framework: ""
+  runtime: "python>=3.11"
+  package_manager: ""
+  key_dependencies: []
+
+requirements_ref: docs/SPEC.md
+design_ref: docs/DESIGN.md
+architecture_ref: docs/ARCHITECTURE.md
+method_ref: .aethel/engineering.yaml
+
+structure:
+  entrypoint: "bin/aethel-projects"
+  modules:
+    - path: src/aethel_projects/models.py
+      role: Datenmodelle — frozen Dataclasses, keine Logik
+      public_interface: [RepoReport, ScanResult, Finding, Intent, Maturity]
+    - path: src/aethel_projects/gitio.py
+      role: Einzige Git-Schnittstelle — ausschließlich lesende Subkommandos
+      public_interface: [run_git, run_git_lines, count, ref_exists]
+    - path: src/aethel_projects/discovery.py
+      role: Discovery mit Worktree-Dedup über git-common-dir
+      public_interface: [discover, RepoIdentity]
+    - path: src/aethel_projects/metrics.py
+      role: Git-Metriken je Repository
+      public_interface: [collect]
+    - path: src/aethel_projects/intent.py
+      role: Intent-Erkennung mit Konfidenz und Evidenz
+      public_interface: [infer]
+    - path: src/aethel_projects/maturity.py
+      role: Reifegrad nach AETHEL Engineering Standard v2
+      public_interface: [score]
+    - path: src/aethel_projects/manifest.py
+      role: Manifest-Parser und Drift-Abgleich
+      public_interface: [load_manifest, compare]
+    - path: src/aethel_projects/findings.py
+      role: Aufräum- und Risikohinweise — Empfehlungen, nie Aktionen
+      public_interface: [detect, detect_duplicates]
+    - path: src/aethel_projects/pmview.py
+      role: Projektmanagement-Sicht — Status, Risiko, nächste Schritte
+      public_interface: [build]
+    - path: src/aethel_projects/market.py
+      role: Interner Marktview, USP-Kandidaten, Marketing-Claims
+      public_interface: [build, claims]
+    - path: src/aethel_projects/scanner.py
+      role: Orchestrierung zum ScanResult
+      public_interface: [scan_workspace]
+    - path: src/aethel_projects/report.py
+      role: Renderer für JSON, Markdown, HTML
+      public_interface: [to_json, render_markdown, render_html]
+    - path: src/aethel_projects/cli.py
+      role: CLI — dünne Hülle um die API
+      public_interface: [main]
+  data_models:
+    - RepoReport
+    - ScanResult
+    - ScanSummary
+    - CategorySummary
+    - Finding
+    - Intent
+    - Maturity
+    - ManifestEntry
+    - ProjectManagementView
+    - UnmergedBranch
+
+interfaces:
+  cli:
+    - "aethel-projects scan [--root DIR] [--json OUT|-]"
+    - "aethel-projects report [--root DIR] [--format md|html] [--out DIR]"
+    - "aethel-projects audit [--root DIR] [--format md|json] [--severity LEVEL]"
+    - "aethel-projects market [--root DIR] [--format md|json]"
+  http: []
+  events: []
+
+behavior:
+  golden_examples:
+    - given: "Ein Workspace mit 329 Git-Verzeichnissen, davon 122 Worktrees"
+      when: "aethel-projects scan"
+      then: "Der Report listet 208 Repos — jede Historie genau einmal."
+    - given: "Ein Commit, der auf drei unmerged Branches liegt"
+      when: "aethel-projects scan"
+      then: "commits_not_on_main zählt ihn einmal, nicht dreimal."
+    - given: "Ein Repository ohne README, SPEC oder Manifest-Eintrag"
+      when: "aethel-projects report"
+      then: "Der Intent ist leer — es wird kein Zweck erfunden."
+    - given: "Ein Repository ohne origin-Remote"
+      when: "aethel-projects scan"
+      then: "ahead_of_origin ist null (unbekannt), nicht 0."
+
+regeneration:
+  bootstrap:
+    - "git clone https://github.com/AETHEL-Omega/aethelProjects.git"
+    - "cd aethelProjects"
+  build: "echo 'kein Build-Schritt — reines Python (stdlib)'"
+  test: "PYTHONPATH=src python3 -m pytest tests/ -v"
+  run: "PYTHONPATH=src bin/aethel-projects scan --root ~/workspace"
+  invariant_tests: tests/
+  determinism:
+    - "generated_at (Zeitstempel im Report)"
+    - "Reihenfolge der Findings bei gleichem Schweregrad (Sortierung nach Repo-Name, dann Code)"
+  acceptance: "Alle invariant_tests grün UND alle REQ-NNN abgedeckt."
+
+provenance:
+  extracted_at: "2026-10-22"
+  extracted_by: "aethelProjects Bootstrap"
+  commit: ""
