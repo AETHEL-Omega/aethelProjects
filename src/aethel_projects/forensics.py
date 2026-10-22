@@ -23,14 +23,22 @@ from .models import RepoReport
 #: Verzeichnisse, die nie eingecheckt werden dürfen.
 BUILD_ARTIFACT_DIRS = (".dart_tool", "target", "node_modules", "__pycache__", ".pytest_cache")
 
-#: Dateien, die auf Credentials hindeuten.
+#: Dateien, die auf Credentials hindeuten (nur der Dateiname wird geprüft).
 SECRET_PATTERNS = (
     re.compile(r"^\.env(\..+)?$"),
     re.compile(r"^.*\.pem$"),
+    re.compile(r"^.*\.(p12|pfx|key|keystore)$"),
     re.compile(r"^id_(rsa|dsa|ecdsa|ed25519)$"),
     re.compile(r"^credentials(\.json)?$"),
     re.compile(r"^\.netrc$"),
     re.compile(r"^.*_rsa\.key$"),
+    re.compile(r"^secrets?\.(ya?ml|json|toml)$"),
+)
+
+#: Beispieldateien — **kein** Verstoß, sondern gute Praxis. Sie werden getrennt
+#: gemeldet, damit echte Credentials nicht im Rauschen verschwinden.
+EXAMPLE_PATTERNS = (
+    re.compile(r"^.*\.(example|sample|template|dist)$"),
 )
 
 #: Bekannte Vendor-/Fork-Verzeichnisse (Fremdcode im eigenen Workspace).
@@ -40,7 +48,6 @@ VENDOR_NAMES = {"comfyui", "osxq", "flutter", "litellm", "pytorch"}
 SCRATCH_PREFIXES = ("run-task-", "run-cli-", "tmp-", "scratch-")
 
 SOURCE_SUFFIXES = (".py", ".rs", ".dart", ".ts", ".tsx", ".js", ".jsx", ".go", ".swift", ".kt")
-SKIP_DIRS = {".git", "build", "target", "node_modules", ".dart_tool", "__pycache__", ".venv"}
 
 PATH_DEP = re.compile(r"path:\s*(\.{0,2}/[^\s\"']+)")
 
@@ -59,14 +66,10 @@ class Observation:
 
 
 def _source_files(root: Path) -> list[Path]:
-    result: list[Path] = []
-    for path in root.rglob("*"):
-        if not path.is_file() or path.suffix not in SOURCE_SUFFIXES:
-            continue
-        if any(part in SKIP_DIRS for part in path.parts):
-            continue
-        result.append(path)
-    return result
+    """Die Quellcodedateien eines Repositories — ohne Build-Verzeichnisse."""
+    from .fsutil import walk_files
+
+    return walk_files(root, suffix=SOURCE_SUFFIXES)
 
 
 def _code_signature(root: Path, name: str) -> tuple[str, int, int]:
@@ -118,13 +121,42 @@ def _broken_path_dependencies(root: Path) -> list[str]:
 
 
 def _secret_candidates(root: Path, tracked: set[str]) -> list[str]:
-    """Verfolgte Dateien, die nach Credentials aussehen."""
+    """Verfolgte Dateien, die nach Credentials aussehen.
+
+    Beispieldateien (``.env.example``) zaehlen nicht als Verstoß — sie sind die
+    richtige Praxis. Sie werden getrennt gemeldet.
+    """
     found: list[str] = []
     for relative in tracked:
         name = relative.rsplit("/", 1)[-1]
+        if any(pattern.match(name) for pattern in EXAMPLE_PATTERNS):
+            continue
         if any(pattern.match(name) for pattern in SECRET_PATTERNS):
             found.append(relative)
     return sorted(found)[:10]
+
+
+def _example_candidates(root: Path, tracked: set[str]) -> list[str]:
+    """Verfolgte Beispieldateien — ein gutes Zeichen, kein Mangel."""
+    found: list[str] = []
+    for relative in tracked:
+        name = relative.rsplit("/", 1)[-1]
+        if any(pattern.match(name) for pattern in EXAMPLE_PATTERNS):
+            found.append(relative)
+    return sorted(found)[:5]
+
+
+def _has_substance(repo: RepoReport) -> bool:
+    """Hat das Repository Inhalt — oder ist es nur eine Hülle?
+
+    Ein Repo mit neun Commits, ohne README und ohne Tests ist kein Projekt.
+    Solche Repos duerfen nicht als „schoen“ gelobt werden.
+    """
+    if repo.maturity and repo.maturity.score >= 40:
+        return True
+    if repo.commits_total >= 20 and repo.commits_on_main >= 20:
+        return True
+    return False
 
 
 def _tracked_build_artifacts(root: Path, tracked: set[str]) -> list[str]:
@@ -222,6 +254,36 @@ def inspect(repo: RepoReport) -> list[Observation]:
             )
         )
 
+    examples = _example_candidates(root, tracked)
+    if examples:
+        findings.append(
+            Observation(
+                repo=name, kind="schön", code="beispiel-konfiguration",
+                title="Beispiel-Konfiguration mitgeliefert",
+                observation=(
+                    f"{len(examples)} Beispieldatei(en) verfolgt: {', '.join(examples[:3])} — "
+                    f"Geheimnisse sind nicht eingecheckt."
+                ),
+                suggestion="—",
+                weight=30,
+            )
+        )
+
+    if repo.commits_total > 0 and not _has_substance(repo):
+        score = repo.maturity.score if repo.maturity else 0
+        findings.append(
+            Observation(
+                repo=name, kind="hässlich", code="leere-huelle",
+                title="Leere Hülle ohne Substanz",
+                observation=(
+                    f"{repo.commits_total} Commits, aber Reifegrad {score}/100 — "
+                    f"das Repo traegt keinen eigenen Inhalt."
+                ),
+                suggestion="Klon-Zustand: entweder ausbauen oder als Scaffold kennzeichnen.",
+                weight=55,
+            )
+        )
+
     if repo.name.lower() in VENDOR_NAMES:
         findings.append(
             Observation(
@@ -306,12 +368,15 @@ def inspect(repo: RepoReport) -> list[Observation]:
             )
         )
 
-    if repo.commits_not_on_main == 0 and repo.commits_on_main > 0:
+    if repo.commits_not_on_main == 0 and repo.commits_on_main > 0 and _has_substance(repo):
         findings.append(
             Observation(
                 repo=name, kind="schön", code="vollstaendig-auf-main",
                 title="Vollständig auf main",
-                observation=f"Alle {repo.commits_on_main} Commits liegen auf main.",
+                observation=(
+                    f"Alle {repo.commits_on_main} Commits liegen auf main "
+                    f"(Reifegrad {repo.maturity.score if repo.maturity else 0}/100)."
+                ),
                 suggestion="—",
                 weight=70,
             )
@@ -349,6 +414,53 @@ def inspect(repo: RepoReport) -> list[Observation]:
 def inspect_workspace(repos: tuple[RepoReport, ...]) -> list[Observation]:
     """Workspace-weite Beobachtungen: Template-Familien, Vendor, Lücken."""
     findings: list[Observation] = []
+
+    # Namenskollisionen: verschiedene Repos mit gleichem Basisnamen.
+    by_name: dict[str, list[RepoReport]] = defaultdict(list)
+    for repo in repos:
+        by_name[repo.name].append(repo)
+    for name, group in sorted(by_name.items()):
+        distinct = {r.git_common_dir for r in group}
+        if len(distinct) < 2:
+            continue
+        for repo in group:
+            findings.append(
+                Observation(
+                    repo=name, kind="interessant", code="namenskollision",
+                    title="Namenskollision",
+                    observation=(
+                        f"{len(distinct)} verschiedene Repos tragen den Namen „{name}“ "
+                        f"({len(group)} Verzeichnisse) — Zuordnung ueber den Namen ist nicht eindeutig."
+                    ),
+                    suggestion="Repo-Identitaet ueber den common-dir fuehren, nicht ueber den Namen.",
+                    weight=65,
+                )
+            )
+
+    # Seed-Familien: viele Repos mit exakt gleicher Struktur und miniem Umfang.
+    seeds: dict[tuple[int, int, str | None], list[RepoReport]] = defaultdict(list)
+    for repo in repos:
+        if repo.commits_total > 10 or repo.commits_total == 0:
+            continue
+        seeds[(repo.commits_total, repo.branches_total, repo.default_branch)].append(repo)
+    for (commits, branches, default), group in sorted(
+        seeds.items(), key=lambda item: (-len(item[1]), item[0])
+    ):
+        if len(group) < 3:
+            continue
+        for repo in group:
+            findings.append(
+                Observation(
+                    repo=repo.name, kind="hässlich", code="seed-familie",
+                    title="Seed-Klon ohne eigene Geschichte",
+                    observation=(
+                        f"{len(group)} Repos haben dieselbe Struktur: {commits} Commits, "
+                        f"{branches} Branches, default-Branch: {default or 'keiner'}."
+                    ),
+                    suggestion="Seed-Klon: entweder echten Inhalt aufbauen oder als Scaffold markieren.",
+                    weight=60,
+                )
+            )
 
     # Template-Familien: gleiche Code-Signatur in mehreren Repos
     signatures: dict[tuple[str, int, int], list[str]] = defaultdict(list)

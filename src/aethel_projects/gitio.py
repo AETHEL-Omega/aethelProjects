@@ -7,6 +7,7 @@ Das ist durch TC-013/TC-014 maschinell belegt.
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 
@@ -50,6 +51,8 @@ def run_git(
             text=True,
             timeout=timeout,
             check=False,
+            # Read-only: `git status` darf in fremden Repos nicht .git/index schreiben.
+            env={**os.environ, "GIT_OPTIONAL_LOCKS": "0"},
         )
     except (subprocess.TimeoutExpired, OSError):
         return None
