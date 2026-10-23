@@ -108,3 +108,20 @@ def test_repo_without_main_reports_all_commits_as_unmerged(tmp_path: Path) -> No
     assert report.default_branch is None
     assert report.commits_on_main == 0
     assert report.commits_not_on_main == report.commits_total
+
+
+def test_default_branch_preserves_slashes_and_remote_only(tmp_path):
+    from conftest import make_repo, git
+    from aethel_projects.discovery import discover
+    from aethel_projects.metrics import collect
+    repo = make_repo(tmp_path / "slash", branch="feat/my-default", commits=2)
+    git(repo, "update-ref", "refs/remotes/origin/feat/my-default", "HEAD")
+    git(repo, "symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/feat/my-default")
+    report = collect(discover(tmp_path)[0])
+    assert report.default_branch == "feat/my-default"
+    assert report.commits_on_main == 2
+    git(repo, "checkout", "--detach")
+    git(repo, "branch", "-D", "feat/my-default")
+    report = collect(discover(tmp_path)[0])
+    assert report.default_branch == "origin/feat/my-default"
+    assert report.commits_on_main == 2

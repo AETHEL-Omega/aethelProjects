@@ -26,12 +26,9 @@ READ_ONLY_SUBCOMMANDS = frozenset(
         "remote",
         "worktree",
         "config",
+        "ls-files",
     }
 )
-
-#: Subkommandos von `git worktree`, die entfernen — verboten.
-_FORBIDDEN_WORKTREE_ACTIONS = frozenset({"remove", "prune", "repair", "add"})
-
 
 def run_git(
     repo: Path,
@@ -44,15 +41,24 @@ def run_git(
     """
     if not args:
         return None
+    if args[0] not in READ_ONLY_SUBCOMMANDS:
+        return None
+    if args[0] == "worktree" and args[1:] != ("list", "--porcelain"):
+        return None
+    if args[0] == "remote" and (len(args) != 3 or args[1] != "get-url"):
+        return None
+    if args[0] == "config" and (len(args) < 2 or args[1] not in {"--get", "--get-all", "--list"}):
+        return None
     try:
         result = subprocess.run(
-            ["git", "-C", str(repo), *args],
+            ["git", "-c", "core.fsmonitor=false", "-C", str(repo), *args],
             capture_output=True,
             text=True,
             timeout=timeout,
             check=False,
             # Read-only: `git status` darf in fremden Repos nicht .git/index schreiben.
-            env={**os.environ, "GIT_OPTIONAL_LOCKS": "0"},
+            env={**os.environ, "GIT_OPTIONAL_LOCKS": "0", "GIT_NO_LAZY_FETCH": "1",
+                 "GIT_TERMINAL_PROMPT": "0", "GIT_ALLOW_PROTOCOL": ""},
         )
     except (subprocess.TimeoutExpired, OSError):
         return None
@@ -71,17 +77,7 @@ def run_git_lines(repo: Path, *args: str, timeout: int = DEFAULT_TIMEOUT) -> lis
 
 def ref_exists(repo: Path, ref: str, timeout: int = DEFAULT_TIMEOUT) -> bool:
     """Existiert der Ref? Nutzt den Exit-Code — ``show-ref --quiet`` liefert keine Ausgabe."""
-    try:
-        result = subprocess.run(
-            ["git", "-C", str(repo), "show-ref", "--verify", "--quiet", ref],
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-            check=False,
-        )
-    except (subprocess.TimeoutExpired, OSError):
-        return False
-    return result.returncode == 0
+    return run_git(repo, "show-ref", "--verify", "--quiet", ref, timeout=timeout) is not None
 
 
 def count(repo: Path, *args: str, timeout: int = DEFAULT_TIMEOUT) -> int | None:
