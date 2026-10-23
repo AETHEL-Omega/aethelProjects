@@ -9,6 +9,8 @@ forensische Sicht auf das Hässliche, das Schöne und das Interessante.
 
 ## Das Problem, das es löst
 
+Die folgenden Zahlen sind historische Beispiele vom Erststand, keine aktuelle Inventur.
+
 Unter `~/workspace` liegen 329 Verzeichnisse mit Git — aber nur **208 echte Repositories**.
 122 Verzeichnisse sind Worktrees, die dieselbe Historie teilen. Wer naiv zählt, kommt auf
 **617.524 Commits und 70.047 Branches** — die wahren Zahlen sind **25.376 Commits und
@@ -35,6 +37,7 @@ cp bin/aix-projects ~/bin/aix-projects && chmod +x ~/bin/aix-projects
 ## Nutzung
 
 ```bash
+aethel-projects inventory --root ~/workspace --format json --out /tmp/inventory.json
 aethel-projects scan      --root ~/workspace --json scan.json   # JSON-Snapshot
 aethel-projects report    --root ~/workspace --format md|html   # Portfolio-Report
 aethel-projects audit     --root ~/workspace --format md|json   # Aufräum-Vorschläge
@@ -108,3 +111,44 @@ Offen: Anbindung an `aethelScripts` (MCP-Tool) und Erweiterung um externe Marktd
 ## Lizenz
 
 Proprietär — © Manuel Wilde
+
+## Vollständigkeit und GitHub-Kosten
+
+`inventory` läuft rekursiv, auch durch versteckte Worktree- und Archivordner,
+und erkennt Bare-Repositories. Es erfasst jeden Checkout mit HEAD, Branch und
+Dirty-Zustand; gemeinsame Git-Verzeichnisse identifizieren zusammengehörige
+Historien. Package-Manifeste außerhalb von Git erscheinen als Projektkandidaten.
+Alle Einträge direkt im Workspace bleiben sichtbar, auch ohne Projektmarker.
+
+JSON enthält ausgeschlossene Pfade, nicht verfolgte Symlinks und Lesefehler.
+Generierte Verzeichnisse (`node_modules`, `target`, `build`, virtuelle Umgebungen
+usw.) werden bewusst ausgelassen; vollständige Erfassung gilt nur innerhalb
+dieser offengelegten Suchregeln. Ein Projekt ohne bekannte Marker ist kein
+sicher erkennbares Softwareprojekt. Unterpakete sind keine eigenen Produkte.
+
+Kein GitHub-API-Aufruf, Fetch, Push, Build, Modellaufruf oder Workflow-Dispatch.
+Der Git-Zugang verweigert schreibende Subkommandos und blockiert Git-Transporte,
+Lazy Fetch und externe fsmonitor-Aufrufe. Remote-Tracking-Refs sind lokale,
+möglicherweise veraltete Daten. Die Existenz einer CI-Datei belegt weder einen
+bestandenen Test noch kostenlose CI. Bestehende zeitgesteuerte GitHub-Workflows
+werden durch diese lokale Analyse nicht deaktiviert; Kontobudget unbekannt.
+
+Die Fabrik-Scores sind Dateistruktur-Heuristiken und kein Nachweis für
+Produktabnahme, Integration, Umsatz oder Einsatzbereitschaft.
+
+## Projektdossier und Projektmanagement-Input
+
+```bash
+bin/aethel-projects dossier --snapshot /tmp/portfolio.json --out /tmp/pm-input.json
+```
+
+Der Export `aethel.projects.pm-input/v1` verbindet Intent, dokumentierte Architektur,
+Quellen mit SHA-256 und Auszügen, lokale Cargo-Pfadabhängigkeiten, Git-Forensik und
+Klärungsfragen. Er ist ein vorgeschlagener Eingabevertrag für
+`aethelProjectManagement`, noch keine verifizierte Integration in einen Consumer.
+Details und Grenzen: [docs/PM-INPUT.md](docs/PM-INPUT.md).
+
+`aix-input --input auftrag-entwurf.json --dossiers pm-input.json --out auftrag.json`
+bindet den vorhandenen AIX-Engineering-Eingang an einen aktuellen Projektbefund.
+Es ergänzt nur Kontext und prüft Identität/HEAD/Quellen/Aktualität. Compilation,
+Freigabe, Rollenprüfung, Ausführung und Forge bleiben im bestehenden AIX-Weg.

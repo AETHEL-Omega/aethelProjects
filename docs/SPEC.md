@@ -76,10 +76,19 @@ Gesamtzustand des Workspace als eine konsistente, deduplizierte Wahrheit liefert
 | REQ-015 | SHOULD | Das System SOLL einen **Marketing-Output** erzeugen: je Repository einen Einzeiler und Claim-Formulierungen, gestützt auf messbare Fakten. | Claims enthalten keine Zahlen, die nicht aus dem Scan stammen; fehlende Evidenz erzeugt keinen Claim. |
 | REQ-016 | MUST | Das System MUSS mit Python ≥ 3.11 laufen und MUSS eine Testsuite mit echten Assertions besitzen, die ohne Netzwerk und ohne existierenden Workspace läuft. | `pytest` grün mit Fixtures auf temporären Git-Repos; die Tests bauen ihre eigenen Mini-Repos. |
 
+## Ergänzung 23.10.2026: Erfassung und PM-Input
+
+| ID | Prio | Anforderung (MUST/SHOULD/MAY) | Akzeptanzkriterium |
+|----|------|-------------------------------|--------------------|
+| REQ-017 | MUST | Die Inventur MUSS tiefe/versteckte Worktrees, Git-Verzeichnisse ohne Checkout und Nicht-Git-Projektkandidaten unterscheiden und Erfassungsgrenzen offenlegen. | `inventory` nennt jeden Kandidaten, Deduplizierung, Fehler, Ausschlüsse und externe Worktree-Registrierungen; defekte Git-Verweise werden nicht zu Nicht-Git-Projekten. |
+| REQ-018 | MUST | Projektdossiers MÜSSEN Intent, Architekturquellen, Git-Forensik und belegte Klärungsfragen als PM-Input exportieren. | `dossier --snapshot` liefert `aethel.projects.pm-input/v1`, lokale Repository-ID, datierte Herkunft, Quellen-Hashes und explizit nicht verifizierte Implementierung; kein Auftrag wird ausgeführt. |
+
+| REQ-019 | MUST | Der AIX-Anschluss MUSS Projektbelege ausschließlich an den Kontext eines bestehenden unfreigegebenen Engineering-Eingangs binden. | Scope/Modus/Orakel/Rechte bleiben identisch; Projektidentität, HEAD, Quellenhash und Aktualität geprüft; kompilierte/freigegebene Inputs, Mehrdeutigkeit, Drift und Pfadausbruch blockieren. |
+
 ## Akzeptanzkriterien (gesamt)
 
 - `pytest` läuft grün ohne Netzwerk und ohne Zugriff auf den echten `~/workspace`.
-- `aethel-projects scan --json` auf dem echten Workspace liefert 208 Repos bei 329 Git-Verzeichnissen.
+- `inventory` legt Suchregeln, jeden lokalen Git-Kandidaten, Bare-Repositories, Nicht-Git-Projektkandidaten und Fehler offen; Repo-Zahlen werden aktuell gemessen statt historisch festgeschrieben.
 - Die Summe der Commits „nicht auf main" liegt unter der Summe der Einzel-Branch-Zählungen.
 - Kein Modul enthält einen schreibenden Git-Aufruf (durch Test belegt).
 - `scorecard.sh` aus `workspace-manifest` bewertet das Repo ≥ 80 (Professional).

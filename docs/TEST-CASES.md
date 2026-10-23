@@ -127,3 +127,12 @@ Ein Test prüft die Vollständigkeit der Zuordnung (TC-031 in `test_coverage.py`
 | TC | REQ | Given | When | Then |
 |----|-----|-------|------|------|
 | TC-031 | alle | `docs/SPEC.md` + `docs/TEST-CASES.md` | Abgleich REQ-Liste ↔ TC-Liste | Jede REQ-NNN hat ≥1 TC; jeder TC verweist auf eine existierende REQ |
+
+### Erfassung und Projektdossiers (23.10.2026)
+
+| TC | REQ | Given | When | Then |
+|----|-----|-------|------|------|
+| TC-056 | REQ-017 | Tiefer versteckter Worktree, Bare-Repo, kaputter Git-Verweis und Nicht-Git-Paket | `tests/test_inventory.py` | Identitäten/Checkouts korrekt getrennt; ungültige Verweise, externe Registrierungen und Ausschlüsse explizit |
+| TC-057 | REQ-018 | Architekturdokument, Cargo-Pfadabhängigkeit und externe Dokumentverknüpfung | `tests/test_dossier.py` | Quelle gehasht; fehlende Abhängigkeit sichtbar; fremdes Dokument nicht gelesen; Verhalten nicht als geprüft behauptet |
+
+| TC-058 | REQ-019 | Eingangsvertrag und Projektbefund; Varianten mit Drift, fremdem Pfad oder Freigabe | `tests/test_aix_input.py` | Nur context wird ergänzt; keine Freigabe oder Wirkung; alle negativen Bindungsfälle blockieren |

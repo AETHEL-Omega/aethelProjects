@@ -65,6 +65,20 @@ def _build_parser() -> argparse.ArgumentParser:
         _common_args(child, suppress=True)
         return child
 
+    aix_cmd = add("aix-input", "Projektdossier an bestehenden AIX-Eingang binden (nur Kontext)")
+    aix_cmd.add_argument("--input", required=True, help="Unfreigegebener aix.engineering_input.v1")
+    aix_cmd.add_argument("--dossiers", required=True, help="Export aus dossier")
+    aix_cmd.add_argument("--max-age-seconds", type=int, default=3600)
+    aix_cmd.add_argument("--out", required=True)
+
+    dossier_cmd = add("dossier", "Belegte Projektdossiers als PM-Input aus einem Scan-Snapshot")
+    dossier_cmd.add_argument("--snapshot", required=True, help="JSON aus scan --json")
+    dossier_cmd.add_argument("--out", default=None)
+
+    inventory_cmd = add("inventory", "Rekursiver lokaler Vollständigkeitsabgleich, inkl. Nicht-Git-Projekte")
+    inventory_cmd.add_argument("--format", choices=["md", "json"], default="json")
+    inventory_cmd.add_argument("--out", default=None)
+
     scan_cmd = add("scan", "JSON-Snapshot des gesamten Workspace")
     scan_cmd.add_argument("--json", default="-", help="Zieldatei für JSON ('-' = stdout)")
 
@@ -116,6 +130,31 @@ def _write(text: str, destination: str | None) -> None:
     path = Path(destination)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text + "\n", encoding="utf-8")
+
+
+def _cmd_aix_input(args: argparse.Namespace) -> int:
+    from . import aix_input
+    source = json.loads(Path(args.input).read_text())
+    dossiers = json.loads(Path(args.dossiers).read_text())
+    result = aix_input.attach(source, dossiers, max_age_s=args.max_age_seconds)
+    _write(json.dumps(result, ensure_ascii=False, indent=2), args.out)
+    return EXIT_OK
+
+
+def _cmd_dossier(args: argparse.Namespace) -> int:
+    from . import dossier
+    snapshot = json.loads(Path(args.snapshot).read_text())
+    _write(json.dumps(dossier.build(snapshot), ensure_ascii=False, indent=2), args.out)
+    return EXIT_OK
+
+
+def _cmd_inventory(args: argparse.Namespace) -> int:
+    from . import inventory
+    result = inventory.build(args.root, jobs=args.jobs)
+    output = (json.dumps(result, ensure_ascii=False, indent=2)
+              if args.format == "json" else inventory.render_markdown(result))
+    _write(output, args.out)
+    return EXIT_OK
 
 
 def _cmd_scan(args: argparse.Namespace) -> int:
@@ -607,6 +646,9 @@ def _cmd_continuity(args: argparse.Namespace) -> int:
 
 
 COMMANDS = {
+    "aix-input": _cmd_aix_input,
+    "inventory": _cmd_inventory,
+    "dossier": _cmd_dossier,
     "scan": _cmd_scan,
     "report": _cmd_report,
     "audit": _cmd_audit,

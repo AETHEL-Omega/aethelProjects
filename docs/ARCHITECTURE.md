@@ -104,7 +104,7 @@ Git-Aufruf-String auftaucht.
 def discover(root: Path) -> list[RepoIdentity]
 ```
 
-Findet `.git` (Datei **oder** Ordner) bis Tiefe 2, normalisiert den Common-Dir-Pfad
+Findet `.git` (Datei **oder** Ordner) rekursiv innerhalb offengelegter Suchregeln sowie Git-Verzeichnisse ohne Checkout, normalisiert den Common-Dir-Pfad
 und gruppiert danach. Rückgabe: ein `RepoIdentity` pro Historie, mit Liste aller
 Verzeichnisse.
 
@@ -212,3 +212,16 @@ Lieferkettenabhängigkeiten — passend zum Sicherheitsprofil der AETHEL-Repos.
 | Reproduzierbarkeit | gleiche Eingabe → gleiches Ergebnis | Sortierung, `generated_at` als einzige Variable |
 | Sicherheit | read-only | TC-007 prüft Quelltext auf Schreiboperationen |
 | Ehrlichkeit | keine erfundenen Fakten | ADR-004, `None` statt Rate, `scope: internal` |
+
+## Ergänzung 23.10.2026: Inventar, Dossier, AIX-Kontext
+
+`inventory` trennt Checkout-Pfade, gemeinsame Git-Identität, bekannte
+Projektmarker und externe Worktree-Registrierungen. `dossier` verbindet den
+Scan mit begrenzten, gehashten Dokumentquellen. `aix_input.attach` bindet ein
+eindeutiges aktuelles Dossier ausschließlich an den Kontext eines vorhandenen
+unfreigegebenen Engineering-Eingangs. Die Kernlogik berührt dabei keine
+AIX-Auftragsakte, Rollen-Lease oder Merge-Referenz.
+
+Ein Weg: aethelema/Bot → bestehender AIX-Engineering-Eingang mit Projektbelegen
+→ bestehendes Arbeitspaket/Rollenprüfung → vorhandener Harness → Forge/Landing.
+Dieses Repo liefert das Material, nicht eine zweite Zustandsmaschine.
