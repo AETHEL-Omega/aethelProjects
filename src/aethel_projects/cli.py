@@ -509,16 +509,22 @@ def _cmd_factory(args: argparse.Namespace) -> int:
     lines = ["# Fabrik- und Firmensicht", ""]
     lines.append(f"Workspace: `{result.workspace_root}`  ")
     lines.append(f"Erzeugt: {result.generated_at}  ")
-    lines.append(f"**Fabrik-Reifegrad: {view.readiness}/100**  ")
+    lines.append(f"**Fabrik-Reifegrad aus Inhaltsbelegen: {view.reife}/100**  ")
+    lines.append(f"Pfadabdeckung (bisher readiness): {view.readiness}/100; kein Reifenachweis.  ")
+    lines.append(f"Vorhanden: {len(view.vorhanden)}; belegt: {len(view.belegt)}; Stubs: {len(view.stubs)}.  ")
     lines.append(f"**Kettenintegrität: {view.kettenintegritaet}/100**")
     lines.append("")
     lines.append(
-        "> Geprüft wird gegen **Belege** (Dateien, Workflows, Verträge), nicht gegen "
-        "Absichtserklärungen. Ein **Träger** erfüllt *alle* Anforderungen einer Stufe — "
-        "erst er zählt als vorhanden."
+        "> Pfade zeigen Vorhandensein; Inhaltsbelege belegen keine Funktion oder Ausführung. "
+        "Die bisherige Trägerdarstellung beschreibt Pfadabdeckung."
     )
     lines.append("")
 
+    lines.append("## Inhaltsbelege")
+    lines.append("")
+    for proof in view.belegt:
+        lines.append(f"- {proof['repo']}: `{proof['path']}` — {proof['quelle']}; SHA-256 `{proof['sha256']}`")
+    lines.append("")
     lines.append("## Wertschöpfungskette")
     lines.append("")
     lines.append("| Stufe | Zustand | Träger | Mitwirkende | Bedeutung |")

@@ -168,9 +168,17 @@ class FactoryView:
     kettenintegritaet: int = 0
     end_to_end: tuple[str, ...] = ()
     notes: tuple[str, ...] = ()
+    vorhanden: tuple[dict, ...] = ()
+    belegt: tuple[dict, ...] = ()
+    reife: int = 0
+    stubs: tuple[dict, ...] = ()
 
     def as_dict(self) -> dict:
         return {
+            "schema": "aethel.projects.factory/v2",
+            "vorhanden": list(self.vorhanden), "belegt": list(self.belegt),
+            "reife": self.reife, "stubs": list(self.stubs),
+            "readiness_legacy_bedeutung": "Pfadabdeckung, kein Reifenachweis",
             "readiness": self.readiness,
             "kettenintegritaet": self.kettenintegritaet,
             "end_to_end": list(self.end_to_end),
@@ -258,7 +266,41 @@ def build(repos: tuple[RepoReport, ...]) -> FactoryView:
     informationslos. **Träger** sind Repos, die *alle* Anforderungen der Stufe
     belegen. Erst die Träger sagen, ob eine Stufe wirklich existiert.
     """
+    import hashlib
+    from . import stubs as stub_module
+
     evidence_by_stage: dict[str, dict[str, dict[str, str]]] = defaultdict(dict)
+    vorhanden, belegt, stub_findings = [], [], []
+    verified: dict[str, set[str]] = defaultdict(set)
+    stub_repos = set()
+    for repo in repos:
+        root = Path(repo.path)
+        findings = stub_module.scan(root)
+        if findings:
+            stub_repos.add(repo.name)
+            stub_findings.extend({'repo': repo.name, **item} for item in findings)
+        for stage in STAGE_ORDER:
+            for requirement, relative in _stage_evidence(repo, stage).items():
+                vorhanden.append({'repo': repo.name, 'stufe': stage, 'anforderung': requirement, 'path': relative})
+                path = root / relative
+                if not path.is_file() or not path.resolve().is_relative_to(root.resolve()):
+                    continue
+                try:
+                    raw = path.read_bytes()
+                    text = raw.decode('utf-8').strip()
+                except (OSError, UnicodeError):
+                    continue
+                if not text or len(raw) > 256_000 or re.search(r'(?i)todo\s*:\s*implement|\bstub\b|platzhalter', text):
+                    continue
+                belegt.append({'repo': repo.name, 'stufe': stage, 'anforderung': requirement,
+                               'path': relative, 'quelle': 'Inhalt gelesen; Funktion nicht nachgewiesen',
+                               'sha256': hashlib.sha256(raw).hexdigest()})
+                if repo.name not in stub_repos:
+                    verified[stage].add(requirement)
+    earned_proofs = sum(STAGE_WEIGHTS[key] * len(verified[key]) / len(STAGE_EVIDENCE[key])
+                        for key in STAGE_ORDER if STAGE_EVIDENCE.get(key))
+    max_proofs = sum(STAGE_WEIGHTS[key] for key in STAGE_ORDER if STAGE_EVIDENCE.get(key))
+    reife = round(100 * earned_proofs / max_proofs) if max_proofs else 0
     roles: dict[str, list[str]] = defaultdict(list)
 
     for repo in repos:
@@ -392,4 +434,5 @@ def build(repos: tuple[RepoReport, ...]) -> FactoryView:
         kettenintegritaet=kettenintegritaet,
         end_to_end=end_to_end,
         notes=tuple(notes),
+        vorhanden=tuple(vorhanden), belegt=tuple(belegt), reife=reife, stubs=tuple(stub_findings),
     )
