@@ -123,7 +123,7 @@ def analyse_repo(
             note="Kein Rust- oder Dart-Projekt — der Analyzer liefert hier nichts.",
         )
 
-    command = ["nice", "-n", "10", str(binary), "--path", repo.path, "--format", "aix"]
+    command = ["nice", "-n", "10", str(binary)] + ["--path", repo.path, "--format", "aix"]
     try:
         result = subprocess.run(
             command,
