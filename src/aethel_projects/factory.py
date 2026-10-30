@@ -290,7 +290,8 @@ def build(repos: tuple[RepoReport, ...]) -> FactoryView:
                     text = raw.decode('utf-8').strip()
                 except (OSError, UnicodeError):
                     continue
-                if not text or len(raw) > 256_000 or re.search(r'(?i)todo\s*:\s*implement|\bstub\b|platzhalter', text):
+                if (not text or text in {'...', 'pass', '{}', '[]'} or len(raw) > 256_000
+                        or re.search(r'(?i)todo\s*:\s*implement|\bstub\b|platzhalter', text)):
                     continue
                 belegt.append({'repo': repo.name, 'stufe': stage, 'anforderung': requirement,
                                'path': relative, 'quelle': 'Inhalt gelesen; Funktion nicht nachgewiesen',
