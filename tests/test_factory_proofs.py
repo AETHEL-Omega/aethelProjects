@@ -21,3 +21,9 @@ def test_production_stubs_reduce_maturity(tmp_path):
     b = factory.build((stub,)).as_dict()
     assert b['stubs']
     assert b['reife'] < a['reife']
+
+
+def test_trivial_placeholder_content_is_not_evidence(tmp_path):
+    repo = _report(tmp_path, 'empty', files={'docs/SPEC.md': '...\n', 'docs/DESIGN.md': 'pass\n'})
+    view = factory.build((repo,)).as_dict()
+    assert not any(p['path'] in {'docs/SPEC.md', 'docs/DESIGN.md'} for p in view['belegt'])
