@@ -84,7 +84,7 @@ def is_analysable(repo: RepoReport) -> bool:
 def _analyzer_version(binary: Path) -> str:
     try:
         result = subprocess.run(
-            [str(binary), "--version"],
+            ["nice", "-n", "10", str(binary), "--version"],
             capture_output=True,
             text=True,
             timeout=15,
@@ -123,7 +123,7 @@ def analyse_repo(
             note="Kein Rust- oder Dart-Projekt — der Analyzer liefert hier nichts.",
         )
 
-    command = [str(binary), "--path", repo.path, "--format", "aix"]
+    command = ["nice", "-n", "10", str(binary), "--path", repo.path, "--format", "aix"]
     try:
         result = subprocess.run(
             command,
