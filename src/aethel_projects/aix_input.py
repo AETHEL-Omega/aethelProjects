@@ -11,7 +11,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import gitio
+from . import codeanalysis, gitio
 from .dossier import SCHEMA as DOSSIER_SCHEMA
 
 
@@ -85,6 +85,13 @@ def attach(source: dict, export: dict, *, max_age_s: int = 3600,
             raise ValueError(f'Evidence source unavailable: {relative}') from exc
         if len(content) > 256_000 or hashlib.sha256(content).hexdigest() != proof.get('sha256'):
             raise ValueError(f'Evidence source changed: {relative}')
+    code = dossier.get('code_befunde', {})
+    for proof in dossier.get('stubs', []) + code.get('findings', []):
+        checked = codeanalysis.committed_source(path, head, proof.get('path'))
+        line = proof.get('line')
+        if (not checked or proof.get('commit') != head or checked[1] != proof.get('sha256')
+                or type(line) is not int or not 1 <= line <= len(checked[0].splitlines())):
+            raise ValueError('Code evidence changed or is not bound to HEAD')
     context = source.get('context', {})
     if not isinstance(context, dict):
         raise ValueError('AIX context must be an object')
