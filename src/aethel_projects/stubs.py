@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import ast
+import io
 import os
+import tokenize
 import re
 from pathlib import Path
 
@@ -79,7 +81,15 @@ def scan(root: Path) -> list[dict]:
             if path.suffix.lower() == '.py':
                 findings.extend({'path': relative, 'line': line, 'regel': rule, 'sicherheit': 'sicher'} for line, rule in _python(text))
             pattern = PATTERNS.get(path.suffix.lower())
-            for number, line in enumerate(text.splitlines(), 1):
+            if path.suffix.lower() == '.py':
+                try:
+                    lines = [(token.start[0], token.string) for token in tokenize.generate_tokens(io.StringIO(text).readline)
+                             if token.type == tokenize.COMMENT]
+                except (tokenize.TokenError, IndentationError):
+                    lines = []
+            else:
+                lines = enumerate(text.splitlines(), 1)
+            for number, line in lines:
                 if MARKER.search(line) or (pattern and pattern.search(line)):
                     findings.append({'path': relative, 'line': number, 'regel': 'stub_marker', 'sicherheit': 'hinweis'})
     return findings
