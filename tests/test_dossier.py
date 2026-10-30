@@ -50,3 +50,9 @@ def test_cli_exports_snapshot_without_starting_a_new_scan(empty_report, tmp_path
     assert result['schema'] == 'aethel.projects.pm-input/v1'
     assert result['scan_generated_at'] == 'fixture'
     assert len(result['projects']) == 1
+
+
+def test_pm_import_is_not_claimed_without_consumer_evidence(empty_report, tmp_path):
+    snapshot = {'schema': 'aethel.projects/v1', 'generated_at': 'fixture',
+                'workspace_root': str(tmp_path), 'repos': [empty_report.as_dict()]}
+    assert build(snapshot)['pm_import'] == 'nicht_belegt'
