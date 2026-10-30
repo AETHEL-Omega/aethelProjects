@@ -33,3 +33,17 @@ def test_python_string_literals_are_not_markers(tmp_path):
 def test_stub_word_in_prose_is_not_a_marker(tmp_path):
     (tmp_path / 'app.py').write_text('# A stub is only an example in this explanation.\ndef run(): return 1\n')
     assert scan(tmp_path) == []
+
+
+def test_complete_functions_in_each_language_are_not_stubs(tmp_path):
+    files = {
+        'app.py': 'def run(): return 1\n',
+        'lib.rs': 'fn run() -> i32 { 1 }\n',
+        'App.swift': 'func run() -> Int { return 1 }\n',
+        'app.dart': 'int run() { return 1; }\n',
+        'app.ts': 'function run(): number { return 1; }\n',
+        'app.js': 'function run() { return 1; }\n',
+    }
+    for name, content in files.items():
+        (tmp_path / name).write_text(content)
+    assert scan(tmp_path) == []
