@@ -43,3 +43,19 @@ def test_missing_analyzer_is_not_an_empty_success(empty_report, tmp_path, monkey
     result = dossier.project(row)
     assert result['code_befunde']['status'] == 'nicht_geprueft'
     assert result['code_befunde']['grund']
+
+
+def test_stub_findings_bound_to_head_and_dirty_files_excluded(mini_repo, empty_report, monkeypatch):
+    from dataclasses import replace
+    monkeypatch.setattr(codeanalysis, 'find_analyzer', lambda: None)
+    source = mini_repo / 'app.py'
+    source.write_text('def unfinished(): pass\n')
+    git(mini_repo, 'add', 'app.py')
+    git(mini_repo, 'commit', '-qm', 'stub')
+    head = git(mini_repo, 'rev-parse', 'HEAD')
+    row = replace(empty_report, path=str(mini_repo)).as_dict()
+    result = dossier.project(row)
+    assert result['stubs'][0]['commit'] == head
+    assert result['stubs'][0]['sha256'] == hashlib.sha256(source.read_bytes()).hexdigest()
+    source.write_text('def changed(): pass\n')
+    assert dossier.project(row)['stubs'] == []
