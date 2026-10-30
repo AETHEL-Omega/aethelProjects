@@ -69,3 +69,18 @@ def test_analyzer_version_runs_at_low_priority(monkeypatch, tmp_path):
     monkeypatch.setattr(codeanalysis.subprocess, 'run', fake_run)
     assert codeanalysis._analyzer_version(tmp_path / 'analyzer') == '1.2'
     assert calls[0][:3] == ['nice', '-n', '10']
+
+
+def test_unknown_analyzer_version_is_not_checked(mini_repo, tmp_path, monkeypatch):
+    head = git(mini_repo, 'rev-parse', 'HEAD')
+    binary = tmp_path / 'analyzer'
+    binary.touch()
+    monkeypatch.setattr(codeanalysis, 'find_analyzer', lambda: binary)
+    monkeypatch.setattr(codeanalysis, '_analyzer_version', lambda _: 'unbekannt')
+    real_run = codeanalysis.subprocess.run
+    def fake_run(command, **kwargs):
+        if command[0] == 'nice':
+            return SimpleNamespace(returncode=0, stdout=json.dumps({'schema': codeanalysis.AIX_SCHEMA, 'findings': []}), stderr='')
+        return real_run(command, **kwargs)
+    monkeypatch.setattr(codeanalysis.subprocess, 'run', fake_run)
+    assert codeanalysis.head_findings(mini_repo, head)['status'] == 'nicht_geprueft'
