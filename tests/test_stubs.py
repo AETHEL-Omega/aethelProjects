@@ -23,3 +23,8 @@ def test_language_stubs_and_exclusions(tmp_path):
     assert {f['path'] for f in findings} == {'app.py', 'src/lib.rs', 'src/App.swift', 'src/a.dart', 'src/a.ts', 'src/a.js'}
     assert all(f['line'] > 0 and f['sicherheit'] in {'sicher', 'hinweis'} for f in findings)
     assert all(f['sicherheit'] == 'sicher' for f in findings if f['path'] == 'app.py')
+
+
+def test_python_string_literals_are_not_markers(tmp_path):
+    (tmp_path / 'app.py').write_text('label = "STUB"\npattern = r"TODO: implement"\n')
+    assert scan(tmp_path) == []
