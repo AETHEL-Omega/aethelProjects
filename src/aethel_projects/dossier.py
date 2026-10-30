@@ -6,7 +6,6 @@ Documents are declarations, not proof of implemented architecture or behaviour.
 from __future__ import annotations
 
 import hashlib
-import json
 import re
 import tomllib
 from datetime import datetime
