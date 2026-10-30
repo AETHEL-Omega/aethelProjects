@@ -105,6 +105,7 @@ def build(snapshot: dict) -> dict:
     return {'schema': SCHEMA, 'generated_at': datetime.now().astimezone().isoformat(timespec='seconds'),
         'scan_generated_at': snapshot['generated_at'], 'workspace_root': snapshot['workspace_root'],
         'consumer': 'aethelProjectManagement (proposed export; consumer not verified)',
+        'pm_import': 'nicht_belegt',
         'projects': [project(repo) for repo in snapshot['repos']],
         'limitations': ['Git metrics come from the dated scan; documents and observed_head are read at export time.',
             'Working-copy documents may be uncommitted, outdated, templates or incompatible with current origin/main.',
