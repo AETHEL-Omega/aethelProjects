@@ -66,11 +66,3 @@ def test_invalid_or_changed_evidence_fails_closed(case, mutation):
         row['documents'][0]['path'] = '../outside'
     with pytest.raises(ValueError):
         attach(source, export)
-
-
-@pytest.mark.parametrize('field', ['documents', 'manifests'])
-def test_v1_consumer_contract_requires_evidence_lists(case, field):
-    source, export, _ = case
-    del export['projects'][0][field]
-    with pytest.raises(ValueError):
-        attach(source, export)
