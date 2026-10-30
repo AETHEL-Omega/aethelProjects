@@ -270,6 +270,8 @@ def head_findings(root: Path, head: str | None) -> dict:
     except (OSError, subprocess.TimeoutExpired, ValueError, AttributeError) as error:
         return {'status': 'nicht_geprueft', 'grund': str(error)}
     version = _analyzer_version(binary)
+    if version == "unbekannt":
+        return {"status": "nicht_geprueft", "grund": "Analyzer-Version nicht ermittelbar"}
     findings = []
     rejected = 0
     for row in document['findings']:
