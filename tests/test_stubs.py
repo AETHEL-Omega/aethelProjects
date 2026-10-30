@@ -28,3 +28,8 @@ def test_language_stubs_and_exclusions(tmp_path):
 def test_python_string_literals_are_not_markers(tmp_path):
     (tmp_path / 'app.py').write_text('label = "STUB"\npattern = r"TODO: implement"\n')
     assert scan(tmp_path) == []
+
+
+def test_stub_word_in_prose_is_not_a_marker(tmp_path):
+    (tmp_path / 'app.py').write_text('# A stub is only an example in this explanation.\ndef run(): return 1\n')
+    assert scan(tmp_path) == []
