@@ -10,7 +10,7 @@ from pathlib import Path
 
 EXCLUDED = {'.git', 'vendor', 'target', 'build', 'node_modules', 'tests', 'test', '__pycache__', '.venv'}
 SUFFIXES = {'.py', '.rs', '.swift', '.dart', '.ts', '.tsx', '.js', '.jsx'}
-MARKER = re.compile(r'\b(?:TODO\s*:\s*implement|STUB|Platzhalter)\b', re.I)
+MARKER = re.compile(r'\bTODO\s*:\s*implement\b|\bSTUB(?=\s*[:\-]|\s*$)|\bPlatzhalter\b', re.I)
 PATTERNS = {
     '.rs': re.compile(r'\b(?:todo|unimplemented)\s*!\s*\('),
     '.swift': re.compile(r'\bfatalError\s*\(\s*["\'](?:not implemented|unimplemented|todo)', re.I),
