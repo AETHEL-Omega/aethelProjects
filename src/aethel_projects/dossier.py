@@ -11,7 +11,7 @@ import tomllib
 from datetime import datetime
 from pathlib import Path
 
-from . import codeanalysis, gitio
+from . import codeanalysis, gitio, stubs
 
 SCHEMA = 'aethel.projects.pm-input/v1'
 DOCUMENTS = ('README.md', 'docs/SPEC.md', 'SPEC.md', 'docs/ARCHITECTURE.md',
@@ -85,8 +85,16 @@ def project(repo: dict) -> dict:
                      'question': 'Welche Arbeit bleibt gültig, welche ist überholt? Nicht pauschal mergen.'})
     head = gitio.run_git(root, 'rev-parse', '--verify', 'HEAD')
     code = codeanalysis.head_findings(root, head)
+    stub_findings = []
+    if head:
+        for finding in stubs.scan(root):
+            proof = codeanalysis.committed_source(root, head, finding['path'])
+            if proof and finding['line'] <= len(proof[0].splitlines()):
+                stub_findings.append({**finding, 'commit': head, 'sha256': proof[1]})
+    if gitio.run_git(root, 'rev-parse', '--verify', 'HEAD') != head:
+        stub_findings = []
     return {'repository_id': repo['git_common_dir'], 'name': repo['name'], 'path': repo['path'],
-        'observed_head': head, 'code_befunde': code,
+        'observed_head': head, 'code_befunde': code, 'stubs': stub_findings,
         'intent': {'declared': repo.get('intent'), 'implemented': 'not_verified'},
         'architecture': {'state': 'documented' if any(d['state'] == 'read' for d in architecture) else 'unknown',
                          'sources': architecture, 'runtime_conformance': 'not_verified'},
