@@ -226,3 +226,64 @@ def summarise(analyses: dict[str, CodeAnalysis]) -> dict[str, int]:
         "findings": total,
         "high": high,
     }
+
+
+def committed_source(root: Path, head: str, relative: str) -> tuple[str, str] | None:
+    """Verify working bytes against the Git blob at the observed commit."""
+    import hashlib
+    from . import gitio
+
+    if not isinstance(relative, str) or not relative or Path(relative).is_absolute():
+        return None
+    target = (root / relative).resolve()
+    if not target.is_relative_to(root.resolve()) or not target.is_file():
+        return None
+    blob = gitio.run_git(root, 'rev-parse', f'{head}:{relative}')
+    if not blob or len(blob) not in (40, 64):
+        return None
+    try:
+        raw = target.read_bytes()
+        text = raw.decode('utf-8')
+    except (OSError, UnicodeError):
+        return None
+    algorithm = hashlib.sha1 if len(blob) == 40 else hashlib.sha256
+    if algorithm(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest() != blob:
+        return None
+    return text, hashlib.sha256(raw).hexdigest()
+
+
+def head_findings(root: Path, head: str | None) -> dict:
+    """Run the analyzer at low priority and bind validated locations to HEAD."""
+    from . import gitio
+
+    binary = find_analyzer()
+    if not binary or not head:
+        return {'status': 'nicht_geprueft', 'grund': 'Analyzer oder Git-HEAD fehlt'}
+    try:
+        result = subprocess.run(['nice', '-n', '10', str(binary), '--path', str(root), '--format', 'aix'],
+                                capture_output=True, text=True, timeout=DEFAULT_TIMEOUT, check=False)
+        document = json.loads(result.stdout)
+        if result.returncode or document.get('schema') != AIX_SCHEMA or not isinstance(document.get('findings'), list):
+            raise ValueError('Analyzer fehlgeschlagen oder Schema ungueltig')
+        if document.get('truncated'):
+            raise ValueError('Analyzer-Ergebnis abgeschnitten')
+    except (OSError, subprocess.TimeoutExpired, ValueError, AttributeError) as error:
+        return {'status': 'nicht_geprueft', 'grund': str(error)}
+    version = _analyzer_version(binary)
+    findings = []
+    rejected = 0
+    for row in document['findings']:
+        if not isinstance(row, dict):
+            rejected += 1
+            continue
+        relative, line, rule = row.get('file'), row.get('line'), row.get('rule')
+        proof = committed_source(root, head, relative)
+        if not proof or type(line) is not int or line < 1 or line > len(proof[0].splitlines()) or not isinstance(rule, str) or not rule:
+            rejected += 1
+            continue
+        findings.append({'path': relative, 'line': line, 'regel': rule, 'analyzer_version': version,
+                         'commit': head, 'sha256': proof[1]})
+    if gitio.run_git(root, 'rev-parse', '--verify', 'HEAD') != head:
+        return {'status': 'nicht_geprueft', 'grund': 'HEAD hat sich waehrend der Analyse geaendert'}
+    return {'status': 'geprueft', 'findings': findings, 'verworfen': rejected,
+            'analyzer_version': version, 'commit': head}

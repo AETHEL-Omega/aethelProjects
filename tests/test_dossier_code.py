@@ -20,8 +20,12 @@ def test_analyzer_findings_bound_to_committed_content(mini_repo, tmp_path, monke
         {'file': 'lib.rs', 'line': 1, 'rule': 'example'},
         {'file': 'lib.rs', 'line': 8, 'rule': 'invalid'},
         {'file': '../outside', 'line': 1, 'rule': 'escape'}]}
-    monkeypatch.setattr(codeanalysis.subprocess, 'run', lambda *a, **k:
-                        SimpleNamespace(returncode=0, stdout=json.dumps(document), stderr=''))
+    real_run = codeanalysis.subprocess.run
+    def fake_run(command, **kwargs):
+        if command[0] == 'nice':
+            return SimpleNamespace(returncode=0, stdout=json.dumps(document), stderr='')
+        return real_run(command, **kwargs)
+    monkeypatch.setattr(codeanalysis.subprocess, 'run', fake_run)
     result = codeanalysis.head_findings(mini_repo, head)
     assert result['status'] == 'geprueft'
     assert result['findings'] == [{'path': 'lib.rs', 'line': 1, 'regel': 'example',

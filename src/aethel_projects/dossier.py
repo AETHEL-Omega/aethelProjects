@@ -11,7 +11,7 @@ import tomllib
 from datetime import datetime
 from pathlib import Path
 
-from . import gitio
+from . import codeanalysis, gitio
 
 SCHEMA = 'aethel.projects.pm-input/v1'
 DOCUMENTS = ('README.md', 'docs/SPEC.md', 'SPEC.md', 'docs/ARCHITECTURE.md',
@@ -83,8 +83,10 @@ def project(repo: dict) -> dict:
     if repo.get('commits_not_on_main', 0):
         gaps.append({'code': 'unlanded_work', 'evidence': 'scan.unmerged_branches',
                      'question': 'Welche Arbeit bleibt gültig, welche ist überholt? Nicht pauschal mergen.'})
+    head = gitio.run_git(root, 'rev-parse', '--verify', 'HEAD')
+    code = codeanalysis.head_findings(root, head)
     return {'repository_id': repo['git_common_dir'], 'name': repo['name'], 'path': repo['path'],
-        'observed_head': gitio.run_git(root, 'rev-parse', '--verify', 'HEAD'),
+        'observed_head': head, 'code_befunde': code,
         'intent': {'declared': repo.get('intent'), 'implemented': 'not_verified'},
         'architecture': {'state': 'documented' if any(d['state'] == 'read' for d in architecture) else 'unknown',
                          'sources': architecture, 'runtime_conformance': 'not_verified'},
