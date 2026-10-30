@@ -4,7 +4,7 @@ import pytest
 
 from aethel_projects.aix_input import attach
 from aethel_projects.dossier import build
-from test_aix_input import case  # noqa: F401
+pytest_plugins = ("test_aix_input",)
 
 
 def test_pm_import_is_not_claimed_without_consumer_evidence(empty_report, tmp_path):
