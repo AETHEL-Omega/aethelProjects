@@ -59,6 +59,8 @@ def attach(source: dict, export: dict, *, max_age_s: int = 3600,
     if len(matches) != 1:
         raise ValueError('Project evidence missing or ambiguous; names are not project identity')
     dossier = matches[0]
+    if any(not isinstance(dossier.get(key), list) for key in ('documents', 'manifests')):
+        raise ValueError('Dossier v1 requires documents and manifests lists')
     common = gitio.run_git(path, 'rev-parse', '--path-format=absolute', '--git-common-dir')
     head = gitio.run_git(path, 'rev-parse', '--verify', 'HEAD')
     if not common or not dossier.get('repository_id') or Path(common).resolve() != Path(dossier['repository_id']).resolve():
