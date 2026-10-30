@@ -59,3 +59,13 @@ def test_stub_findings_bound_to_head_and_dirty_files_excluded(mini_repo, empty_r
     assert result['stubs'][0]['sha256'] == hashlib.sha256(source.read_bytes()).hexdigest()
     source.write_text('def changed(): pass\n')
     assert dossier.project(row)['stubs'] == []
+
+
+def test_analyzer_version_runs_at_low_priority(monkeypatch, tmp_path):
+    calls = []
+    def fake_run(command, **kwargs):
+        calls.append(command)
+        return SimpleNamespace(stdout='1.2', returncode=0)
+    monkeypatch.setattr(codeanalysis.subprocess, 'run', fake_run)
+    assert codeanalysis._analyzer_version(tmp_path / 'analyzer') == '1.2'
+    assert calls[0][:3] == ['nice', '-n', '10']
