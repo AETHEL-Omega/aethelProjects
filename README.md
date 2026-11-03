@@ -43,9 +43,12 @@ aethel-projects report    --root ~/workspace --format md|html   # Portfolio-Repo
 aethel-projects audit     --root ~/workspace --format md|json   # Aufräum-Vorschläge
 aethel-projects market    --root ~/workspace --format md|json   # Marktview + USP + Claims
 aethel-projects forensics --root ~/workspace --format md|json   # hässlich / schön / interessant
-aethel-projects analyses  --list | --show ID | --proposals | --loops | --stats   # Analysen-Ablage
-aethel-projects registers --snapshot scan.json --format md|json              # fünf Register abgleichen
+aethel-projects analyses  --list | --show ID | --proposals | --loops | --stats   # Analysen-Ablage (8 Analysen)
+aethel-projects registers --snapshot scan.json --format md|json              # vier lokale Register abgleichen
 aethel-projects stack     --root ~/workspace --format md|json                 # Schichtenkarte
+aethel-projects incubator --root ~/workspace --format md|json                 # Reifeleiter R0 Idee … R11 Betrieb
+aethel-projects applefirst --root ~/workspace --format md|json [--min-score N] # Apple-first-Audit
+aethel-projects cockpit   --format md|json|html [--out LEITSTAND.html]          # Leitstand: eine Seite für alles
 ```
 
 Gemeinsame Optionen: `--root` (Default `~/workspace`), `--jobs` (Parallelität),
@@ -69,14 +72,15 @@ PYTHONPATH=src bin/aethel-projects analyses --register analysen/2026-11-03/NEU.m
 ```
 
 `--show` prüft die Prüfsumme und warnt, wenn die Datei seit der Registrierung verändert wurde.
-`--register` ist die einzige schreibende Operation des Werkzeugs; sie schreibt nur `INDEX.json`
-und akzeptiert nur Dateien innerhalb von `analysen/`. Stand 03.11.2026 liegen dort vier Berichte:
-Gesamtanalyse des Workspace, Technologie/Architektur/Kybernetik auf macOS 27, Gesamtstack und
-Bauteile, neue Projekte und Kreisläufe. Kopien liegen zusätzlich unter `~/workspace/_docs/`.
+`--register` ist die einzige Schreiboperation in `analysen/`; sie schreibt nur `INDEX.json`
+und akzeptiert nur Dateien innerhalb von `analysen/`; `--out` darf nicht in die Ablage zeigen.
+Stand 03.11.2026 liegen dort acht Analysen: Gesamtanalyse des Workspace, Technologie/Architektur/
+Kybernetik auf macOS 27, Gesamtstack und Bauteile, neue Projekte und Kreisläufe, Register-Abgleich,
+Schichtenkarte, Zielbetriebsmodell und Dominosteine, Werkzeuge, die Werkzeuge bauen. Kopien liegen zusätzlich unter `~/workspace/_docs/`.
 
 ## Register-Abgleich und Schichtenkarte
 
-`registers` vergleicht die fünf Projektregister ohne Netz: `projects.yaml` (workspace-manifest),
+`registers` vergleicht vier lokale Projektregister ohne Netz (die GitHub-Organisation wird nicht abgefragt): `projects.yaml` (workspace-manifest),
 den Scan-Snapshot, `.aix/project-profile.json` je Repo und `~/.aix/auftraege/auftraege.jsonl`.
 Es meldet Repos ohne Manifest-Eintrag, tote Einträge, nicht registrierte Worktrees, Profile ohne
 Manifest oder Repo, Auftragsbezüge auf unbekannte Repos und das Alter des Manifests.
@@ -85,6 +89,30 @@ Manifest oder Repo, Auftragsbezüge auf unbekannte Repos und das Alter des Manif
 `stack` ordnet jedes Repo einer Schicht des Gesamtstacks zu (S0 Rechenmodell bis S17
 Entscheidung/Doku, SX unbestimmt) mit Herkunft eigen/fremd, Reife, Konfidenz und Beleg, und nennt
 die Schichten, die kein eigenes Repo haben.
+
+## Leitstand, Inkubator, Apple-first
+
+`cockpit` ist die Antwort auf die Frage, wie ein Mensch das alles zusammen sehen kann: eine Seite,
+erzeugt aus der Ablage, mit Kennzahlen und Quelle, abgeleiteten Lücken, Dominosteinen (Vorschläge
+mit größtem Hebel), offenen Kreisläufen, Register-Drift, leeren Stack-Schichten, Inkubator- und
+Apple-first-Verteilung. Er rechnet nichts neu: die Läufe `registers`, `stack`, `incubator` und
+`applefirst` legen ihre JSON-Ausgabe unter `analysen/<Datum>/` ab, der Leitstand liest die jüngste.
+
+```bash
+PYTHONPATH=src bin/aethel-projects cockpit --format html --out analysen/2026-11-03/LEITSTAND-2026-11-03.html
+```
+
+`incubator` ordnet jedes Repo auf einer feingranularen Reifeleiter ein: R0 Idee, R1 Skizze, R2 Prototyp,
+R3 Spezifiziert, R4 Getestet, R5 Integriert, R6 Dokumentiert, R7 Gesichert, R8 Versioniert,
+R9 Plattformreif, R10 Vertriebsreif (App Store), R11 Betrieb; Forschung hat statt R7–R10 die Stufe
+RF Reproduzierbar, Infrastruktur die Stufe RI Vertrag. Jede Stufe hat prüfbare Signale mit Beleg; die
+nächste Lücke steht dabei.
+
+`applefirst` misst, ob ein Repo die Apple-Plattform nutzt: Sprachanteile (Python dünn?), Frameworks
+(Metal, MLX, Core ML, Foundation Models, Accelerate, Core AI, XPC, App Intents, OSLog, Swift
+Concurrency, Swift Testing), Unified-Memory-Bewusstsein und Anti-Muster (Docker für die lokale
+Laufzeit, sandbox-exec, ML ohne mps/coreml/MLX, subprocess-lastige Orchestrierung, launchd ohne
+SMAppService). Score 0–100, Grade und Befunde; `--min-score` macht es zum Gate.
 
 ## Einordnung: aethelProjects, aethelCodeAnalyzer, aethelFactory, aethelCompany, aethelConsultant
 

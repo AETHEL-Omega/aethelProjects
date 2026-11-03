@@ -1,6 +1,6 @@
 """CLI — eine dünne Hülle um die API.
 
-Subcommands: scan · report · audit · market · forensics · code · factory · continuity · analyses · registers · stack
+Subcommands: scan · report · audit · market · forensics · code · factory · continuity · analyses · registers · stack · incubator · applefirst · cockpit
 """
 
 from __future__ import annotations
@@ -149,6 +149,24 @@ def _build_parser() -> argparse.ArgumentParser:
     stack_cmd.add_argument("--format", choices=["md", "json"], default="md")
     stack_cmd.add_argument("--repo", default=None, help="Nur ein Repository betrachten")
     stack_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
+
+    applefirst_cmd = add("applefirst", "Apple-first-Audit: Sprachanteile, Apple-Frameworks, Unified Memory, Anti-Muster je Repo")
+    applefirst_cmd.add_argument("--format", choices=["md", "json"], default="md")
+    applefirst_cmd.add_argument("--repo", action="append", default=None, help="Nur diese Repositories (mehrfach möglich)")
+    applefirst_cmd.add_argument("--min-score", type=int, default=None, help="Nur Repos mit Score unter N zeigen; Exit 1, wenn eines darunter liegt")
+    applefirst_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
+
+    cockpit_cmd = add("cockpit", "Leitstand: eine Seite aus Ablage, Vorschlägen, Kreisläufen und den jüngsten Läufen")
+    cockpit_cmd.add_argument("--base", default=None, help="Ablage-Ordner (Default: <repo>/analysen)")
+    cockpit_cmd.add_argument("--format", choices=["md", "json", "html"], default="md")
+    cockpit_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
+
+    incubator_cmd = add("incubator", "Inkubator-Reifeleiter: R0 Idee bis R11 Betrieb je Repo, mit Belegen und nächster Lücke")
+    incubator_cmd.add_argument("--format", choices=["md", "json"], default="md")
+    incubator_cmd.add_argument("--repo", action="append", default=None, help="Nur diese Repositories (mehrfach möglich)")
+    incubator_cmd.add_argument("--klasse", choices=["produkt", "forschung", "infrastruktur", "inhalt"], default=None,
+                               help="Nur Repos dieser Portfolio-Klasse")
+    incubator_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
 
     return parser
 
@@ -686,8 +704,11 @@ def _cmd_analyses(args: argparse.Namespace) -> int:
     from . import analyses as analyses_mod
 
     base = Path(args.base).expanduser() if args.base else analyses_mod.default_base()
-    if args.out and Path(args.out).expanduser().resolve() == (base / analyses_mod.INDEX_FILE).resolve():
-        sys.stderr.write("--out darf nicht auf INDEX.json zeigen\n")
+    if not base.is_dir():
+        sys.stderr.write(f"Ablage nicht gefunden: {base}\n")
+        return EXIT_USAGE
+    if args.out and _is_within(Path(args.out).expanduser(), base):
+        sys.stderr.write("--out darf nicht in die Ablage zeigen (nur --register schreibt dort, und nur INDEX.json)\n")
         return EXIT_USAGE
     try:
         if args.list:
@@ -725,25 +746,51 @@ def _cmd_analyses(args: argparse.Namespace) -> int:
                     else f"registriert: {entry.id} ({entry.date}) → {entry.path}")
     except KeyError as error:
         sys.stderr.write(f"Unbekannte Analyse: {error.args[0] if error.args else error}\n")
-        return EXIT_USAGE
+        return EXIT_ERROR
     except (FileNotFoundError, ValueError) as error:
+        # Datenfehler (kaputtes Register, fehlende registrierte Datei): Exit 1, kein Bedienfehler
         sys.stderr.write(f"{error}\n")
-        return EXIT_USAGE
+        return EXIT_ERROR
     _write(text, args.out)
     return EXIT_OK
 
 
+def _is_within(candidate: Path, base: Path) -> bool:
+    """Liegt ``candidate`` in ``base``? Robust gegen Groß-/Kleinschreibung (APFS) und Symlinks."""
+    import os
+
+    try:
+        target = candidate.resolve()
+    except OSError:
+        target = candidate.absolute()
+    root = base.resolve()
+    if target == root or root in target.parents:
+        return True
+    return os.path.normcase(str(target)).casefold().startswith(os.path.normcase(str(root)).casefold() + os.sep)
+
+
 def _cmd_registers(args: argparse.Namespace) -> int:
-    """Fünf Register gegeneinander: Manifest, Scan, Projektprofile, Aufträge."""
+    """Vier lokale Register gegeneinander: Manifest, Scan, Projektprofile, Aufträge (GitHub wird nicht abgefragt)."""
     from . import manifest as manifest_mod
     from . import registers as registers_mod
 
-    try:
-        scan = registers_mod.load_scan(Path(args.snapshot).expanduser())
-    except (FileNotFoundError, ValueError) as error:
-        sys.stderr.write(f"{error}\n")
+    snapshot = Path(args.snapshot).expanduser()
+    if not snapshot.is_file():
+        sys.stderr.write(f"Snapshot nicht gefunden: {snapshot} (erzeugen mit: aethel-projects scan --json <pfad>)\n")
         return EXIT_USAGE
+    try:
+        scan = registers_mod.load_scan(snapshot)
+    except ValueError as error:
+        sys.stderr.write(f"{error}\n")
+        return EXIT_ERROR
+    # Explizit genannte Pfade müssen existieren; nur Defaults dürfen fehlen.
+    for label, value in (("--manifest", args.manifest), ("--auftraege", args.auftraege), ("--profiles-root", args.profiles_root)):
+        if value and not Path(value).expanduser().exists():
+            sys.stderr.write(f"{label} nicht gefunden: {value}\n")
+            return EXIT_USAGE
     manifest_path = Path(args.manifest).expanduser() if args.manifest else manifest_mod.DEFAULT_MANIFEST
+    if not manifest_path.is_file():
+        sys.stderr.write(f"Hinweis: Manifest fehlt ({manifest_path}); alle Repos erscheinen als ohne Manifest-Eintrag\n")
     manifest = manifest_mod.load_manifest(manifest_path)
     profiles = registers_mod.find_profiles(Path(args.profiles_root or args.root).expanduser())
     auftraege_path = Path(args.auftraege).expanduser() if args.auftraege else registers_mod.DEFAULT_AUFTRAEGE
@@ -773,6 +820,73 @@ def _cmd_stack(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _cmd_applefirst(args: argparse.Namespace) -> int:
+    """Apple-first-Audit über den Workspace."""
+    from . import applefirst as applefirst_mod
+
+    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    repos = result.repos
+    if args.repo:
+        wanted = set(args.repo)
+        repos = tuple(r for r in repos if r.name in wanted)
+        if not repos:
+            sys.stderr.write(f"Repository nicht gefunden: {', '.join(sorted(wanted))}\n")
+            return EXIT_ERROR
+    items = applefirst_mod.build(repos, Path(args.root).expanduser())
+    below = False
+    if args.min_score is not None:
+        items = tuple(i for i in items if i.score is not None and i.score < args.min_score)
+        below = bool(items)
+    _write(applefirst_mod.render_json(items) if args.format == "json" else applefirst_mod.render_markdown(items), args.out)
+    return EXIT_ERROR if below else EXIT_OK
+
+
+def _cmd_cockpit(args: argparse.Namespace) -> int:
+    """Leitstand aus der Analysen-Ablage; rechnet nichts neu, schreibt nur --out."""
+    from . import analyses as analyses_mod
+    from . import cockpit as cockpit_mod
+
+    base = Path(args.base).expanduser() if args.base else analyses_mod.default_base()
+    if not base.is_dir():
+        sys.stderr.write(f"Ablage nicht gefunden: {base}\n")
+        return EXIT_USAGE
+    if args.out and _is_within(Path(args.out).expanduser(), base) and not Path(args.out).name.lower().startswith("leitstand"):
+        sys.stderr.write("--out in der Ablage nur als LEITSTAND-*.md/.html/.json\n")
+        return EXIT_USAGE
+    try:
+        view = cockpit_mod.build(base)
+    except ValueError as error:
+        sys.stderr.write(f"{error}\n")
+        return EXIT_ERROR
+    if args.format == "json":
+        text = cockpit_mod.render_json(view)
+    elif args.format == "html":
+        text = cockpit_mod.render_html(view)
+    else:
+        text = cockpit_mod.render_markdown(view)
+    _write(text, args.out)
+    return EXIT_OK
+
+
+def _cmd_incubator(args: argparse.Namespace) -> int:
+    """Inkubator-Reifeleiter über den Workspace."""
+    from . import incubator as incubator_mod
+
+    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    repos = result.repos
+    if args.repo:
+        wanted = set(args.repo)
+        repos = tuple(r for r in repos if r.name in wanted)
+        if not repos:
+            sys.stderr.write(f"Repository nicht gefunden: {', '.join(sorted(wanted))}\n")
+            return EXIT_ERROR
+    items = incubator_mod.build(repos, Path(args.root).expanduser())
+    if args.klasse:
+        items = tuple(i for i in items if i.klasse == args.klasse)
+    _write(incubator_mod.render_json(items) if args.format == "json" else incubator_mod.render_markdown(items), args.out)
+    return EXIT_OK
+
+
 COMMANDS = {
     "aix-input": _cmd_aix_input,
     "inventory": _cmd_inventory,
@@ -788,6 +902,9 @@ COMMANDS = {
     "analyses": _cmd_analyses,
     "registers": _cmd_registers,
     "stack": _cmd_stack,
+    "applefirst": _cmd_applefirst,
+    "cockpit": _cmd_cockpit,
+    "incubator": _cmd_incubator,
 }
 
 

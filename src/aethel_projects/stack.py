@@ -75,40 +75,60 @@ OWN_NAME_PREFIXES = ("aethel", "aix", "omega", "din")
 #: Remote-URLs, die auf ein eigenes Konto zeigen (``AETHEL-Omega/``, ``ManuelWilde/``).
 _OWN_REMOTE = re.compile(r"(?:^|[/:@])(?:aethel-omega|manuelwilde)/", re.IGNORECASE)
 
-#: Markenpräfixe, die in verschmolzenen Namen („aethelema“, „aethelbot“) vom
-#: eigentlichen Schlüsselwort getrennt werden.
-_BRAND_PREFIXES = ("aethel", "aix", "aider")
+#: Marken, die führend vor dem eigentlichen Namen stehen (``aethel-``, ``AIX-``,
+#: ``omega_``, ``aethelema``) und **keine Schicht anzeigen**: ``aix-wissen`` ist
+#: Wissen (S8), nicht Agenten (S5); ``omega_ui`` ist Oberfläche (S12), nicht
+#: Wissen. Es gilt die ganze führende Kette (``aethel-omega-ui`` → ``ui``).
+_BRAND_PREFIXES = ("aethel", "aix", "aider", "omega")
+
+#: Ausnahmeliste: Marken mit eigener Heimatschicht. Trifft nach dem Abtrennen der
+#: Marken kein Schlüsselwort mehr, gilt die Heimatschicht. ``omega`` ist das
+#: Wissens-Rückgrat des Stacks (``aethel-omega``, ``aethelOmegaLM`` → S8;
+#: ``omega_domain`` → S8, weil „domain“ als Schlüsselwort zu unscharf wäre: ein
+#: Domänenmodell des Wissens-Rückgrats ist Wissen, nicht Bibliothek). ``aix`` und
+#: ``aider`` haben keine: ohne weiteres Wort bleibt ``aix-xyz`` unbestimmt.
+_BRAND_HOME_LAYERS = {"omega": "S8"}
 
 #: Namensregeln: ``(Schicht, Schlüsselwörter)``. **Erster Treffer gewinnt** —
-#: Reihenfolge der Tupel und der Schlüsselwörter ist Teil des Vertrags.
+#: Reihenfolge der Tupel und der Schlüsselwörter ist Teil des Vertrags. Geprüft
+#: werden die Wörter des Namens **ohne führende Marken** (:data:`_BRAND_PREFIXES`).
 #:
-#: * Die zwei Mehrwort-Regeln stehen vorn, weil sonst das Teilwort gewinnt
-#:   (``wissen`` → S8 statt ``wissen-text`` → S17; ``runtime`` → S4 statt
-#:   ``agent-runtime`` → S5, die Komponentenlaufzeit).
+#: * Schlüsselwörter gelten nur als **ganzes Wort** (CamelCase-/Trennzeichen-Token,
+#:   mit einfacher Beugung): ``transcripts`` trifft nicht ``scripts``, ``gewissen``
+#:   nicht ``wissen``, ``schema`` nicht ``ema``.
+#: * Mehrwort-Regeln stehen vorn, weil sonst das Teilwort gewinnt: ``wissen-text``
+#:   → S17 (nicht ``wissen`` → S8), ``agent-runtime`` → S5, die Komponentenlaufzeit
+#:   (nicht ``runtime`` → S4), ``landing-page`` → S11, eine Webseite (nicht
+#:   ``landing`` → S4, das ist der Landeweg).
+#: * **Oberfläche (S12) und Anwendung (S11) stehen vor dem Unterbau:** ein
+#:   ``photon_radio`` ist ein Radio, kein Rechenmodell; ``terminal_cockpit`` ist
+#:   ein Cockpit (S12 schlägt S11).
 #: * Vorrang laut Vorgabe: ``firmware`` → S1 (nicht S2), ``ledger`` → S4 (nicht
-#:   S8), ``store`` → S11 und ``release`` → S7 (nicht S16).
+#:   S8), ``store`` → S11 und ``release`` → S7 (nicht S16). ``manifest`` ist
+#:   Projektregister/Zustand (S4), nicht Build.
 #: * Mehrwort-Schlüssel (``-``/``_``) müssen als aufeinanderfolgende Wörter im
-#:   Namen stehen. Schlüsselwörter ab sechs Zeichen gelten als Teilstring des
-#:   Namens, kürzere nur als ganzes Wort (``ui`` trifft ``aethel-ui``, nicht
-#:   ``build``; ``ema`` trifft ``aethelema``, nicht ``schema``).
+#:   Namen stehen. ``omega`` (S8) gilt nur, wo es nicht führende Marke ist.
 NAME_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("S17", ("wissen-text",)),
     ("S5", ("agent-runtime",)),
+    ("S11", ("landing-page",)),
+    ("S12", ("ui", "cockpit", "leitstand", "dashboard", "view")),
+    ("S11", ("app", "appstore", "player", "reader", "radio", "store", "lab", "browser",
+             "terminal", "heritage", "bibel", "bible", "nuru")),
     ("S0", ("memristor", "vchip", "quantum", "osxq", "pennylane", "helix",
             "bit_encodings", "photon", "silicon")),
     ("S1", ("firmware",)),
     ("S2", ("os", "kernel", "boot")),
     ("S3", ("container", "sandbox", "hypervisor", "vm")),
-    ("S4", ("runtime", "aixd", "ledger", "state", "rechte", "registry", "landing", "gate")),
-    ("S5", ("agent", "aix", "scripts", "factory", "worklane", "bot", "coder", "harness",
+    ("S4", ("runtime", "aixd", "ledger", "state", "rechte", "registry", "landing", "gate",
+            "manifest")),
+    ("S5", ("agent", "scripts", "factory", "worklane", "bot", "coder", "harness",
             "forge", "hydra")),
     ("S6", ("lang", "compiler", "toolchain", "lexer", "parser")),
-    ("S7", ("release", "build", "ci", "manifest")),
+    ("S7", ("release", "build", "ci")),
     ("S8", ("omega", "wissen", "knowledge", "memory", "memoria", "atlas", "data")),
     ("S9", ("ema", "p2p", "mesh", "bridge", "bruecke", "net")),
     ("S10", ("sdk", "core", "design", "shells", "lib", "foundations")),
-    ("S11", ("app", "player", "reader", "radio", "store", "lab", "browser", "terminal")),
-    ("S12", ("ui", "cockpit", "leitstand", "dashboard", "view")),
     ("S13", ("auth", "identity", "secrets", "keychain", "defense", "security")),
     ("S14", ("metrics", "telemetry", "observ", "trace", "analytics")),
     ("S15", ("test", "bench", "eval", "analyzer", "projects", "audit")),
@@ -116,12 +136,9 @@ NAME_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("S17", ("docs", "rfc", "plan", "consultant", "canon")),
 )
 
-#: Ab dieser Länge gilt ein Schlüsselwort als Teilstring des Namens.
-_SUBSTRING_MIN_LENGTH = 6
-
-#: Beugungen, die ein kurzes Schlüsselwort als ganzes Wort mitnimmt
-#: (``apps``, ``gated``, ``viewer``, ``testing``). Schlüssel bis zwei Zeichen
-#: (``os``, ``ci``, ``ui``, ``vm``) gelten nur exakt.
+#: Beugungen, die ein Schlüsselwort als ganzes Wort mitnimmt (``apps``,
+#: ``gated``, ``viewer``, ``testing``). Schlüssel bis zwei Zeichen (``os``,
+#: ``ci``, ``ui``, ``vm``) gelten nur exakt.
 _INFLECTIONS = ("s", "d", "ed", "er", "ers", "ing")
 
 #: Belegsuche im Repo: Tiefe, Dateien, Lesegrenze (read-only und billig).
@@ -226,26 +243,49 @@ def _origin(report: RepoReport) -> tuple[str, str]:
 # ---------------------------------------------------------------------------
 
 
-def _name_tokens(name: str) -> tuple[list[str], set[str]]:
-    """Wörter des Namens: (geordnet, Menge inklusive verschmolzener Formen).
+def _strip_brands(parts: list[str], brands: list[str]) -> list[str]:
+    """Trennt führende Marken ab (auch verschmolzen: ``aethelema`` → ``ema``)."""
+    rest = list(parts)
+    while rest:
+        head = rest[0]
+        if head in _BRAND_PREFIXES:
+            brands.append(head)
+            rest.pop(0)
+            continue
+        brand = next(
+            (b for b in _BRAND_PREFIXES if head.startswith(b) and len(head) - len(b) >= 2), None
+        )
+        if brand is None:
+            break
+        brands.append(brand)
+        rest[0] = head[len(brand):]
+    return rest
 
-    Getrennt wird an Nicht-Alphanumerischem und an CamelCase-Grenzen. Dazu
-    kommen die verschmolzene Form je Segment (``osxQ`` → ``osxq``) und der Rest
-    nach einem Markenpräfix (``aethelema`` → ``ema``).
+
+def _name_parts(name: str) -> tuple[list[str], list[str], set[str]]:
+    """Zerlegt den Namen: ``(führende Marken, Wörter, verschmolzene Segmente)``.
+
+    Getrennt wird an Nicht-Alphanumerischem und an CamelCase-Grenzen. Führende
+    Marken (:data:`_BRAND_PREFIXES`) werden abgetrennt; die verschmolzene Form
+    je Segment (``osxQ`` → ``osxq``) bleibt als zusätzliches Wort erhalten.
     """
-    ordered: list[str] = []
+    brands: list[str] = []
+    words: list[str] = []
     fused: set[str] = set()
+    leading = True
     for segment in _NON_ALNUM.split(name):
         if not segment:
             continue
-        lowered = segment.lower()
-        fused.add(lowered)
         spaced = _CAMEL_ACRONYM.sub(" ", _CAMEL_LOWER_UPPER.sub(" ", segment))
-        ordered.extend(part.lower() for part in spaced.split())
-        for brand in _BRAND_PREFIXES:
-            if lowered.startswith(brand) and len(lowered) - len(brand) >= 2:
-                fused.add(lowered[len(brand):])
-    return ordered, set(ordered) | fused
+        parts = [part.lower() for part in spaced.split()]
+        if leading:
+            parts = _strip_brands(parts, brands)
+            if not parts:  # Segment bestand nur aus Marken
+                continue
+            leading = False
+        words.extend(parts)
+        fused.add("".join(parts))
+    return brands, words, fused
 
 
 def _word_matches(token: str, keyword: str) -> bool:
@@ -257,27 +297,32 @@ def _word_matches(token: str, keyword: str) -> bool:
     return any(token == keyword + suffix for suffix in _INFLECTIONS)
 
 
-def _keyword_matches(keyword: str, lowered: str, ordered: list[str], tokens: set[str]) -> bool:
+def _keyword_matches(keyword: str, words: list[str], tokens: set[str]) -> bool:
     parts = _KEY_SEPARATOR.split(keyword)
     if len(parts) > 1:
         width = len(parts)
         return any(
-            all(_word_matches(ordered[start + i], part) for i, part in enumerate(parts))
-            for start in range(len(ordered) - width + 1)
+            all(_word_matches(words[start + i], part) for i, part in enumerate(parts))
+            for start in range(len(words) - width + 1)
         )
-    if len(keyword) >= _SUBSTRING_MIN_LENGTH:
-        return keyword in lowered
     return any(_word_matches(token, keyword) for token in tokens)
 
 
 def _match_name(name: str) -> tuple[str, str] | None:
-    """Erste Namensregel, die trifft: ``(Schicht, Schlüsselwort)``."""
-    lowered = name.lower()
-    ordered, tokens = _name_tokens(name)
+    """Erste Namensregel, die trifft: ``(Schicht, Beleg-Text)``.
+
+    Zuerst die Schlüsselwörter über die Wörter ohne führende Marken; trifft keins,
+    zählt die Heimatschicht einer führenden Marke (:data:`_BRAND_HOME_LAYERS`).
+    """
+    brands, words, fused = _name_parts(name)
+    tokens = set(words) | fused
     for layer, keywords in NAME_RULES:
         for keyword in keywords:
-            if _keyword_matches(keyword, lowered, ordered, tokens):
-                return layer, keyword
+            if _keyword_matches(keyword, words, tokens):
+                return layer, f"Name „{keyword}“"
+    for brand in brands:
+        if brand in _BRAND_HOME_LAYERS:
+            return _BRAND_HOME_LAYERS[brand], f"Marke „{brand}“"
     return None
 
 
@@ -395,10 +440,10 @@ def classify(report: RepoReport, repo_path: Path | None = None) -> LayerAssignme
 
     named = _match_name(report.name)
     if named is not None:
-        layer, keyword = named
+        layer, label = named
         confirming = [m for m in markers if m.layer == layer]
         divergent = [m for m in markers if m.layer != layer]
-        evidence = f"Name „{keyword}“ → {layer}"
+        evidence = f"{label} → {layer}"
         if confirming:
             evidence += f"; bestätigt durch {confirming[0].label}"
             confidence = "high"

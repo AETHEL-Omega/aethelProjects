@@ -51,7 +51,7 @@ def sample_proposal(**overrides: object) -> dict[str, object]:
         "vertrag": "aethel.registry/v1",
         "ebene": "E4",
         "stufe": 1,
-        "hebt": ["B2", "B3"],
+        "hebt": [],
         "bestand": "teilweise in aethelLanding",
         "status": "vorgeschlagen",
         "quelle": "landeweg-analyse",
@@ -413,9 +413,10 @@ def test_load_proposals_liest_gueltige_datei(base: Path) -> None:
     write_json(
         base,
         "vorschlaege.json",
-        {"schema": analyses.SCHEMA_PROPOSALS, "projects": [sample_proposal()]},
+        {"schema": analyses.SCHEMA_PROPOSALS,
+         "projects": [sample_proposal(hebt=["B2", "B3"]), sample_proposal(id="B2"), sample_proposal(id="B3")]},
     )
-    (proposal,) = analyses.load_proposals(base)
+    proposal = analyses.load_proposals(base)[0]
     assert proposal == Proposal(
         id="B1",
         name="aethelRegistry",
@@ -612,3 +613,21 @@ def test_summary_zaehlt_alle_register(base: Path) -> None:
         "loops_teilweise": 1,
         "loops_geschlossen": 1,
     }
+
+
+def test_load_proposals_lehnt_tote_hebt_verweise_ab(tmp_path: Path) -> None:
+    """REQ-021: ``hebt`` muss auf vorhandene Vorschlags- oder Kreislauf-IDs zeigen."""
+    base = tmp_path / "analysen"
+    base.mkdir()
+    write_json(base, "kreislaeufe.json", {"schema": analyses.SCHEMA_LOOPS, "loops": [sample_loop()]})
+    write_json(base, "vorschlaege.json", {
+        "schema": analyses.SCHEMA_PROPOSALS,
+        "projects": [sample_proposal(hebt=["B2", "K-E2-landung"]), sample_proposal(id="B2")],
+    })
+    assert len(analyses.load_proposals(base)) == 2  # Vorschlag und Kreislauf sind bekannt
+    write_json(base, "vorschlaege.json", {
+        "schema": analyses.SCHEMA_PROPOSALS,
+        "projects": [sample_proposal(hebt=["B13"])],
+    })
+    with pytest.raises(ValueError, match="B13"):
+        analyses.load_proposals(base)

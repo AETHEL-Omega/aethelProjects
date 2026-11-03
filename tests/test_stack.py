@@ -92,7 +92,7 @@ def test_layer_catalog_has_s0_to_s17_and_sx() -> None:
         ("aethelLanding", "S4"),
         ("aethelScripts", "S5"),
         ("aethel-toolchain", "S6"),
-        ("workspace-manifest", "S7"),
+        ("aethel-build", "S7"),
         ("aethel-omega", "S8"),
         ("aethelema", "S9"),
         ("aethel_core", "S10"),
@@ -154,6 +154,72 @@ def test_short_keywords_match_whole_words_only(name: str) -> None:
 )
 def test_name_tokens_handle_fusion_and_inflection(name: str, layer: str) -> None:
     assert stack.classify(_report(name)).layer == layer
+
+
+# --- Review-Befunde: Marken, Wortgrenzen, Vorrang von Oberfläche/Anwendung -------
+
+
+@pytest.mark.parametrize(
+    ("name", "layer"),
+    [
+        # aix/omega sind führende Marken, keine Schlüsselwörter
+        ("_aix_wissen", "S8"),
+        ("aix-wissen", "S8"),
+        ("AIX-dist", "S16"),
+        ("omega_ui", "S12"),
+        ("omega_bridge", "S9"),
+        ("omega_domain", "S8"),  # Heimatschicht der Marke omega (Wissens-Rückgrat)
+        ("aethel-omega", "S8"),
+        ("aethelOmegaLM", "S8"),
+        ("aethel-omega-ui", "S12"),  # ganze führende Markenkette wird abgetrennt
+        ("foo-omega", "S8"),  # nicht führend: Schlüsselwort „omega“
+        # lange Schlüsselwörter nur als ganzes Wort
+        ("transcripts", "SX"),
+        ("gewissen", "SX"),
+        ("aethelLandingPage", "S11"),  # Webseite, nicht der Landeweg
+        ("aethelLanding", "S4"),
+        # manifest ist Projektregister/Zustand, nicht Build
+        ("workspace-manifest", "S4"),
+        # Anwendung vor Rechenmodell, Oberfläche vor Anwendung
+        ("photon_radio", "S11"),
+        ("aethelTerminal_cockpit", "S12"),
+        ("aethelappstore", "S11"),
+        # Inhalt/App
+        ("heritageBibel", "S11"),
+        ("heritage_bible", "S11"),
+        ("aethelNuru", "S11"),
+        ("aethel-reader", "S11"),
+        ("aethelPlayer", "S11"),
+    ],
+)
+def test_review_regression_names(name: str, layer: str) -> None:
+    assignment = stack.classify(_report(name))
+    assert assignment.layer == layer, assignment.evidence
+    assert (assignment.confidence == "low") == (layer == "SX")
+
+
+def test_aix_is_a_brand_not_a_keyword() -> None:
+    keywords = {kw for _layer, kws in stack.NAME_RULES for kw in kws}
+    assert "aix" not in keywords
+    assert stack.classify(_report("aix-etwas")).layer == "SX"  # keine Schicht allein aus der Marke
+    assert stack.classify(_report("aixd")).layer == "S4"  # aixd bleibt eigenes Schlüsselwort
+
+
+def test_brand_home_layer_only_applies_without_other_keyword() -> None:
+    home = stack.classify(_report("aethel-omega"))
+    assert home.layer == "S8"
+    assert "Marke „omega“" in home.evidence
+    assert stack.classify(_report("omega_ui")).layer == "S12"
+    assert "Name „ui“" in stack.classify(_report("omega_ui")).evidence
+
+
+def test_long_keywords_need_word_boundaries() -> None:
+    for name in ("transcripts", "gewissen", "aethelrunningtimes", "xcontainerx", "memorylane2"):
+        assert stack.classify(_report(name)).layer == "SX", name
+    # als eigenes Wort (CamelCase, Trennzeichen, Beugung) treffen sie weiterhin
+    for name, layer in (("aethelScripts", "S5"), ("my_scripts", "S5"), ("aethel-containers", "S3"),
+                        ("Wissen-Atlas", "S8")):
+        assert stack.classify(_report(name)).layer == layer, name
 
 
 # --- Herkunft ----------------------------------------------------------------

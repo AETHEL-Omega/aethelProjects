@@ -100,3 +100,28 @@ vom 03.11.2026, `INDEX.json`, `vorschlaege.json` (30 Projekte), `kreislaeufe.jso
 Gebaut mit drei getrennten Sonnet-Lanes je Modul; CLI, Docs und Inhalte von der Hauptinstanz.
 Rückbau: keiner nötig (nur Ergänzungen); `reports/` bleibt gitignored, `analysen/` ist versioniert.
 Komponente: aethelProjects@aethel.projects.analysen/v1, register-drift/v1, stack/v1.
+
+### Review und Korrekturen (03./04.11.2026)
+
+Getrennte Opus-Prüfung des Diffs (Kopf e5f9db1) fand drei blockierende Befunde, alle behoben:
+`--out` konnte die INDEX-Sperre über Groß-/Kleinschreibung umgehen (jetzt: kein `--out`
+in die Ablage, Prüfung über resolve und casefold, Test mit vier Schreibweisen); der
+Register-Abgleich kannte Worktrees nur über `is_worktree` statt `worktree_paths` (jetzt:
+176 Worktrees erkannt, Profile-Fehlalarme von 80 auf 28; Vertragstest mit echtem
+`git worktree add`); toter Verweis B13 in `vorschlaege.json` (jetzt C4; Laden prüft
+`hebt`-Verweise gegen Vorschlags- und Kreislauf-IDs). Weitere Korrekturen: Exit-Codes
+(Bedienfehler 2, Datenfehler 1), explizit genannte fehlende Pfade sind Bedienfehler,
+Ablage muss existieren, INDEX wird über `tempfile.mkstemp` geschrieben, `registers`-JSON
+trägt Schema, `repo_ref` versteht URLs und Pull-Pfade und zählt Aufträge ohne Repo-Bezug
+(490 von 494), Schichtenkarte behandelt `aix`/`omega` als Marken, prüft Wortgrenzen und
+ordnet `workspace-manifest` S4, Inhalte (heritage, bibel, nuru, radio) S11 zu.
+
+Offen aus dem Review: TC-IDs in den Docstrings der Modultests, `show()` liefert
+`verified` nicht als Rückgabewert, kein AST-Wächter für Schreibzugriffe, 21 ruff-Befunde
+sind Altbestand.
+
+Neu in diesem Schnitt zusätzlich: `incubator` (Reifeleiter R0–R11, RF, RI), `applefirst`
+(Score, Grade, Anti-Muster), `cockpit` (Leitstand md/json/html aus der Ablage); Analysen
+7 bis 9 (Zielbetriebsmodell und Dominosteine, Werkzeuge, die Werkzeuge bauen,
+Chat-Protokoll) sowie echte Läufe (Register-Abgleich, Schichtenkarte, Apple-first) als
+Markdown und JSON unter `analysen/2026-11-03/`.

@@ -34,6 +34,7 @@ import datetime as _dt
 import hashlib
 import json
 import os
+import tempfile
 import re
 import unicodedata
 from dataclasses import dataclass
@@ -383,7 +384,25 @@ def load_proposals(base: Path | None = None) -> tuple[Proposal, ...]:
         return ()
     proposals = tuple(_parse_proposal(raw, position) for position, raw in enumerate(items))
     _check_unique(PROPOSALS_FILE, "Vorschlags", [proposal.id for proposal in proposals])
+    _check_references(proposals, base)
     return proposals
+
+
+def _check_references(proposals: tuple[Proposal, ...], base: Path | None) -> None:
+    """``hebt`` darf nur auf vorhandene Vorschlags- oder Kreislauf-IDs zeigen."""
+    known = {proposal.id for proposal in proposals}
+    loops_file = _root(base) / LOOPS_FILE
+    if loops_file.is_file():
+        try:
+            known |= {loop.id for loop in load_loops(base)}
+        except ValueError:
+            pass  # Kreisläufe werden an ihrer eigenen Stelle gemeldet
+    for proposal in proposals:
+        unknown = sorted(set(proposal.hebt) - known)
+        if unknown:
+            raise ValueError(
+                f"{PROPOSALS_FILE}: Vorschlag {proposal.id!r} hebt unbekannte IDs: {', '.join(unknown)}"
+            )
 
 
 _LOOP_REQUIRED = frozenset({"id", "name", "ebene", "status"})
@@ -489,9 +508,12 @@ def _write_index(root: Path, entries: tuple[AnalysisEntry, ...]) -> None:
     document = AnalysesIndex(entries=_sort_entries(entries)).as_dict()
     payload = json.dumps(document, sort_keys=True, indent=2, ensure_ascii=False) + "\n"
     target = root / INDEX_FILE
-    temp = root / f".{INDEX_FILE}.{os.getpid()}.tmp"
+    # mkstemp legt die Datei exklusiv an (O_EXCL, folgt keinem Symlink) und mit zufälligem Namen.
+    handle, temp_name = tempfile.mkstemp(prefix=f".{INDEX_FILE}.", suffix=".tmp", dir=root)
+    temp = Path(temp_name)
     try:
-        temp.write_text(payload, encoding="utf-8", newline="\n")
+        with os.fdopen(handle, "w", encoding="utf-8", newline="\n") as stream:
+            stream.write(payload)
         os.replace(temp, target)
     except BaseException:
         temp.unlink(missing_ok=True)

@@ -12,13 +12,14 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
-from conftest import make_repo
+from conftest import git, make_repo
 
 from aethel_projects import registers
 from aethel_projects.manifest import load_manifest
 from aethel_projects.models import ManifestEntry, RepoReport
 from aethel_projects.registers import (
     MAX_LIST,
+    SCHEMA,
     RegisterDrift,
     find_profiles,
     load_auftraege,
@@ -54,8 +55,13 @@ def _manifest(*names: str) -> dict[str, ManifestEntry]:
     return {name: _entry(name) for name in names}
 
 
-def _repo(name: str, *, worktree: bool = False) -> dict:
-    return {"name": name, "path": f"/x/{name}", "is_worktree": worktree, "worktree_paths": []}
+def _repo(name: str, *, worktree: bool = False, worktree_paths: list[str] | None = None) -> dict:
+    return {
+        "name": name,
+        "path": f"/x/{name}",
+        "is_worktree": worktree,
+        "worktree_paths": list(worktree_paths or []),
+    }
 
 
 def _write_profile(root: Path, relative: str, content: str | dict) -> Path:
@@ -133,6 +139,7 @@ def test_reconcile_full_scenario_checks_every_field(tmp_path: Path, empty_report
         "profiles": 2,
         "auftraege_lines": 3,
         "auftraege_parsed": 2,
+        "auftraege_ohne_bezug": 0,
     }
     assert drift.has_drift is True
 
@@ -189,6 +196,81 @@ def test_worktree_name_in_manifest_is_neither_dead_nor_unregistered() -> None:
     assert drift.missing_in_manifest == ()
 
 
+def test_worktree_paths_are_worktrees_known_in_the_scan_and_counted() -> None:
+    """Der Scan legt Worktrees als ``worktree_paths`` am Haupt-Eintrag ab."""
+    scan = [
+        _repo("alpha", worktree_paths=["/ws/alpha-wt1", "/andere/alpha-wt2/"]),
+        _repo("gamma", worktree=True, worktree_paths=["/ws/gamma-b"]),
+    ]
+
+    drift = reconcile(scan, _manifest("alpha"), {"alpha-wt1": {}, "gamma-b": {}}, [])
+
+    assert drift.unregistered_worktrees == ("alpha-wt1", "alpha-wt2", "gamma", "gamma-b")
+    assert drift.missing_in_manifest == ()  # Worktree-Ordner sind keine Repos
+    assert drift.profiles_without_repo == ()  # Worktree-Ordner zählen als im Scan bekannt
+    assert drift.profiles_without_manifest == ("alpha-wt1", "gamma-b")
+    assert drift.counts["scan_repos"] == 1
+    assert drift.counts["scan_worktrees"] == 4  # 2 + 1 Pfade plus 1 is_worktree-Eintrag
+
+
+def test_manifest_name_of_a_worktree_folder_is_not_dead_nor_unregistered() -> None:
+    drift = reconcile([_repo("alpha", worktree_paths=["/ws/alpha-wt"])], _manifest("alpha", "alpha-wt"), {}, [])
+
+    assert drift.dead_manifest_entries == ()
+    assert drift.unregistered_worktrees == ()
+    assert drift.counts["scan_worktrees"] == 1
+
+
+def test_worktree_paths_are_deduplicated_and_malformed_values_ignored() -> None:
+    scan = [
+        _repo("alpha", worktree_paths=["/ws/wt", "/ws/wt", "", "  ", 7]),  # type: ignore[list-item]
+        _repo("beta", worktree_paths=["/ws/wt"]),
+        {"name": "gamma", "worktree_paths": None},
+        {"name": "delta", "worktree_paths": "/ws/als-string"},
+    ]
+
+    drift = reconcile(scan, {}, {}, [])
+
+    assert drift.unregistered_worktrees == ("wt",)
+    assert drift.counts["scan_worktrees"] == 1
+    assert drift.counts["scan_repos"] == 4
+
+
+def test_auftraege_may_name_a_worktree_folder() -> None:
+    drift = reconcile([_repo("alpha", worktree_paths=["/ws/alpha-wt"])], {}, {}, [{"repo": "alpha-wt"}])
+
+    assert drift.auftraege_unknown_repos == ()
+
+
+def test_real_git_worktree_is_recognised_and_its_profile_is_not_orphaned(tmp_path: Path) -> None:
+    """Vertragstest mit echtem ``git worktree add``: Scan legt den Worktree unter ``worktree_paths`` ab."""
+    workspace = tmp_path / "ws"
+    main = make_repo(workspace / "alpha", commits=1)
+    git(main, "worktree", "add", "-q", "-b", "feat", str(workspace / "alpha-feat"))
+    _write_profile(workspace, "alpha-feat", {})  # kein deklarierter Name: nur der Ordnername zählt
+    manifest_path = tmp_path / "projects.yaml"
+    manifest_path.write_text(MANIFEST, encoding="utf-8")
+    snapshot = tmp_path / "scan.json"
+    snapshot.write_text(to_json(scan_workspace(workspace, manifest_path=manifest_path)), encoding="utf-8")
+
+    scan = load_scan(snapshot)
+    profiles = find_profiles(workspace)
+    drift = reconcile(scan, load_manifest(manifest_path), profiles, [], manifest_path=manifest_path)
+
+    # Vorbedingung: der Scan führt ein Repo und hängt den Worktree an dessen Eintrag.
+    assert [r["name"] for r in scan] == ["alpha"]
+    assert scan[0]["is_worktree"] is False
+    assert [Path(p).name for p in scan[0]["worktree_paths"]] == ["alpha-feat"]
+    assert "alpha-feat" in profiles
+    assert drift.unregistered_worktrees == ("alpha-feat",)
+    assert drift.missing_in_manifest == ()
+    assert drift.dead_manifest_entries == ("geist",)
+    assert drift.profiles_without_repo == ()
+    assert drift.profiles_without_manifest == ("alpha-feat",)
+    assert drift.counts["scan_repos"] == 1
+    assert drift.counts["scan_worktrees"] == 1
+
+
 def test_names_are_compared_case_sensitively() -> None:
     drift = reconcile([_repo("Alpha")], _manifest("alpha"), {}, [])
 
@@ -209,6 +291,21 @@ def test_auftraege_unknown_repos_are_deduplicated_and_sorted() -> None:
     drift = reconcile([_repo("alpha")], _manifest("nur-im-manifest"), {}, auftraege)
 
     assert drift.auftraege_unknown_repos == ("mu", "zeta")
+
+
+def test_auftraege_without_a_repo_reference_are_counted_not_reported() -> None:
+    auftraege = [
+        {"repo": "a"},
+        {"id": "kein-bezug"},
+        {"ziel": "Dokumentation verbessern"},
+        {"pfad": "docs/README.md"},
+    ]
+
+    drift = reconcile([], {}, {}, auftraege)
+
+    assert drift.auftraege_unknown_repos == ("a",)
+    assert drift.counts["auftraege_parsed"] == 4
+    assert drift.counts["auftraege_ohne_bezug"] == 3
 
 
 def test_scan_entries_without_a_name_are_ignored() -> None:
@@ -369,6 +466,35 @@ def test_load_auftraege_survives_invalid_utf8(tmp_path: Path) -> None:
     assert parsed[0] == {"repo": "a"}
 
 
+def test_load_auftraege_strict_raises_for_a_missing_explicit_path(tmp_path: Path) -> None:
+    with pytest.raises(FileNotFoundError, match="gibt-es-nicht"):
+        load_auftraege(tmp_path / "gibt-es-nicht.jsonl", strict=True)
+    with pytest.raises(FileNotFoundError):
+        load_auftraege(tmp_path, strict=True)  # ein Ordner ist keine Auftragsdatei
+
+
+def test_load_auftraege_strict_still_reads_existing_files_and_none(tmp_path: Path) -> None:
+    path = tmp_path / "auftraege.jsonl"
+    path.write_text('{"repo": "a"}\n{kaputt\n', encoding="utf-8")
+
+    assert load_auftraege(path, strict=True) == ([{"repo": "a"}], 2)
+    assert load_auftraege(None, strict=True) == ([], 0)
+    assert load_auftraege(tmp_path / "gibt-es-nicht.jsonl") == ([], 0)  # Default bleibt tolerant
+
+
+@pytest.mark.skipif(os.geteuid() == 0, reason="root ignoriert Dateirechte")
+def test_load_auftraege_unreadable_file_is_tolerated_but_raises_when_strict(tmp_path: Path) -> None:
+    path = tmp_path / "auftraege.jsonl"
+    path.write_text('{"repo": "a"}\n', encoding="utf-8")
+    path.chmod(0o000)
+    try:
+        assert load_auftraege(path) == ([], 0)
+        with pytest.raises(PermissionError):
+            load_auftraege(path, strict=True)
+    finally:
+        path.chmod(0o600)
+
+
 # ----------------------------------------------------------------------- repo_ref
 
 
@@ -386,8 +512,9 @@ def test_repo_ref_reads_every_documented_key(key: str) -> None:
         ("AETHEL-Omega/aethelFoo", "aethelFoo"),
         ("https://github.com/AETHEL-Omega/aethelFoo", "aethelFoo"),
         ("C:\\work\\aethelFoo", "aethelFoo"),
-        ("/Users/x/Mein Ordner/aethelFoo", "aethelFoo"),
         ("  aethelFoo  ", "aethelFoo"),
+        ("aethelFoo.git", "aethelFoo"),
+        ("/srv/git/aethelFoo.git/", "aethelFoo"),
     ],
 )
 def test_repo_ref_takes_the_last_path_component(value: str, expected: str) -> None:
@@ -408,10 +535,57 @@ def test_repo_ref_takes_the_last_path_component(value: str, expected: str) -> No
         {"repo": "/"},
         {"repo": ".."},
         {"ziel": "Dokumentation verbessern"},  # Freitext ist kein Repo
+        {"pfad": "/Users/x/Mein Ordner/aethelFoo"},  # Werte mit Leerzeichen werden abgelehnt
+        {"ziel": "docs/Fix foo bar"},
+        {"pfad": "foo.py"},  # Dateipfade mit Suffix sind keine Repos
+        {"pfad": "/a/b/README.md"},
+        {"pfad": "src/main.rs"},
+        {"ziel": "https://github.com"},  # nur ein Host
+        {"ziel": "github.com"},
+        {"repo": ".aix"},
+        {"repo": ".git"},
     ],
 )
 def test_repo_ref_is_none_without_a_usable_value(auftrag: dict) -> None:
     assert repo_ref(auftrag) is None
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "https://github.com/AETHEL-Omega/aethelFoo",
+        "https://github.com/AETHEL-Omega/aethelFoo.git",
+        "https://github.com/AETHEL-Omega/aethelFoo/",
+        "https://github.com/AETHEL-Omega/aethelFoo.git?tab=readme#abschnitt",
+        "https://github.com/AETHEL-Omega/aethelFoo?x=1",
+        "github.com/AETHEL-Omega/aethelFoo",
+        "git@github.com:AETHEL-Omega/aethelFoo.git",
+        "ssh://git@github.com/AETHEL-Omega/aethelFoo.git",
+    ],
+)
+def test_repo_ref_reads_urls_as_host_org_repo(value: str) -> None:
+    assert repo_ref({"ziel": value}) == "aethelFoo"
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "https://github.com/AETHEL-Omega/aethelFoo/pull/12",
+        "https://github.com/AETHEL-Omega/aethelFoo/pull/12/files",
+        "https://github.com/AETHEL-Omega/aethelFoo/pull/12#issuecomment-1",
+        "https://github.com/AETHEL-Omega/aethelFoo/issues/3",
+        "https://github.com/AETHEL-Omega/aethelFoo/tree/main",
+        "https://github.com/AETHEL-Omega/aethelFoo/blob/main/src/lib.rs",
+        "AETHEL-Omega/aethelFoo/pull/12",
+    ],
+)
+def test_repo_ref_takes_the_segment_before_pull_and_other_url_markers(value: str) -> None:
+    assert repo_ref({"ziel": value}) == "aethelFoo"
+
+
+def test_repo_ref_does_not_apply_url_markers_to_plain_paths() -> None:
+    assert repo_ref({"pfad": "/Users/x/workspace/aethelFoo/issues"}) == "issues"
+    assert repo_ref({"pfad": "/Users/x/workspace/aethelFoo/tree"}) == "tree"
 
 
 def test_repo_ref_uses_key_priority_and_falls_through_unusable_values() -> None:
@@ -440,6 +614,7 @@ def _drift_with_everything() -> RegisterDrift:
             "profiles": 2,
             "auftraege_lines": 3,
             "auftraege_parsed": 2,
+            "auftraege_ohne_bezug": 1,
         },
     )
 
@@ -451,6 +626,7 @@ def test_render_markdown_has_header_counts_names_and_closing_sentence() -> None:
     assert "| Scan: Repos | 2 |" in text
     assert "| Scan: Worktrees | 1 |" in text
     assert "| Aufträge: Zeilen | 3 |" in text
+    assert "| Aufträge: ohne Repo-Bezug | 1 |" in text
     assert "| Manifest: Alter in Tagen | 12 |" in text
     for name in ("beta", "geist", "gamma", "waise", "unbekannt"):
         assert f"- `{name}`" in text
@@ -504,6 +680,15 @@ def test_render_json_is_valid_sorted_and_keeps_umlauts() -> None:
     assert text.startswith("{\n  ")  # indent=2
     assert data["manifest_age_days"] == 12
     assert data["counts"]["auftraege_parsed"] == 2
+
+
+def test_json_and_as_dict_carry_the_schema() -> None:
+    drift = _drift_with_everything()
+
+    assert SCHEMA == "aethel.projects.register-drift/v1"
+    assert drift.as_dict()["schema"] == SCHEMA
+    assert json.loads(render_json(drift))["schema"] == SCHEMA
+    assert json.loads(render_json(RegisterDrift()))["schema"] == SCHEMA
 
 
 def test_as_dict_turns_tuples_into_lists_and_copies_counts() -> None:

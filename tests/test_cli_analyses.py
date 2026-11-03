@@ -59,12 +59,15 @@ def test_tc061_proposals_and_loops_as_json(tmp_path: Path, capsys) -> None:
 
 
 def test_tc061_unknown_id_and_out_on_index_are_usage_errors(tmp_path: Path, capsys) -> None:
-    """TC-061: unbekannte ID und --out auf INDEX.json geben Exit 2."""
+    """TC-061: unbekannte ID ist Datenfehler (1); --out in die Ablage und fehlende Ablage sind Bedienfehler (2)."""
     base = _ablage(tmp_path)
-    assert main(["--root", str(tmp_path), "analyses", "--base", str(base), "--show", "gibt-es-nicht"]) == 2
+    assert main(["--root", str(tmp_path), "analyses", "--base", str(base), "--show", "gibt-es-nicht"]) == 1
     assert "Unbekannte Analyse" in capsys.readouterr().err
-    assert main(["--root", str(tmp_path), "analyses", "--base", str(base), "--list",
-                 "--out", str(base / "INDEX.json")]) == 2
+    for ziel in ("INDEX.json", "index.json", "vorschlaege.json", "2026-11-03/NEU.md"):
+        assert main(["--root", str(tmp_path), "analyses", "--base", str(base), "--list",
+                     "--out", str(base / ziel)]) == 2, ziel
+    assert (base / "INDEX.json").exists() is False
+    assert main(["--root", str(tmp_path), "analyses", "--base", str(tmp_path / "fehlt"), "--list"]) == 2
 
 
 def test_tc061_register_requires_scope_and_summary(tmp_path: Path, capsys) -> None:
@@ -105,3 +108,28 @@ def test_tc063_registers_missing_snapshot_is_usage_error(tmp_path: Path, capsys)
     """TC-063: fehlender Snapshot nennt den Weg zu scan --json und gibt Exit 2."""
     assert main(["--root", str(tmp_path), "registers", "--snapshot", str(tmp_path / "fehlt.json")]) == 2
     assert "scan --json" in capsys.readouterr().err
+
+
+def test_tc063_registers_explicit_missing_paths_are_usage_errors(tmp_path: Path, capsys) -> None:
+    """TC-063: explizit genannte, fehlende --manifest/--auftraege geben Exit 2."""
+    root = tmp_path / "ws"
+    make_repo(root / "alpha", commits=1)
+    snapshot = tmp_path / "scan.json"
+    assert main(["--root", str(root), "scan", "--json", str(snapshot)]) == 0
+    capsys.readouterr()
+    assert main(["--root", str(root), "--manifest", str(tmp_path / "fehlt.yaml"), "registers", "--snapshot", str(snapshot)]) == 2
+    assert main(["--root", str(root), "registers", "--snapshot", str(snapshot), "--auftraege", str(tmp_path / "fehlt.jsonl")]) == 2
+
+
+def test_tc064_stack_cli_markdown_json_and_unknown_repo(tmp_path: Path, capsys) -> None:
+    """TC-064: stack liefert Schichtenkarte als md und json; unbekanntes --repo gibt Exit 1."""
+    root = tmp_path / "ws"
+    make_repo(root / "aethelCodeAnalyzer", commits=1)
+    make_repo(root / "aethelContainer", commits=1)
+    assert main(["--root", str(root), "stack"]) == 0
+    out = capsys.readouterr().out
+    assert "Schichtenkarte" in out and "aethelCodeAnalyzer" in out
+    assert main(["--root", str(root), "stack", "--format", "json"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["schema"] == "aethel.projects.stack/v1"
+    assert main(["--root", str(root), "stack", "--repo", "gibt-es-nicht"]) == 1

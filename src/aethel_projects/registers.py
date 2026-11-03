@@ -13,6 +13,11 @@ kein Netz (die GitHub-Organisation wird nicht abgefragt), kein Git-Aufruf, keine
 Schreibzugriffe. Verglichen wird ausschließlich über den **Repo-Namen**
 (case-sensitiv) — Namen sind keine Projektidentität. Dass der Abgleich nur über
 Namen läuft, ist selbst der Befund: eine Produkt-ID fehlt.
+
+Worktrees: Der Scan legt zusätzliche Checkouts als ``worktree_paths`` am
+Haupt-Eintrag ab; ``is_worktree=True`` gilt nur für Historien ohne Hauptcheckout
+(``discovery.py``). Beides sind Worktrees. Ihre **Ordnernamen** gelten als im Scan
+bekannt, sind aber keine Repos (kein ``missing_in_manifest``).
 """
 
 from __future__ import annotations
@@ -22,7 +27,7 @@ import os
 import time
 from collections.abc import Iterable
 from dataclasses import dataclass, field
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from .fsutil import is_skipped
@@ -39,6 +44,9 @@ PROFILE_NAME_KEYS = ("name", "id", "projekt", "repo")
 
 #: Relativer Pfad des Projektprofils in einem Repo-Ordner.
 PROFILE_RELPATH = Path(".aix") / "project-profile.json"
+
+#: Schema-Kennung der JSON-Ausgabe.
+SCHEMA = "aethel.projects.register-drift/v1"
 
 #: Höchstzahl der Einträge je Kategorie im Markdown.
 MAX_LIST = 50
@@ -64,7 +72,16 @@ COUNT_LABELS: tuple[tuple[str, str], ...] = (
     ("profiles", "Projektprofile"),
     ("auftraege_lines", "Aufträge: Zeilen"),
     ("auftraege_parsed", "Aufträge: gelesen"),
+    ("auftraege_ohne_bezug", "Aufträge: ohne Repo-Bezug"),
 )
+
+#: URL-Pfadsegmente, hinter denen kein Repo-Name mehr kommt (``…/repo/pull/12``).
+_URL_MARKERS = frozenset(
+    {"pull", "pulls", "issues", "commit", "commits", "tree", "blob", "compare", "releases", "actions"}
+)
+
+#: Solche Segmente gelten auch ohne URL, wenn eine Zahl folgt (``org/repo/pull/12``).
+_NUMBERED_MARKERS = frozenset({"pull", "pulls", "issues"})
 
 _SECONDS_PER_DAY = 86_400
 
@@ -73,19 +90,22 @@ _SECONDS_PER_DAY = 86_400
 class RegisterDrift:
     """Der Befund des Abgleichs. Alle Listen sind sortiert und ohne Duplikate.
 
-    ``counts["scan_repos"]`` zählt Scan-Einträge **ohne** Worktrees,
-    ``counts["scan_worktrees"]`` die Scan-Einträge mit ``is_worktree=True``.
+    ``counts["scan_repos"]`` zählt Scan-Einträge ohne ``is_worktree``;
+    ``counts["scan_worktrees"]`` zählt alle Worktree-Checkouts: die Pfade in
+    ``worktree_paths`` aller Scan-Einträge plus die Einträge mit
+    ``is_worktree=True``. ``counts["auftraege_ohne_bezug"]`` zählt geparste
+    Aufträge, in denen kein Repo-Bezug erkennbar ist.
     """
 
     #: Repos im Scan ohne Manifest-Eintrag (keine Worktrees).
     missing_in_manifest: tuple[str, ...] = ()
     #: Manifest-Namen ohne Repo (oder Worktree) im Scan.
     dead_manifest_entries: tuple[str, ...] = ()
-    #: Scan-Einträge mit ``is_worktree=True``, deren Name nicht im Manifest steht.
+    #: Ordnernamen von Worktrees (``worktree_paths`` und ``is_worktree=True``) ohne Manifest-Eintrag.
     unregistered_worktrees: tuple[str, ...] = ()
     #: Profil-Ordner, deren Namen das Manifest nicht kennt.
     profiles_without_manifest: tuple[str, ...] = ()
-    #: Profil-Ordner, deren Namen der Scan nicht kennt.
+    #: Profil-Ordner, deren Namen der Scan nicht kennt (Worktree-Ordner zählen als bekannt).
     profiles_without_repo: tuple[str, ...] = ()
     #: Repo-Bezüge aus den Aufträgen, die weder Scan noch Manifest kennen.
     auftraege_unknown_repos: tuple[str, ...] = ()
@@ -101,6 +121,7 @@ class RegisterDrift:
     def as_dict(self) -> dict[str, Any]:
         """Serialisierbare Darstellung (Tupel werden zu Listen)."""
         return {
+            "schema": SCHEMA,
             "missing_in_manifest": list(self.missing_in_manifest),
             "dead_manifest_entries": list(self.dead_manifest_entries),
             "unregistered_worktrees": list(self.unregistered_worktrees),
@@ -185,17 +206,24 @@ def find_profiles(root: Path, max_depth: int = 2) -> dict[str, dict]:
     return found
 
 
-def load_auftraege(path: Path | None) -> tuple[list[dict], int]:
+def load_auftraege(path: Path | None, *, strict: bool = False) -> tuple[list[dict], int]:
     """Liest ``auftraege.jsonl`` zeilenweise.
 
     Gibt ``(geparste Auftraege, Zahl der nicht leeren Zeilen)`` zurück. Kaputte
     Zeilen und Zeilen, die kein JSON-Objekt sind, zählen mit, werden aber nicht
-    geparst. ``None`` oder eine fehlende/unlesbare Datei ergibt ``([], 0)``.
+    geparst. ``None`` ergibt immer ``([], 0)``.
+
+    Eine fehlende oder unlesbare Datei ergibt im Default (``strict=False``) ebenfalls
+    ``([], 0)`` — für den optionalen Standardort. Wurde der Pfad **explizit**
+    übergeben, sollte der Aufrufer ``strict=True`` setzen: dann gibt es
+    ``FileNotFoundError`` (fehlend, kein reguläres File) bzw. ``OSError`` (nicht lesbar).
     """
     if path is None:
         return [], 0
     source = Path(path)
     if not source.is_file():
+        if strict:
+            raise FileNotFoundError(f"Aufträge-Datei nicht gefunden: {source}")
         return [], 0
 
     parsed: list[dict] = []
@@ -214,6 +242,8 @@ def load_auftraege(path: Path | None) -> tuple[list[dict], int]:
                 if isinstance(document, dict):
                     parsed.append(document)
     except OSError:
+        if strict:
+            raise
         return [], 0
     return parsed, lines
 
@@ -221,20 +251,53 @@ def load_auftraege(path: Path | None) -> tuple[list[dict], int]:
 # --------------------------------------------------------------------------- Namen
 
 
-def _name_from(value: object) -> str | None:
-    """Repo-Name aus einem Wert: bei Pfaden/URLs der letzte Bestandteil.
+def _url_like(segments: list[str], text: str) -> bool:
+    """Sieht der Wert nach URL/``host/org/repo`` aus (Schema, ``git@`` oder Host mit Punkt vorn)?"""
+    return "://" in text or text.startswith("git@") or "." in segments[0]
 
-    Freitext (Leerzeichen, aber kein ``/``) ist kein Repo-Name und ergibt ``None``.
+
+def _marker_index(segments: list[str], text: str) -> int | None:
+    """Index eines Segments wie ``pull``/``issues``, hinter dem kein Repo-Name mehr kommt."""
+    url_like = _url_like(segments, text)
+    for index in range(1, len(segments)):
+        segment = segments[index]
+        if url_like and segment in _URL_MARKERS:
+            return index
+        if (
+            segment in _NUMBERED_MARKERS
+            and index + 1 < len(segments)
+            and segments[index + 1].isdigit()
+        ):
+            return index
+    return None
+
+
+def _name_from(value: object) -> str | None:
+    """Repo-Name aus einem Wert — oder ``None``, wenn der Wert kein Repo benennt.
+
+    * Pfade und URLs liefern den letzten Bestandteil; Query-String und Fragment
+      entfallen, ein ``.git``-Suffix wird abgeschnitten.
+    * ``…/repo/pull/12`` (auch ``issues``, bei URLs auch ``tree``, ``blob`` u. a.)
+      liefert das Segment **vor** dem Marker.
+    * Werte mit Leerzeichen sind Freitext, Namen mit Dateisuffix (``foo.py``,
+      ``github.com``) Dateien oder Hosts — beide ergeben ``None``.
     """
     if not isinstance(value, str):
         return None
-    text = value.strip().replace("\\", "/").rstrip("/")
-    if not text:
+    text = value.strip()
+    if not text or any(char.isspace() for char in text):
         return None
-    if "/" not in text and any(char.isspace() for char in text):
+    text = text.replace("\\", "/").split("#", 1)[0].split("?", 1)[0]
+    segments = [segment for segment in text.split("/") if segment]
+    if not segments:
         return None
-    name = text.rsplit("/", 1)[-1].strip()
-    if name in {"", ".", ".."}:
+    marker = _marker_index(segments, text)
+    name = segments[marker - 1] if marker is not None else segments[-1]
+    if name.endswith(".git"):
+        name = name[: -len(".git")]
+    if not name or name.startswith("."):
+        return None
+    if PurePosixPath(name).suffix:
         return None
     return name
 
@@ -243,8 +306,8 @@ def repo_ref(auftrag: dict) -> str | None:
     """Der Repo-Name, auf den sich ein Auftrag bezieht — oder ``None``.
 
     Geprüft werden :data:`REPO_REF_KEYS` in Rangfolge; der erste brauchbare Wert
-    gewinnt. Pfade (``/a/b/repo/``) und URLs liefern den letzten Bestandteil.
-    Fehlende Schlüssel, Nicht-Strings und leere Werte werden übersprungen.
+    gewinnt (Regeln: :func:`_name_from`). Fehlende Schlüssel, Nicht-Strings,
+    leere Werte, Freitext und Dateipfade werden übersprungen.
     """
     if not isinstance(auftrag, dict):
         return None
@@ -289,26 +352,40 @@ def reconcile(
 ) -> RegisterDrift:
     """Gleicht Scan, Manifest, Projektprofile und Aufträge über den Repo-Namen ab.
 
-    * Ein Name gilt als im Scan bekannt, wenn *irgendein* Scan-Eintrag (auch ein
-      Worktree) ihn trägt.
+    * Worktrees sind die Pfade aus ``worktree_paths`` aller Scan-Einträge plus die
+      Einträge mit ``is_worktree=True``. Ihre Ordnernamen gelten als im Scan
+      bekannt, sind aber keine Repos: sie erscheinen nie in ``missing_in_manifest``,
+      sondern ohne Manifest-Eintrag in ``unregistered_worktrees``.
+    * Ein Manifest-Name ist nur ``dead``, wenn weder ein Repo noch ein Worktree-Ordner
+      so heißt.
     * Ein Profil gilt als im Manifest bzw. im Scan bekannt, wenn sein Ordnername
       **oder** ein deklarierter Name (``name``/``id``/``projekt``/``repo``) dort
-      steht; gemeldet wird es unter dem Ordnernamen.
-    * Aufträge ohne erkennbaren Repo-Bezug werden nicht gemeldet.
+      steht (Scan: Repos und Worktree-Ordner); gemeldet wird es unter dem Ordnernamen.
+    * Aufträge ohne erkennbaren Repo-Bezug werden nicht als unbekannt gemeldet,
+      sondern in ``counts["auftraege_ohne_bezug"]`` gezählt.
     """
     entries = [
         repo for repo in scan_repos
         if isinstance(repo, dict) and isinstance(repo.get("name"), str) and repo["name"]
     ]
-    worktrees = [repo for repo in entries if repo.get("is_worktree") is True]
+    wt_entries = [repo for repo in entries if repo.get("is_worktree") is True]
     plain = [repo for repo in entries if repo.get("is_worktree") is not True]
 
-    scan_names = {repo["name"] for repo in entries}
+    wt_paths: set[str] = set()
+    for repo in entries:
+        listed = repo.get("worktree_paths")
+        if isinstance(listed, (list, tuple)):
+            wt_paths.update(item for item in listed if isinstance(item, str) and item.strip())
+    wt_names = {PurePosixPath(path.replace("\\", "/")).name for path in wt_paths}
+    wt_names.discard("")
+    wt_names |= {repo["name"] for repo in wt_entries}
+
+    scan_names = {repo["name"] for repo in entries} | wt_names
     manifest_names = set(manifest)
 
     missing = sorted({repo["name"] for repo in plain} - manifest_names)
     dead = sorted(manifest_names - scan_names)
-    unregistered = sorted({repo["name"] for repo in worktrees} - manifest_names)
+    unregistered = sorted(wt_names - manifest_names)
 
     without_manifest = sorted(
         folder for folder, profile in profiles.items()
@@ -319,7 +396,8 @@ def reconcile(
         if not _profile_names(folder, profile) & scan_names
     )
 
-    refs = {ref for ref in (repo_ref(a) for a in auftraege) if ref}
+    all_refs = [repo_ref(a) for a in auftraege]
+    refs = {ref for ref in all_refs if ref}
     unknown = sorted(refs - scan_names - manifest_names)
 
     return RegisterDrift(
@@ -332,11 +410,12 @@ def reconcile(
         manifest_age_days=_manifest_age_days(manifest_path),
         counts={
             "scan_repos": len(plain),
-            "scan_worktrees": len(worktrees),
+            "scan_worktrees": len(wt_paths) + len(wt_entries),
             "manifest_entries": len(manifest),
             "profiles": len(profiles),
             "auftraege_lines": max(auftraege_lines, len(auftraege)),
             "auftraege_parsed": len(auftraege),
+            "auftraege_ohne_bezug": sum(1 for ref in all_refs if ref is None),
         },
     )
 
