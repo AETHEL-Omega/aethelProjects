@@ -89,3 +89,14 @@ Prüfung und genaue Consumer-Landung bitten. GitHub-Actions-Deaktivierung vor
 Netzwirkung ausdrücklich mit Manuel klären. Nach legitimer Kostensicherung
 bestehenden Landing-Weg nutzen; Live-Abnahme/Compile-Lauf im bestehenden Slot
 koordinieren. Keine AIX-Probe neben dem fremden Vollgate.
+
+
+## 03.11.2026 — Analysen-Ablage, Register-Abgleich, Schichtenkarte
+
+Branch `feat/analysen-register-schichten-1103` auf Basis `feat/projekte-belege-stubs-1030`
+(134 Tests grün). Neu: `analyses.py`, `registers.py`, `stack.py` mit Tests; CLI-Subcommands
+`analyses`, `registers`, `stack`; Ordner `analysen/` mit vier Berichten der Workspace-Analyse
+vom 03.11.2026, `INDEX.json`, `vorschlaege.json` (30 Projekte), `kreislaeufe.json` (22 Kreise).
+Gebaut mit drei getrennten Sonnet-Lanes je Modul; CLI, Docs und Inhalte von der Hauptinstanz.
+Rückbau: keiner nötig (nur Ergänzungen); `reports/` bleibt gitignored, `analysen/` ist versioniert.
+Komponente: aethelProjects@aethel.projects.analysen/v1, register-drift/v1, stack/v1.

@@ -1,6 +1,6 @@
 """CLI — eine dünne Hülle um die API.
 
-Subcommands: scan · report · audit · market · forensics · code · factory · continuity
+Subcommands: scan · report · audit · market · forensics · code · factory · continuity · analyses · registers · stack
 """
 
 from __future__ import annotations
@@ -119,6 +119,36 @@ def _build_parser() -> argparse.ArgumentParser:
     continuity_cmd.add_argument("--format", choices=["md", "json"], default="md")
     continuity_cmd.add_argument("--repo", default=None, help="Nur ein Repository betrachten")
     continuity_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
+
+    analyses_cmd = add("analyses", "Analysen-Ablage: Berichte, Vorschläge und Kreisläufe lesen oder registrieren")
+    analyses_mode = analyses_cmd.add_mutually_exclusive_group(required=True)
+    analyses_mode.add_argument("--list", action="store_true", help="Alle registrierten Analysen")
+    analyses_mode.add_argument("--show", metavar="ID", default=None, help="Eine Analyse ausgeben (Prüfsumme wird geprüft)")
+    analyses_mode.add_argument("--proposals", action="store_true", help="Vorgeschlagene Projekte (vorschlaege.json)")
+    analyses_mode.add_argument("--loops", action="store_true", help="Definierte Kreisläufe (kreislaeufe.json)")
+    analyses_mode.add_argument("--stats", action="store_true", help="Zähler der Ablage")
+    analyses_mode.add_argument("--register", metavar="PATH", default=None, help="Markdown-Datei unter analysen/ registrieren")
+    analyses_cmd.add_argument("--base", default=None, help="Ablage-Ordner (Default: <repo>/analysen)")
+    analyses_cmd.add_argument("--scope", choices=["workspace", "aethelProjects", "fabrik", "firma", "stack"], default=None)
+    analyses_cmd.add_argument("--summary", default=None, help="Ein Satz Zusammenfassung (für --register)")
+    analyses_cmd.add_argument("--tags", default="", help="Kommagetrennte Schlagwörter (für --register)")
+    analyses_cmd.add_argument("--id", default=None, help="Explizite ID (für --register)")
+    analyses_cmd.add_argument("--date", default=None, help="Datum YYYY-MM-DD (für --register)")
+    analyses_cmd.add_argument("--format", choices=["md", "json"], default="md")
+    analyses_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
+
+    registers_cmd = add("registers", "Register-Abgleich: Manifest, Scan, Projektprofile, Aufträge")
+    registers_cmd.add_argument("--snapshot", required=True, help="JSON aus scan --json")
+    registers_cmd.add_argument("--auftraege", default=None, help="auftraege.jsonl (Default: ~/.aix/auftraege/auftraege.jsonl, wenn vorhanden)")
+    registers_cmd.add_argument("--profiles-root", default=None, help="Wurzel für .aix/project-profile.json (Default: --root)")
+    registers_cmd.add_argument("--fail-on-drift", action="store_true", help="Exit-Code 1, wenn Drift vorliegt")
+    registers_cmd.add_argument("--format", choices=["md", "json"], default="md")
+    registers_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
+
+    stack_cmd = add("stack", "Schichtenkarte: jedes Repo einer Stack-Schicht zugeordnet, leere Schichten sichtbar")
+    stack_cmd.add_argument("--format", choices=["md", "json"], default="md")
+    stack_cmd.add_argument("--repo", default=None, help="Nur ein Repository betrachten")
+    stack_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
 
     return parser
 
@@ -651,6 +681,98 @@ def _cmd_continuity(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _cmd_analyses(args: argparse.Namespace) -> int:
+    """Analysen-Ablage lesen oder eine Analyse registrieren (schreibt nur INDEX.json)."""
+    from . import analyses as analyses_mod
+
+    base = Path(args.base).expanduser() if args.base else analyses_mod.default_base()
+    if args.out and Path(args.out).expanduser().resolve() == (base / analyses_mod.INDEX_FILE).resolve():
+        sys.stderr.write("--out darf nicht auf INDEX.json zeigen\n")
+        return EXIT_USAGE
+    try:
+        if args.list:
+            entries = analyses_mod.list_entries(base)
+            text = (json.dumps(analyses_mod.render_index_json(entries), ensure_ascii=False, indent=2, sort_keys=True)
+                    if args.format == "json" else analyses_mod.render_index_markdown(entries))
+        elif args.proposals:
+            proposals = analyses_mod.load_proposals(base)
+            text = (json.dumps(analyses_mod.render_proposals_json(proposals), ensure_ascii=False, indent=2, sort_keys=True)
+                    if args.format == "json" else analyses_mod.render_proposals_markdown(proposals))
+        elif args.loops:
+            loops = analyses_mod.load_loops(base)
+            text = (json.dumps(analyses_mod.render_loops_json(loops), ensure_ascii=False, indent=2, sort_keys=True)
+                    if args.format == "json" else analyses_mod.render_loops_markdown(loops))
+        elif args.stats:
+            stats = analyses_mod.summary(base)
+            text = (json.dumps(stats, ensure_ascii=False, indent=2, sort_keys=True) if args.format == "json"
+                    else "\n".join(f"{key}: {value}" for key, value in sorted(stats.items())))
+        elif args.show:
+            markdown = analyses_mod.show(base, args.show)
+            if args.format == "json":
+                text = json.dumps({"id": args.show, "markdown": markdown,
+                                   "verified": not markdown.startswith(analyses_mod.CHANGED_WARNING)},
+                                  ensure_ascii=False, indent=2)
+            else:
+                text = markdown
+        else:
+            if not args.scope or not args.summary:
+                sys.stderr.write("--register braucht --scope und --summary\n")
+                return EXIT_USAGE
+            tags = tuple(tag.strip() for tag in args.tags.split(",") if tag.strip())
+            entry = analyses_mod.register(base, Path(args.register).expanduser(), scope=args.scope,
+                                          summary=args.summary, tags=tags, entry_id=args.id, date=args.date)
+            text = (json.dumps(entry.as_dict(), ensure_ascii=False, indent=2, sort_keys=True) if args.format == "json"
+                    else f"registriert: {entry.id} ({entry.date}) → {entry.path}")
+    except KeyError as error:
+        sys.stderr.write(f"Unbekannte Analyse: {error.args[0] if error.args else error}\n")
+        return EXIT_USAGE
+    except (FileNotFoundError, ValueError) as error:
+        sys.stderr.write(f"{error}\n")
+        return EXIT_USAGE
+    _write(text, args.out)
+    return EXIT_OK
+
+
+def _cmd_registers(args: argparse.Namespace) -> int:
+    """Fünf Register gegeneinander: Manifest, Scan, Projektprofile, Aufträge."""
+    from . import manifest as manifest_mod
+    from . import registers as registers_mod
+
+    try:
+        scan = registers_mod.load_scan(Path(args.snapshot).expanduser())
+    except (FileNotFoundError, ValueError) as error:
+        sys.stderr.write(f"{error}\n")
+        return EXIT_USAGE
+    manifest_path = Path(args.manifest).expanduser() if args.manifest else manifest_mod.DEFAULT_MANIFEST
+    manifest = manifest_mod.load_manifest(manifest_path)
+    profiles = registers_mod.find_profiles(Path(args.profiles_root or args.root).expanduser())
+    auftraege_path = Path(args.auftraege).expanduser() if args.auftraege else registers_mod.DEFAULT_AUFTRAEGE
+    auftraege, lines = registers_mod.load_auftraege(auftraege_path if auftraege_path.is_file() else None)
+    drift = registers_mod.reconcile(scan, manifest, profiles, auftraege,
+                                    manifest_path=manifest_path if manifest_path.is_file() else None,
+                                    auftraege_lines=lines)
+    _write(registers_mod.render_json(drift) if args.format == "json" else registers_mod.render_markdown(drift), args.out)
+    if args.fail_on_drift and drift.has_drift:
+        return EXIT_ERROR
+    return EXIT_OK
+
+
+def _cmd_stack(args: argparse.Namespace) -> int:
+    """Schichtenkarte des Gesamtstacks."""
+    from . import stack as stack_mod
+
+    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    repos = result.repos
+    if args.repo:
+        repos = tuple(r for r in repos if r.name == args.repo)
+        if not repos:
+            sys.stderr.write(f"Repository nicht gefunden: {args.repo}\n")
+            return EXIT_ERROR
+    stack_map = stack_mod.build(repos, Path(args.root).expanduser())
+    _write(stack_mod.render_json(stack_map) if args.format == "json" else stack_mod.render_markdown(stack_map), args.out)
+    return EXIT_OK
+
+
 COMMANDS = {
     "aix-input": _cmd_aix_input,
     "inventory": _cmd_inventory,
@@ -663,6 +785,9 @@ COMMANDS = {
     "code": _cmd_code,
     "factory": _cmd_factory,
     "continuity": _cmd_continuity,
+    "analyses": _cmd_analyses,
+    "registers": _cmd_registers,
+    "stack": _cmd_stack,
 }
 
 

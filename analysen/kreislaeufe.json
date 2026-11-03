@@ -1,0 +1,456 @@
+{
+  "loops": [
+    {
+      "besitzer": "aethelAppleRuntime",
+      "ebene": "E0",
+      "fehlt": [
+        "PreToolUse-Tor",
+        "Policy-as-Code",
+        "Containerization statt sandbox-exec"
+      ],
+      "id": "K-E0-werkzeug",
+      "name": "Werkzeugaufruf",
+      "sensor": "PreToolUse/PostToolUse-Hook, Sandbox-Log",
+      "sollwert": "Policy je Werkzeug, Pfadgrenze, Budget je Aufruf",
+      "status": "offen",
+      "stellglied": "erlauben, verweigern, in Sandbox umleiten",
+      "stoergroessen": [
+        "Prompt-Injektion",
+        "Pfadflucht",
+        "Netzwerk"
+      ],
+      "takt": "ms",
+      "vergleicher": "Policy-Regel (aixd)"
+    },
+    {
+      "besitzer": "aethelAppleRuntime",
+      "ebene": "E1",
+      "fehlt": [
+        "zurückgehaltene Tests",
+        "Testdatei-Wächter",
+        "Kontextbeschneidung",
+        "Budget mit Fortsetzungsauftrag"
+      ],
+      "id": "K-E1-lauf",
+      "name": "Agent-Schleife",
+      "sensor": "Tests, Compiler, Linter, Analyzer, Token-Zähler",
+      "sollwert": "Akzeptanzkriterien, Token-/Zeitbudget, erlaubte Dateien",
+      "status": "teilweise",
+      "stellglied": "nächster Schritt, Subagent, Abbruch, Fortsetzungsauftrag",
+      "stoergroessen": [
+        "Kontextverlust",
+        "Halluzination",
+        "Reward-Hacking"
+      ],
+      "takt": "min",
+      "vergleicher": "Orakel grün und Kriterien erfüllt"
+    },
+    {
+      "besitzer": "aethelLanding",
+      "ebene": "E2",
+      "fehlt": [
+        "Review als Software statt Anweisung",
+        "Rubrik aus Consultant"
+      ],
+      "id": "K-E2-review",
+      "name": "Review vor Gate",
+      "sensor": "getrennte Review-Instanz mit Rubrik aus aethelConsultant",
+      "sollwert": "Vertrag, Rückbauklasse, Kostenklasse eingehalten",
+      "status": "offen",
+      "stellglied": "Nacharbeit oder Freigabe zum Gate",
+      "stoergroessen": [
+        "Selbstbestätigung",
+        "Zeitdruck"
+      ],
+      "takt": "h",
+      "vergleicher": "Rubrik-Urteil"
+    },
+    {
+      "besitzer": "aethelLanding",
+      "ebene": "E2",
+      "fehlt": [
+        "Gate-Image mit Digest",
+        "drei Sensoren",
+        "Richter mit eigenem Kontext"
+      ],
+      "id": "K-E2-gate",
+      "name": "Gate",
+      "sensor": "Gate-Container, zurückgehaltene Tests, Testdatei-Wächter",
+      "sollwert": "Gate grün in hermetischer Umgebung",
+      "status": "teilweise",
+      "stellglied": "Landen oder Zurückweisen",
+      "stoergroessen": [
+        "Fremdlast",
+        "Flakiness",
+        "Gate-Stau"
+      ],
+      "takt": "h",
+      "vergleicher": "Verdict"
+    },
+    {
+      "besitzer": "aethelLanding",
+      "ebene": "E2",
+      "fehlt": [
+        "Landung als Verb",
+        "Receipt-Verifier",
+        "Limbus-Route in Landung"
+      ],
+      "id": "K-E2-landung",
+      "name": "Landung",
+      "sensor": "Receipt-Verifier",
+      "sollwert": "Receipt vollständig mit Digests und Rückbau-Route",
+      "status": "offen",
+      "stellglied": "Landung als Verb, Rückbau über Limbus",
+      "stoergroessen": [
+        "Direktlauf gegen ~/.aix",
+        "Merge ohne Gate"
+      ],
+      "takt": "h",
+      "vergleicher": "Receipt-Schema aethel.receipt/v1"
+    },
+    {
+      "besitzer": "aethelProjects",
+      "ebene": "E3",
+      "fehlt": [
+        "Konsument (aethelCompany/aethelFactory)",
+        "Reife nach Funktion"
+      ],
+      "id": "K-E3-reife",
+      "name": "Projektreife",
+      "sensor": "aethelProjects-Scan, Analyzer-Befunde, Testabdeckung",
+      "sollwert": "Reifegrad-Ziel je Produkt (Funktion, nicht Dateien)",
+      "status": "offen",
+      "stellglied": "Aufträge erzeugen, Priorität setzen, Stub archivieren",
+      "stoergroessen": [
+        "Drift",
+        "Duplikate",
+        "verwaiste Zweige"
+      ],
+      "takt": "Tage",
+      "vergleicher": "Reifegrad-Delta und offene Befunde"
+    },
+    {
+      "besitzer": "aethelProjects",
+      "ebene": "E3",
+      "fehlt": [
+        "Intent aus Code",
+        "Vergleicher Absicht/Code"
+      ],
+      "id": "K-E3-intent",
+      "name": "Absicht gleich Code",
+      "sensor": "Intent-Quelle, Code-Abgleich, Stub-Marker",
+      "sollwert": "Intent aus SPEC entspricht Code",
+      "status": "offen",
+      "stellglied": "SPEC nachziehen oder Code zurückbauen",
+      "stoergroessen": [
+        "README-Boilerplate",
+        "Badges"
+      ],
+      "takt": "Tage",
+      "vergleicher": "Übereinstimmung Absicht/Code"
+    },
+    {
+      "besitzer": "aethelRegistry",
+      "ebene": "E3",
+      "fehlt": [
+        "Produkt-ID",
+        "Konfigurations-Compiler"
+      ],
+      "id": "K-E3-register",
+      "name": "Ein Register",
+      "sensor": "aethel-projects registers",
+      "sollwert": "alle Register aus einer Quelle; Drift null",
+      "status": "offen",
+      "stellglied": "Registry-Eintrag, Archiv, Manifest-Erzeugung",
+      "stoergroessen": [
+        "manuelle Pflege",
+        "Worktrees"
+      ],
+      "takt": "Tage",
+      "vergleicher": "Drift-Zähler"
+    },
+    {
+      "besitzer": "aethelIncubator",
+      "ebene": "E3",
+      "fehlt": [
+        "Inkubator",
+        "Tor-Kriterien",
+        "Company-Entscheidung"
+      ],
+      "id": "K-E3-inkubator",
+      "name": "Inkubator-Tore",
+      "sensor": "Incubator-Prüfung mit Consultant-Checkliste",
+      "sollwert": "Tor-Kriterien je Stufe und Portfolio-Klasse",
+      "status": "offen",
+      "stellglied": "Tor öffnen, zurückstellen, archivieren",
+      "stoergroessen": [
+        "Repo ohne Entscheidung",
+        "Begeisterung"
+      ],
+      "takt": "Wochen",
+      "vergleicher": "Kriterien erfüllt"
+    },
+    {
+      "besitzer": "aixd",
+      "ebene": "E4",
+      "fehlt": [
+        "Lease als Daten statt Anweisung"
+      ],
+      "id": "K-E4-wip",
+      "name": "WIP-Grenze",
+      "sensor": "Lease-Zähler in aixd",
+      "sollwert": "höchstens drei Spuren gleichzeitig",
+      "status": "teilweise",
+      "stellglied": "Zuteilen oder Warten",
+      "stoergroessen": [
+        "Nachfragespitzen",
+        "parallele Sitzungen"
+      ],
+      "takt": "h",
+      "vergleicher": "Spuren ≤ 3"
+    },
+    {
+      "besitzer": "aixd",
+      "ebene": "E4",
+      "fehlt": [
+        "Kapazität als Dienst statt Umgebungsvariable"
+      ],
+      "id": "K-E4-kapazitaet",
+      "name": "Gate-Kapazität",
+      "sensor": "Speicher, Warteschlange, Fremdlast",
+      "sollwert": "4 Gate-Worker solange ≥ 48 GiB frei",
+      "status": "teilweise",
+      "stellglied": "Worker starten, drosseln, verschieben",
+      "stoergroessen": [
+        "Fremdlast",
+        "Modellausfall"
+      ],
+      "takt": "min",
+      "vergleicher": "Kapazität gegen Nachfrage"
+    },
+    {
+      "besitzer": "aethelRelease",
+      "ebene": "E4",
+      "fehlt": [
+        "Release-Pipeline",
+        "Stellglied Neustart aus Release"
+      ],
+      "id": "K-E4-paritaet",
+      "name": "Parität Betrieb = Release",
+      "sensor": "aix_doctor, Digest-Vergleich",
+      "sollwert": "~/bin, MCP-Server, Runtime entsprechen dem signierten Release",
+      "status": "offen",
+      "stellglied": "Neustart aus Release, nie aus Worktree",
+      "stoergroessen": [
+        "Worktree-Deploy",
+        "Handkopien"
+      ],
+      "takt": "h",
+      "vergleicher": "Digest gleich"
+    },
+    {
+      "besitzer": "aixd",
+      "ebene": "E4",
+      "fehlt": [
+        "Kostenklasse im Ledger",
+        "Router nach Gesamtkosten",
+        "Budget je Produkt (Company)"
+      ],
+      "id": "K-E4-kosten",
+      "name": "Gesamtkosten",
+      "sensor": "Ledger: Fehlversuche, Nacharbeit, Wartezeit, Kostenklasse",
+      "sollwert": "Gesamtkosten bis geprüftes Ergebnis minimal",
+      "status": "offen",
+      "stellglied": "Router: Modell und Ort wechseln; Cloud nur mit Beleg",
+      "stoergroessen": [
+        "Tokenpreis-Illusion",
+        "Abo-Grenzen"
+      ],
+      "takt": "je Lauf",
+      "vergleicher": "Kosten gegen Budget je Produkt"
+    },
+    {
+      "besitzer": "aethelCompany",
+      "ebene": "E5",
+      "fehlt": [
+        "aethelCompany",
+        "Portfolio-Zustand",
+        "Kennzahlen"
+      ],
+      "id": "K-E5-portfolio",
+      "name": "Portfolio-Entscheidung",
+      "sensor": "Company-Kennzahlen aus Projects und Ledger",
+      "sollwert": "Start, Weiter, Pause, Archiv je Produkt begründet",
+      "status": "offen",
+      "stellglied": "Entscheidung als Zustand mit Beleg",
+      "stoergroessen": [
+        "Plattformwechsel",
+        "Modellpreise",
+        "Begeisterung"
+      ],
+      "takt": "Monate",
+      "vergleicher": "Strategie gegen Ist"
+    },
+    {
+      "besitzer": "aethelPolicy",
+      "ebene": "E5",
+      "fehlt": [
+        "Policy-Compiler",
+        "Abgleichsensor"
+      ],
+      "id": "K-E5-kanon",
+      "name": "Kanon gleich Code",
+      "sensor": "Abgleich Kanon ↔ Hooks ↔ Betrieb",
+      "sollwert": "Kanon-Regeln sind Policy-Daten und im Betrieb wirksam",
+      "status": "offen",
+      "stellglied": "Kanon ändern oder Betrieb ändern",
+      "stoergroessen": [
+        "Prosa an 289 Orten",
+        "neue Lehren"
+      ],
+      "takt": "Monate",
+      "vergleicher": "Abweichungen"
+    },
+    {
+      "besitzer": "aethelConsultant",
+      "ebene": "E5",
+      "fehlt": [
+        "aethelConsultant",
+        "Rückkopplungsfeld je Rat"
+      ],
+      "id": "K-E5-rat",
+      "name": "Rat wirkt",
+      "sensor": "Consultant-Rückkopplung: befolgt, Ergebnis",
+      "sollwert": "befolgter Rat verbessert Kennzahlen",
+      "status": "offen",
+      "stellglied": "Rat ändern, Rat streichen, Rat verschärfen",
+      "stoergroessen": [
+        "Rat ohne Beleg",
+        "Rat ohne Konsument"
+      ],
+      "takt": "Quartal",
+      "vergleicher": "Wirkung gegen Erwartung"
+    },
+    {
+      "besitzer": "aethelCompany",
+      "ebene": "E6",
+      "fehlt": [
+        "Nutzungssensor",
+        "Geschäftsfall je Produkt"
+      ],
+      "id": "K-E6-markt",
+      "name": "Nutzerproblem gelöst",
+      "sensor": "Nutzung, Fehlerberichte, Markt (Radar)",
+      "sollwert": "Nutzung und Zahlungsbereitschaft je Produkt",
+      "status": "offen",
+      "stellglied": "Produktdefinition, Geschäftsfall ändern",
+      "stoergroessen": [
+        "Konkurrenz",
+        "Regulierung"
+      ],
+      "takt": "Quartal",
+      "vergleicher": "Nutzen gegen Aufwand"
+    },
+    {
+      "besitzer": "aethelRadar",
+      "ebene": "E6",
+      "fehlt": [
+        "Radar-Dienst"
+      ],
+      "id": "K-E6-plattform",
+      "name": "Plattform nutzen",
+      "sensor": "Radar: Apple-Guides, Changelogs, Vergleich mit Komponenten",
+      "sollwert": "kein Eigenbau, wo ein Systemframework existiert",
+      "status": "offen",
+      "stellglied": "Komponente ablösen oder Vertragsgrenze setzen",
+      "stoergroessen": [
+        "WWDC-Zyklus",
+        "Beta-Status"
+      ],
+      "takt": "Release",
+      "vergleicher": "Deckung Eigenbau/Plattform"
+    },
+    {
+      "besitzer": "aethelEval",
+      "ebene": "META",
+      "fehlt": [
+        "Eval je Version",
+        "Versionierung der Harness",
+        "äußerer Prüfer"
+      ],
+      "id": "K-META-harness",
+      "name": "Harness-Evolution",
+      "sensor": "aethelEval",
+      "sollwert": "Zykluskennzahlen je Harness-Version besser",
+      "status": "offen",
+      "stellglied": "Harness-Version wechseln, Modell umstufen",
+      "stoergroessen": [
+        "Benchmark-Sättigung",
+        "Reward-Hacking"
+      ],
+      "takt": "Wochen",
+      "vergleicher": "Kennzahl-Delta"
+    },
+    {
+      "besitzer": "aethelAudit",
+      "ebene": "META",
+      "fehlt": [
+        "aethelAudit"
+      ],
+      "id": "K-S3-audit",
+      "name": "Audit ohne Ankündigung",
+      "sensor": "aethelAudit",
+      "sollwert": "Receipts, Digests, Testdateien, Parität stimmen",
+      "status": "offen",
+      "stellglied": "Alarm, Sperre, Nacharbeitsauftrag",
+      "stoergroessen": [
+        "Selbstprüfung",
+        "Vertrauen ohne Prüfung"
+      ],
+      "takt": "Stichprobe",
+      "vergleicher": "Soll gleich Ist"
+    },
+    {
+      "besitzer": "aixd",
+      "ebene": "META",
+      "fehlt": [
+        "Schwellen als Policy",
+        "Nachricht über aethelBot/iPhone",
+        "Stopp als Übergang"
+      ],
+      "id": "K-ALGEDON",
+      "name": "Alarmkanal",
+      "sensor": "Schwellen aus Policy, Ledger, MetricKit",
+      "sollwert": "Kosten, Cloud unter LOCAL_AI_ONLY, Sicherheit, Speicher < 48 GiB innerhalb Schwellen",
+      "status": "teilweise",
+      "stellglied": "Stopp ohne Rat, Nachricht an Manuel, Beleg im Ledger",
+      "stoergroessen": [
+        "schleichende Kosten",
+        "Gratis-Cloud als lokal"
+      ],
+      "takt": "sofort",
+      "vergleicher": "Schwelle überschritten"
+    },
+    {
+      "besitzer": "aethelTwin",
+      "ebene": "META",
+      "fehlt": [
+        "aethelTwin",
+        "Ledger-Export als Zeitreihe"
+      ],
+      "id": "K-TWIN",
+      "name": "Zwilling vor Änderung",
+      "sensor": "aethelTwin-Simulation aus Ledger",
+      "sollwert": "Vorhersage des Zwillings entspricht Beobachtung",
+      "status": "offen",
+      "stellglied": "Änderung freigeben oder verwerfen",
+      "stoergroessen": [
+        "Modellfehler",
+        "fehlende Daten"
+      ],
+      "takt": "vor jeder Stellglied-Änderung",
+      "vergleicher": "Vorhersage gegen Messung"
+    }
+  ],
+  "schema": "aethel.projects.kreislaeufe/v1"
+}

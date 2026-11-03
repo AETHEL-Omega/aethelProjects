@@ -85,6 +85,17 @@ Gesamtzustand des Workspace als eine konsistente, deduplizierte Wahrheit liefert
 
 | REQ-019 | MUST | Der AIX-Anschluss MUSS Projektbelege ausschließlich an den Kontext eines bestehenden unfreigegebenen Engineering-Eingangs binden. | Scope/Modus/Orakel/Rechte bleiben identisch; Projektidentität, HEAD, Quellenhash und Aktualität geprüft; kompilierte/freigegebene Inputs, Mehrdeutigkeit, Drift und Pfadausbruch blockieren. |
 
+## Ergänzung 03.11.2026: Analysen-Ablage, Register-Abgleich, Schichtenkarte
+
+Komponente: `aethelProjects@aethel.projects.analysen/v1` (Ablage), `aethelProjects@aethel.projects.register-drift/v1` (Abgleich), `aethelProjects@aethel.projects.stack/v1` (Schichtenkarte). Herkunft: Workspace-Analyse 03.11.2026 (vier Berichte unter `analysen/2026-11-03/`).
+
+| ID | Prio | Anforderung (MUST/SHOULD/MAY) | Akzeptanzkriterium |
+|----|------|-------------------------------|--------------------|
+| REQ-020 | MUST | Projektanalysen MÜSSEN versioniert im Repo abgelegt und über die CLI auffindbar sein. | `analysen/INDEX.json` (Schema `aethel.projects.analysen/v1`) führt jede Analyse mit ID, Datum, Titel, Pfad, SHA-256, Scope, Zusammenfassung; `analyses --list`, `--show ID` (Prüfsumme wird geprüft, Abweichung wird als Warnzeile ausgegeben), `--register PATH` (einzige schreibende Operation, nur `INDEX.json`, nur innerhalb `analysen/`, Pfadflucht blockiert). |
+| REQ-021 | MUST | Vorgeschlagene Projekte und definierte Kreisläufe MÜSSEN als maschinenlesbare Register vorliegen und ausgebbar sein. | `analysen/vorschlaege.json` (`aethel.projects.vorschlaege/v1`: id, name, zweck, komponente, vertrag, ebene, stufe, hebt, bestand, status, quelle) und `analysen/kreislaeufe.json` (`aethel.projects.kreislaeufe/v1`: id, name, ebene E0–E6/META, takt, sollwert, sensor, vergleicher, stellglied, stoergroessen, besitzer, status offen/teilweise/geschlossen, fehlt); `analyses --proposals|--loops|--stats` in md und json; Schemafehler werden abgelehnt. |
+| REQ-022 | MUST | Die fünf Projektregister MÜSSEN gegeneinander abgeglichen werden, ohne Netz. | `registers --snapshot` meldet: Repos ohne Manifest-Eintrag, tote Manifest-Einträge, nicht registrierte Worktrees, Profile (`.aix/project-profile.json`) ohne Manifest oder ohne Repo, Auftragsbezüge (`auftraege.jsonl`) auf unbekannte Repos, Manifest-Alter in Tagen, Zähler; `--fail-on-drift` liefert Exit 1 bei Drift; kaputte Zeilen und ungültiges JSON werden gezählt, nicht geparst. |
+| REQ-023 | SHOULD | Jedes Repo SOLL einer Stack-Schicht (S0–S17, SX) mit Herkunft eigen/fremd/unklar, Reife, Konfidenz und Beleg zugeordnet werden; leere Schichten werden genannt. | `stack` ordnet nach Namensregeln und Dateimarkern (`no_std`, Verilog, `capability.json`, `Package.swift` mit XPC, `pubspec.yaml`, `Cargo.toml [workspace]`, `flake.nix`/`Dockerfile`) zu; Worktrees werden übersprungen; Ausgabe je Schicht und je Repo in md und json. |
+
 ## Akzeptanzkriterien (gesamt)
 
 - `pytest` läuft grün ohne Netzwerk und ohne Zugriff auf den echten `~/workspace`.

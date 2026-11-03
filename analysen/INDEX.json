@@ -1,0 +1,66 @@
+{
+  "entries": [
+    {
+      "date": "2026-11-03",
+      "id": "neue-projekte-kreislaeufe-rat",
+      "path": "2026-11-03/NEUE-PROJEKTE-KREISLAEUFE-RAT.md",
+      "scope": "firma",
+      "sha256": "03f0b583805d63b381d283060bf5437e40a8e4dd0270c1d0ff61e74787e10e45",
+      "summary": "Antworten: Rolle von aethelProjects, Zusammenhang mit Company/Factory/Analyzer/Consultant, 30 neue Projekte, 22 Kreisläufe, Rat-Matrix je Disziplin und Ebene, Inkubator, zwölf Schritte zur Kybernetik.",
+      "tags": [
+        "projekte",
+        "kreislaeufe",
+        "rat",
+        "inkubator",
+        "company",
+        "consultant"
+      ],
+      "title": "Neue Projekte, Kreisläufe und der Ort des Rats"
+    },
+    {
+      "date": "2026-11-03",
+      "id": "workspace-analyse-2026-11-03",
+      "path": "2026-11-03/WORKSPACE-ANALYSE-2026-11-03.md",
+      "scope": "workspace",
+      "sha256": "be0e97cd94d35769659b123fb364be7adf08ef9332eb09c58ab2bf31c2605d8e",
+      "summary": "Hauptanalyse: Inventar aller Repos, fünf Register, aethelProjects↔CodeAnalyzer, Fabrik/Firma-Organe, Lücken je Achse, Kreisläufe K1–K4, fehlende Projekte P1–P15, Gesamtstack S1–S7.",
+      "tags": [
+        "inventar",
+        "register",
+        "luecken",
+        "stack"
+      ],
+      "title": "Gesamtanalyse des Workspace ~/workspace – Projekte, Erfassung, Fabrik, Lücken, Stand der Technik"
+    },
+    {
+      "date": "2026-11-03",
+      "id": "workspace-analyse-2026-11-03-ergaenzung-technologie-architektur",
+      "path": "2026-11-03/WORKSPACE-ANALYSE-2026-11-03-ERGAENZUNG-TECHNOLOGIE-ARCHITEKTUR.md",
+      "scope": "fabrik",
+      "sha256": "99b43ed846442efb50940faa811a29d63f6c2f855e741487b7bd28f734a44038",
+      "summary": "Ergänzung: Plattformstand macOS 27, Apple-Angebot, eigener Laufzeitbestand, Feature-Matrix gegen Cursor/Claude Code/Codex/LangGraph/Kiro/Xcode 27, Forschung 2026, Siemens/Mendix/Kiraa/Kiro, Kybernetik-Mehrebenenmodell, Soll-Architektur, 23 Lücken, 13 Schnitte.",
+      "tags": [
+        "technologie",
+        "architektur",
+        "kybernetik",
+        "forschung"
+      ],
+      "title": "Ergänzungsbericht: Technologie, Architektur, Kybernetik auf macOS 27"
+    },
+    {
+      "date": "2026-11-03",
+      "id": "workspace-analyse-2026-11-03-gesamtstack-bauteile",
+      "path": "2026-11-03/WORKSPACE-ANALYSE-2026-11-03-GESAMTSTACK-BAUTEILE.md",
+      "scope": "stack",
+      "sha256": "8b29e20148029edc1b364eb60b8a4dcea52d17ea7ecf96c33062606cba042b6f",
+      "summary": "Gesamtstack: installierte Toolchains, Referenzstacks 2026, 17 Schichten mit Lücken und Best-Practice-Abweichungen, 20 Meta-Bauteile mit Hebel, eigen/fremd je Schicht, Reihenfolge.",
+      "tags": [
+        "stack",
+        "bauteile",
+        "best-practice"
+      ],
+      "title": "Gesamtstack-Bericht: was fehlt, wo nicht Best Practice, welche Bauteile zuerst"
+    }
+  ],
+  "schema": "aethel.projects.analysen/v1"
+}
