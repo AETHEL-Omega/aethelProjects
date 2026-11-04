@@ -103,6 +103,11 @@ die Schichten, die kein eigenes Repo haben.
 
 ## Leitstand, Inkubator, Apple-first
 
+Der Leitstand ergänzt Firma (Geschäftsfälle und Entscheidungen), Rat (offene Räte
+und Wochenliste) und Inkubator-Tore (Stufen je Klasse und nächste Lücken). Die
+Register `analysen/geschaeftsfaelle.json` und `analysen/rat.json` sind über
+`analyses --geschaeftsfaelle` bzw. `analyses --rat` als Markdown oder JSON lesbar.
+
 `cockpit` ist die Antwort auf die Frage, wie ein Mensch das alles zusammen sehen kann: eine Seite,
 erzeugt aus der Ablage, mit Kennzahlen und Quelle, abgeleiteten Lücken, Dominosteinen (Vorschläge
 mit größtem Hebel), offenen Kreisläufen, Register-Drift, leeren Stack-Schichten, Inkubator- und
