@@ -680,3 +680,60 @@ POM-v2-Dokumentation wurde aus einem anderen lokalen AIX-Stand gelesen; die
 beiden Stände nicht gleichsetzen. Y-1-Bindung und ihre autoritative Quelle
 bleiben offen. Die Dashboard-Verbindung zeigt einen generischen Betriebsstand,
 nicht den Y-1-Auftrag.
+
+## Y-1: Auftrags- und Fertigungsentwurf zur Klärung (04.11.2026)
+
+Manuel hat für diesen Entwurf das historische Ziel und den historischen
+Code-Kandidaten bestätigt. **Entwurf, nicht im AIX-Ledger angelegt oder
+gebunden; keine Ausführungs-, Schreib- oder Freigabeautorität.** Ein gültiger
+AIX-Auftrag entsteht erst über den vorhandenen AIX-Auftrags- und Besitzvertrag.
+
+| Feld | Vorschlag / bekannter Stand |
+| --- | --- |
+| Zweck | Google-/YouTube-Anmeldung im identifizierten aethelBrowser-Build bis zum sichtbar angemeldeten Zustand ermöglichen und belegen. |
+| Fallreferenz | `Y-1` aus `components/plm-evidence/fixtures/y1-historical.json`; noch keine AIX-Auftrags-ID. |
+| Repository | `https://github.com/AETHEL-Omega/aethelBrowser.git`; genaue lokale Arbeits- und Produktidentität muss AIX binden. |
+| Kandidat | Historischer Code-Commit `c1b0c46cbae60a69a00332a050841044e64b32e1`, Git-Tree `b09c77c936c088c4e87bb487d3be6a41f069cb17`. Manuel hat ihn **für den Entwurf** gewählt, nicht als aktuellen Release bestätigt. |
+| Abweichender Branchkopf | Lokal bekannte Remote-Referenz `origin/fix/y1-google-ua-chain`: `532c170bd23ca9d5f905262c4fad9bb043b92937`, Tree `e8a6334c694a94c23c688bae6cb40198f7382b74`. Dieser enthält nach dem Code-Commit einen Changelog-Commit; sein Tree ist nicht derselbe Kandidat. Remote-Aktualität nicht geprüft. |
+| Ergebnisnachweis | Echter Login im identifizierten Browser-Build, unabhängiges Review und Gate am tatsächlich geprüften Stand sowie belegte Installation und Wirkung; nicht aus Unit-Test oder Changelog allein ableiten. |
+| Verantwortung | Zuständiger Produkt- und Auftrags-Owner, Besitzgeneration, Rechte und zugelassener Ausführungsweg offen; AIX ist dafür zuständig. |
+
+### mBOM: konkreter Bindungsbedarf, noch keine Quelle
+
+Als **Vorschlag** dient der POM-v2-Vertrag im untersuchten lokalen AIX-Stand
+`2ad5fb1c73a2ac921d5a873dd74bc6d750714cbc`,
+`config/aix-production-operations-model.v2.json`. Dieser Vertrag beschreibt
+Felder, belegt jedoch weder eine erzeugte mBOM noch einen produktiven Compiler
+oder die Gültigkeit auf dem später verwendeten AIX-Stand. Der aktuelle
+Engineering-Input-Vertrag nennt POM v1. Die Differenz ist mit dem AIX-Owner zu
+klären; keine zweite Registry oder eigener POM-Compiler im Arbeitsraum.
+
+Für eine spätere konkrete, versionierte mBOM müssen mindestens diese Bindungen
+aus der zuständigen AIX-Quelle kommen:
+
+- AIX-Auftrags-ID, Revision und zuständiger Owner; Produktidentität und
+  Repository-Identität sowie der tatsächlich gebundene Kandidat/Arbeitsstand.
+- Spezifikationsdigest und Modellreferenzen als eBOM-Anker sowie
+  Produktionsmodus; alle derzeit **offen**.
+- Hostprofil und Compute-Modus, Fertigungslinie/Station, Abhängigkeiten und
+  Ressourcenbudget; alle derzeit **offen**.
+- Outputvertrag und versionierte mBOM-Quellreferenz mit Digest; beide derzeit
+  **offen**. Eine pbom.jsonl oder ein POM-Schemadokument ist nicht automatisch
+  die mBOM dieses Auftrags.
+- Verweise auf die zum selben Kandidaten passenden Review-, Gate-, Build-,
+  Installations- und Wirkungsbelege, soweit vorhanden; deren Fehlen bleibt
+  sichtbar und erzeugt keinen erfolgreichen Zustand.
+
+### Automatische Anbindung: benötigter nächster Vertrag
+
+Den von AIX bestätigten lesenden Ledger-Zugang (`aix.auftrag.v2` über SQLite
+`mode=ro`) erst mit einer **echten** Auftrags-ID, spezifiziertem
+Ereignis-/Revisionsvertrag und geklärter Zugriffsbefugnis verwenden. Vor einer
+Anzeige müssen Produkt-, Kandidaten- und mBOM-Referenzen exakt zugeordnet und
+Quelle, Zeitpunkt, Revisionsstand, fehlende Felder und Lesefehler ausgewiesen
+werden. Unbekannt, mehrdeutig, veraltet oder abweichend bleibt unverbunden.
+Die allgemeine Dashboard-Projektion ist kein auf Y-1 gebundener Auftrag.
+Bis zum Vorliegen der echten Quelle gibt es keine automatische Y-1-mBOM-
+Anbindung. Dieser Entwurf erzeugt weder ein Ledger-Ereignis noch einen
+Fertigungsauftrag; die verbleibende Entscheidung ist die Einführung und
+Belegung des Auftrags über den AIX-Owner.
