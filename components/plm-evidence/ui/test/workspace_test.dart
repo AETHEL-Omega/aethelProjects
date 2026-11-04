@@ -5,6 +5,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('private workspace is navigable without unbounded layout', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1400, 1100);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(const AethelPlm());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Privat'));
+    await tester.pumpAndSettle();
+    expect(find.text('Privaten Ordner öffnen'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('Produkte'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Privat'));
+    await tester.pumpAndSettle();
+    expect(find.text('Privaten Ordner öffnen'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('historical Rust output shows login evidence gaps', (
     tester,
   ) async {

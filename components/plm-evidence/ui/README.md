@@ -145,3 +145,22 @@ Dies erzeugt keine neue Erfassung, entdeckt keine neuen Projekte und verknüpft
 auch nicht sämtliche Chat- oder Auftragsbezüge. Insbesondere die automatische
 Inventur, Identitätsklärung und Aktualisierung der privaten Projektion sind noch
 nicht mit dieser Oberfläche verbunden. Private JSON-Dateien nicht veröffentlichen.
+
+
+### Gemeinsamer privater Ordner
+
+Im Bereich **Privat** öffnet **Privaten Ordner öffnen** einen vom Nutzer
+gewählten Ordner mit den bekannten lokalen JSON-Arbeitsakten. Abdeckung,
+Projektbezugskandidaten, Y-1, AIX/Projects, K-01–K-08 und weitere abgelegte
+Teilreviews erscheinen gemeinsam. Quellen und gemeinsame Namensnennungen sind
+ungeprüfte Hinweise; sie sind keine bestätigten Aufträge oder Beziehungen.
+Die Suche zeigt bis zu 100 Treffer; vollständig bleibt die private Quelldatei.
+
+Solange die App läuft, werden die Dateien alle 30 Sekunden erneut gelesen.
+Fehlende, ungültige und zu große Dateien werden einzeln markiert; bei einem
+Fehler bleibt der letzte erfolgreiche Stand sichtbar und als möglicherweise
+veraltet gekennzeichnet. Symlinks als Quelldateien werden nicht verfolgt.
+Die App selbst startet keine Inventur, erstellt keine Chatprojektion und liest
+die vollständige SQLite-Historie nicht. Die getroffenen Angaben ersetzen keine
+Prüfung der Dateiherkunft, Integrität, Rechte oder Aktualität des Inhalts.
+Die Ordnerauswahl ist nach Neustart erneut erforderlich.

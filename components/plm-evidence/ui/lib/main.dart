@@ -9,6 +9,7 @@ import 'source_adapters.dart';
 import 'aix_live.dart';
 import 'projects_file.dart';
 import 'private_history.dart';
+import 'private_bundle.dart';
 
 void main() => runApp(const AethelPlm());
 
@@ -602,87 +603,96 @@ class _WorkspaceState extends State<Workspace> {
                                 ),
                               ),
                             Expanded(
-                              child: SingleChildScrollView(
-                                padding: const EdgeInsets.all(24),
-                                child: Center(
-                                  child: ConstrainedBox(
-                                    constraints: const BoxConstraints(
-                                      maxWidth: 1100,
-                                    ),
-                                    child: switch (section) {
-                                      0 => ProductHome(
-                                        cockpit: cockpit,
-                                        projectsStatus: projectsStatus,
-                                        onProjectsStop: projectsFile == null
-                                            ? null
-                                            : _stopProjects,
-                                        aixDashboard: aixDashboard,
-                                        aixStatus: aixStatus,
-                                        aixConnected: aixTimer != null,
-                                        onAixConnect: _startAix,
-                                        onAixDisconnect: _stopAix,
-                                        factoryInput: factoryInput,
-                                        onOpenY1: () => _example(
-                                          'assets/y1-assessment.json',
-                                          'Historischer Pilot Y-1',
+                              child: IndexedStack(
+                                index: section == 6 ? 1 : 0,
+                                children: [
+                                  SingleChildScrollView(
+                                    padding: const EdgeInsets.all(24),
+                                    child: Center(
+                                      child: ConstrainedBox(
+                                        constraints: const BoxConstraints(
+                                          maxWidth: 1100,
                                         ),
-                                        onLandscape: () =>
-                                            setState(() => section = 1),
+                                        child: switch (section) {
+                                          0 => ProductHome(
+                                            cockpit: cockpit,
+                                            projectsStatus: projectsStatus,
+                                            onProjectsStop: projectsFile == null
+                                                ? null
+                                                : _stopProjects,
+                                            aixDashboard: aixDashboard,
+                                            aixStatus: aixStatus,
+                                            aixConnected: aixTimer != null,
+                                            onAixConnect: _startAix,
+                                            onAixDisconnect: _stopAix,
+                                            factoryInput: factoryInput,
+                                            onOpenY1: () => _example(
+                                              'assets/y1-assessment.json',
+                                              'Historischer Pilot Y-1',
+                                            ),
+                                            onLandscape: () =>
+                                                setState(() => section = 1),
+                                          ),
+                                          1 =>
+                                            landscape == null
+                                                ? const EmptyPanel(
+                                                    'Keine Projektlandschaft geladen.',
+                                                  )
+                                                : LandscapePanel(
+                                                    data: landscape!,
+                                                    origin: landscapeOrigin,
+                                                    currentAssessment: data,
+                                                    selectedId:
+                                                        selectedLandscapeId,
+                                                    sources: [
+                                                      for (final s in sources)
+                                                        {
+                                                          'name': s.name,
+                                                          'data': s.data,
+                                                        },
+                                                    ],
+                                                    selectedSourceIndex:
+                                                        boundProjectSources[selectedLandscapeId],
+                                                    onBindSource: (index) =>
+                                                        setState(
+                                                          () =>
+                                                              boundProjectSources[selectedLandscapeId!] =
+                                                                  index,
+                                                        ),
+                                                    selectedLandingIndex:
+                                                        boundLandingSources[selectedLandscapeId],
+                                                    onBindLanding: (index) =>
+                                                        setState(
+                                                          () =>
+                                                              boundLandingSources[selectedLandscapeId!] =
+                                                                  index,
+                                                        ),
+                                                    onSelect: (id) => setState(
+                                                      () =>
+                                                          selectedLandscapeId =
+                                                              id,
+                                                    ),
+                                                    onOpenY1: () => _example(
+                                                      'assets/y1-assessment.json',
+                                                      'Historischer Pilot Y-1',
+                                                    ),
+                                                  ),
+                                          2 => ChangePanel(data: data),
+                                          3 => QualityPanel(data: data),
+                                          4 => TracePanel(data: data),
+                                          _ => SourcePanel(
+                                            data: data,
+                                            sources: sources,
+                                          ),
+                                        },
                                       ),
-                                      1 =>
-                                        landscape == null
-                                            ? const EmptyPanel(
-                                                'Keine Projektlandschaft geladen.',
-                                              )
-                                            : LandscapePanel(
-                                                data: landscape!,
-                                                origin: landscapeOrigin,
-                                                currentAssessment: data,
-                                                selectedId: selectedLandscapeId,
-                                                sources: [
-                                                  for (final s in sources)
-                                                    {
-                                                      'name': s.name,
-                                                      'data': s.data,
-                                                    },
-                                                ],
-                                                selectedSourceIndex:
-                                                    boundProjectSources[selectedLandscapeId],
-                                                onBindSource: (index) => setState(
-                                                  () =>
-                                                      boundProjectSources[selectedLandscapeId!] =
-                                                          index,
-                                                ),
-                                                selectedLandingIndex:
-                                                    boundLandingSources[selectedLandscapeId],
-                                                onBindLanding: (index) => setState(
-                                                  () =>
-                                                      boundLandingSources[selectedLandscapeId!] =
-                                                          index,
-                                                ),
-                                                onSelect: (id) => setState(
-                                                  () =>
-                                                      selectedLandscapeId = id,
-                                                ),
-                                                onOpenY1: () => _example(
-                                                  'assets/y1-assessment.json',
-                                                  'Historischer Pilot Y-1',
-                                                ),
-                                              ),
-                                      2 => ChangePanel(data: data),
-                                      3 => QualityPanel(data: data),
-                                      4 => TracePanel(data: data),
-                                      6 => PrivateHistoryPanel(
-                                        data: privateHistory,
-                                        status: privateStatus,
-                                      ),
-                                      _ => SourcePanel(
-                                        data: data,
-                                        sources: sources,
-                                      ),
-                                    },
+                                    ),
                                   ),
-                                ),
+                                  PrivateBundlePanel(
+                                    single: privateHistory,
+                                    singleStatus: privateStatus,
+                                  ),
+                                ],
                               ),
                             ),
                           ],
