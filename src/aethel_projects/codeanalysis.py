@@ -20,7 +20,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from .models import Finding, RepoReport
@@ -33,7 +33,6 @@ DEFAULT_TIMEOUT = 120
 
 #: Wo der Analyzer liegen kann — in dieser Reihenfolge.
 CANDIDATE_PATHS = (
-    Path("~/workspace/aethelCodeAnalyzer/target/release/aethel_code_analyzer"),
     Path("~/bin/aethel-code-analyzer"),
 )
 
@@ -59,6 +58,7 @@ class CodeAnalysis:
     findings: tuple[Finding, ...]
     rule_counts: dict[str, int]
     note: str = ""
+    coverage: dict = field(default_factory=dict)
 
 
 def find_analyzer() -> Path | None:
@@ -78,7 +78,9 @@ def find_analyzer() -> Path | None:
 def is_analysable(repo: RepoReport) -> bool:
     """Der Analyzer hat volle Tiefe nur für Rust und Dart."""
     root = Path(repo.path)
-    return (root / "Cargo.toml").is_file() or (root / "pubspec.yaml").is_file()
+    return ((root / "Cargo.toml").is_file() or (root / "pubspec.yaml").is_file()
+            or any((root / name).is_file() for name in ("pyproject.toml", "setup.py", "requirements.txt"))
+            or any(root.glob("*.py")))
 
 
 def _analyzer_version(binary: Path) -> str:
@@ -120,7 +122,7 @@ def analyse_repo(
             schema=AIX_SCHEMA,
             findings=(),
             rule_counts={},
-            note="Kein Rust- oder Dart-Projekt — der Analyzer liefert hier nichts.",
+            note="Keine unterstützte Projektstruktur erkannt; nicht analysiert.",
         )
 
     command = ["nice", "-n", "10", str(binary)] + ["--path", repo.path, "--format", "aix"]
@@ -196,7 +198,10 @@ def analyse_repo(
             )
         )
 
+    coverage = document.get("scan") if isinstance(document.get("scan"), dict) else {}
     note = ""
+    if coverage.get("incomplete_reasons"):
+        note = "Analyzer meldet unvollstaendige Abdeckung: " + ", ".join(map(str, coverage["incomplete_reasons"]))
     if document.get("truncated"):
         note = "Analyzer meldet: Ergebnis abgeschnitten — nicht vollstaendig."
 
@@ -207,6 +212,7 @@ def analyse_repo(
         findings=tuple(findings),
         rule_counts=rule_counts,
         note=note,
+        coverage=coverage,
     )
 
 
@@ -287,5 +293,9 @@ def head_findings(root: Path, head: str | None) -> dict:
                          'commit': head, 'sha256': proof[1]})
     if gitio.run_git(root, 'rev-parse', '--verify', 'HEAD') != head:
         return {'status': 'nicht_geprueft', 'grund': 'HEAD hat sich waehrend der Analyse geaendert'}
-    return {'status': 'geprueft', 'findings': findings, 'verworfen': rejected,
-            'analyzer_version': version, 'commit': head}
+    coverage = document.get('scan') if isinstance(document.get('scan'), dict) else {}
+    incomplete = coverage.get('incomplete_reasons')
+    status = ('abdeckung_unbekannt' if not coverage or 'incomplete_reasons' not in coverage
+              else 'teilweise_geprueft' if incomplete else 'geprueft')
+    return {'status': status, 'findings': findings, 'verworfen': rejected,
+            'coverage': coverage, 'analyzer_version': version, 'commit': head}

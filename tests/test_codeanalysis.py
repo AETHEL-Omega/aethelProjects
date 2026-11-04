@@ -164,4 +164,37 @@ def test_non_analysable_repo_is_skipped_with_note(tmp_path: Path) -> None:
 
     assert analysis.available
     assert not analysis.analyzed
-    assert "Rust- oder Dart-Projekt" in analysis.note
+    assert "nicht analysiert" in analysis.note
+
+
+def test_python_and_coverage_are_kept(tmp_path: Path) -> None:
+    report = _report(tmp_path, "python")
+    Path(report.path, "main.py").write_text("pass\n")
+    coverage = {"incomplete_reasons": ["limit"], "stub_coverage": {"python": "partial"}}
+    binary = _fake_analyzer(tmp_path, json.dumps({"schema": codeanalysis.AIX_SCHEMA, "findings": [], "scan": coverage}))
+    analysis = codeanalysis.analyse_repo(report, binary=binary)
+    assert analysis.analyzed
+    assert analysis.coverage == coverage
+    assert "unvollstaendig" in analysis.note
+
+
+def test_cli_exact_path_selects_only_matching_checkout(tmp_path, monkeypatch, capsys):
+    from types import SimpleNamespace
+    from aethel_projects import cli
+    first = _report(tmp_path / 'one', 'same', cargo=True)
+    second = _report(tmp_path / 'two', 'same', cargo=True)
+    calls = []
+    monkeypatch.setattr(cli, 'scan_workspace', lambda *a, **k: SimpleNamespace(repos=[first, second]))
+    monkeypatch.setattr(codeanalysis, 'find_analyzer', lambda: tmp_path / 'installed')
+    def analyze(repo, **kwargs):
+        calls.append(repo.path)
+        return codeanalysis.CodeAnalysis(True, True, codeanalysis.AIX_SCHEMA, (), {}, coverage={'incomplete_reasons': ['limit']})
+    monkeypatch.setattr(codeanalysis, 'analyse_repo', analyze)
+    args = SimpleNamespace(root=str(tmp_path), jobs=1, timeout=1, manifest=None, repo=None,
+        repo_path=Path(second.path), limit=0, severity='info', format='json', out=None)
+    assert cli._cmd_code(args) == 0
+    assert calls == [second.path]
+    result = json.loads(capsys.readouterr().out)
+    assert result['analysen'][0]['coverage']['incomplete_reasons'] == ['limit']
+    args.repo_path = tmp_path / 'missing'
+    assert cli._cmd_code(args) == cli.EXIT_ERROR

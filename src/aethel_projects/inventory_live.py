@@ -195,6 +195,7 @@ def attach_observations(scan, directory):
                 'source_state': 'matched_scanned_files' if not changed else 'stale_or_missing_scanned_files',
                 'changed_or_unavailable_files': changed, 'scanned_file_count': len(digests),
                 'incomplete_reasons': (report.get('scan') or {}).get('incomplete_reasons', []),
+                'stub_coverage': (report.get('scan') or {}).get('stub_coverage'),
                 'truncated': report.get('truncated'), 'reported_finding_count': len(report['findings']),
                 'findings': findings_out, 'limitation': 'Reported bounded scan; matching scanned files is not full-scope coverage, a clean result or a current release proof.'}
         except (OSError, ValueError, AttributeError, TypeError):

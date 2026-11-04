@@ -116,7 +116,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
     code_cmd = add("code", "Statische Code-Analyse via aethelCodeAnalyzer")
     code_cmd.add_argument("--format", choices=["md", "json"], default="md")
-    code_cmd.add_argument("--repo", default=None, help="Nur ein Repository analysieren")
+    code_target = code_cmd.add_mutually_exclusive_group()
+    code_target.add_argument("--repo", default=None, help="Nur Repository mit diesem Namen analysieren")
+    code_target.add_argument("--repo-path", type=Path, default=None, help="Genau diese Arbeitskopie analysieren")
     code_cmd.add_argument("--limit", type=int, default=0, help="Maximal N Repos (0 = alle)")
     code_cmd.add_argument("--severity", choices=["critical", "warn", "info"], default="warn")
     code_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
@@ -457,6 +459,12 @@ def _cmd_code(args: argparse.Namespace) -> int:
     targets = [r for r in result.repos if code_mod.is_analysable(r)]
     if args.repo:
         targets = [r for r in targets if r.name == args.repo]
+    if args.repo_path is not None:
+        requested = args.repo_path.expanduser().resolve()
+        targets = [r for r in targets if Path(r.path).resolve() == requested]
+        if len(targets) != 1:
+            sys.stderr.write("Arbeitskopie nicht eindeutig oder nicht analysierbar.\n")
+            return EXIT_ERROR
     if args.limit > 0:
         targets = targets[: args.limit]
 
@@ -501,6 +509,7 @@ def _cmd_code(args: argparse.Namespace) -> int:
                     "analyzer": str(binary),
                     "schema": code_mod.AIX_SCHEMA,
                     "repos_analysiert": sum(1 for a in analysen.values() if a.analyzed),
+                    "analysen": [{"path": path, "analyzed": a.analyzed, "coverage": a.coverage, "note": a.note} for path, a in sorted(analysen.items())],
                     "findings": [
                         {
                             "repo": name,

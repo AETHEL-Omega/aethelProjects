@@ -103,12 +103,12 @@ class InventoryLiveTests(unittest.TestCase):
             common=str(repo/'.git');evidence=root/'evidence';evidence.mkdir();path=str(repo)
             (evidence/'direct-observations.json').write_text(json.dumps({'projects':[]}))
             (evidence/'independent-findings.json').write_text(json.dumps({'findings':[]}))
-            report={'schema':'aethel.code_analyzer.aix_findings.v1','scope':path,'scan':{'file_digests':{'main.py':hashlib.sha256(source.read_bytes()).hexdigest()},'incomplete_reasons':['limited']},'truncated':False,'findings':[{'file':'main.py','line':1,'rule':'x','evidence_tier':'heuristic','repro':'do not execute'}]}
+            report={'schema':'aethel.code_analyzer.aix_findings.v1','scope':path,'scan':{'file_digests':{'main.py':hashlib.sha256(source.read_bytes()).hexdigest()},'incomplete_reasons':['limited'],'stub_coverage':{'lexical_rule_omissions':['x']}},'truncated':False,'findings':[{'file':'main.py','line':1,'rule':'x','evidence_tier':'heuristic','repro':'do not execute'}]}
             raw=json.dumps(report).encode();(evidence/'test-analyzer.json').write_bytes(raw)
             (evidence/'test-analyzer-run.json').write_text(json.dumps({'returncode':0,'sha256':hashlib.sha256(raw).hexdigest()}))
             inventory={'repositories':[{'git_common_dir':common,'paths':[path]}], 'checkouts':[{'path':path,'git_common_dir':common,'head':'a1'}]}
             attach_observations(inventory,evidence);result=inventory['repositories'][0]['analyzer_observation']
-            self.assertEqual(result['source_state'],'matched_scanned_files');self.assertEqual(result['incomplete_reasons'],['limited'])
+            self.assertEqual(result['source_state'],'matched_scanned_files');self.assertEqual(result['incomplete_reasons'],['limited']);self.assertEqual(result['stub_coverage'],{'lexical_rule_omissions':['x']})
             self.assertNotIn('repro',result['findings'][0])
             source.write_text('changed');attach_observations(inventory,evidence)
             self.assertEqual(inventory['repositories'][0]['analyzer_observation']['source_state'],'stale_or_missing_scanned_files')

@@ -27,7 +27,7 @@ def test_analyzer_findings_bound_to_committed_content(mini_repo, tmp_path, monke
         return real_run(command, **kwargs)
     monkeypatch.setattr(codeanalysis.subprocess, 'run', fake_run)
     result = codeanalysis.head_findings(mini_repo, head)
-    assert result['status'] == 'geprueft'
+    assert result['status'] == 'abdeckung_unbekannt'
     assert result['findings'] == [{'path': 'lib.rs', 'line': 1, 'regel': 'example',
         'analyzer_version': '1.2', 'commit': head, 'sha256': hashlib.sha256(source.read_bytes()).hexdigest()}]
     source.write_text('dirty\n')
@@ -84,3 +84,20 @@ def test_unknown_analyzer_version_is_not_checked(mini_repo, tmp_path, monkeypatc
         return real_run(command, **kwargs)
     monkeypatch.setattr(codeanalysis.subprocess, 'run', fake_run)
     assert codeanalysis.head_findings(mini_repo, head)['status'] == 'nicht_geprueft'
+
+
+def test_head_findings_keeps_incomplete_and_stub_coverage(mini_repo, tmp_path, monkeypatch):
+    head = git(mini_repo, 'rev-parse', 'HEAD')
+    binary = tmp_path / 'analyzer'; binary.touch()
+    monkeypatch.setattr(codeanalysis, 'find_analyzer', lambda: binary)
+    monkeypatch.setattr(codeanalysis, '_analyzer_version', lambda _: '1.2')
+    real_run = codeanalysis.subprocess.run
+    coverage = {'incomplete_reasons': ['budget'], 'stub_coverage': {'python': 'partial'}}
+    def fake_run(command, **kwargs):
+        if command[0] == 'nice':
+            return SimpleNamespace(returncode=0, stdout=json.dumps({'schema': codeanalysis.AIX_SCHEMA, 'findings': [], 'scan': coverage}), stderr='')
+        return real_run(command, **kwargs)
+    monkeypatch.setattr(codeanalysis.subprocess, 'run', fake_run)
+    result = codeanalysis.head_findings(mini_repo, head)
+    assert result['status'] == 'teilweise_geprueft'
+    assert result['coverage'] == coverage
