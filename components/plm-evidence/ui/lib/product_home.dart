@@ -222,6 +222,9 @@ class ProductHome extends StatelessWidget {
             'Linie: ${factoryInput!['line'] ?? 'nicht angegeben'} · Station: ${factoryInput!['station'] ?? 'nicht angegeben'}',
           ),
           Text('Spezifikationsdigest: ${value(product['spec_digest'])}'),
+          Text(
+            'Spec-Session im Kandidaten: ${value(product['spec_session_path'])}',
+          ),
           Text('Modellreferenzen: ${values(product['model_refs'])}'),
           Text('Produktionsmodus: ${value(product['production_mode'])}'),
           Text('Hostprofil: ${value(substrate['host_profile'])}'),

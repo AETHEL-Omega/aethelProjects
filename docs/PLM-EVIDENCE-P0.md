@@ -852,6 +852,8 @@ Spezifikationsdigest, Modellreferenzen, Produktionsmodus, Hostprofil, Compute-
 Modus und erwartetem Output auf. Die Felder bleiben Angaben der gewählten
 Quelle; sie sind weder eine automatische Y-1-Zuordnung noch eine geprüfte
 Auftrags-, Lease- oder Outputbindung.
+Ein angegebener Spec-Session-Pfad wird ebenfalls gezeigt. Die Oberfläche zeigt
+damit den Quellwert, nicht das Ergebnis der AIX-Admission-Inhaltsprüfung.
 
 Bei aktivierter lokaler AIX-Dashboardverbindung zeigt die Produktansicht auch
 die dort bereits vorhandene letzte Kernel-Transaktionsprojektion mit Kennung,

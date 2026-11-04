@@ -36,6 +36,7 @@ void main() {
         'work_order_id': 'WO-TEST-001',
         'product_binding': {
           'spec_digest': 'abc',
+          'spec_session_path': 'spec/session.json',
           'model_refs': ['REQ-1'],
           'production_mode': 'prototype',
         },
@@ -68,6 +69,10 @@ void main() {
     expect(find.textContaining('WO-TEST-001'), findsOneWidget);
     expect(find.text('Projekt laut Quelle: other'), findsOneWidget);
     expect(find.text('Spezifikationsdigest: abc'), findsOneWidget);
+    expect(
+      find.text('Spec-Session im Kandidaten: spec/session.json'),
+      findsOneWidget,
+    );
     expect(find.text('Modellreferenzen: REQ-1'), findsOneWidget);
     expect(find.text('Hostprofil: test-host'), findsOneWidget);
     expect(find.text('Erwartete Outputfelder: tree_sha'), findsOneWidget);
