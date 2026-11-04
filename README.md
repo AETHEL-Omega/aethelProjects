@@ -238,3 +238,7 @@ Freigabe, Rollenprüfung, Ausführung und Forge bleiben im bestehenden AIX-Weg.
 außerhalb von Git, gleicht Sessionkataloge ab und prüft referenzierte lokale
 Commitobjekte. [Betrieb, Beleggrenzen und offene fachliche Zuordnung](docs/WORK-HISTORY.md).
 Die Erfassung ist keine automatische Abnahme historischer Arbeiten.
+
+`inventory --watch` aktualisiert optional eine lokale Inventurbeobachtung und
+zeigt neue oder veränderte Kandidaten; Rechte, Kosten und Grenzen stehen in
+[docs/WORK-HISTORY.md](docs/WORK-HISTORY.md). Der Beobachtungslauf ist kein Dauerbetrieb ohne laufenden Prozess.

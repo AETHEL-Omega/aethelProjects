@@ -160,3 +160,31 @@ PYTHONPATH=src python3 -m unittest discover -s tests -p test_work_history.py -v
 Die Tests verwenden ausschließlich synthetische Daten. Sie prüfen unter anderem
 Git-/Symlinkgrenzen, Dateirechte, HTML-Escaping, fehlende Transkripte, defekte und
 veränderte Quellen sowie die Trennung zwischen Behauptung und Commitexistenz.
+
+## Wiederholte Projektinventur (separater Beobachtungslauf)
+
+```sh
+bin/aethel-projects --root /path/to/workspace inventory --watch \
+  --interval-seconds 900 --out /path/to/private-dir/inventory.json
+```
+
+Der bestehende Inventurcode wird erneut aufgerufen; `--watch` ergänzt keine
+Projekt- oder Auftragsautorität. Mindestintervall: 300 Sekunden. Das Ausgabeziel
+muss in einem eigenen, bereits auf 0700 beschränkten oder neu angelegten Ordner
+außerhalb von Git liegen. Die Datei wird atomar und mit 0600 geschrieben; eine
+Sperre verhindert parallele Schreiber. `Ctrl-C` beendet den Prozess. Der Lauf
+ist nur aktiv, solange dieser Prozess läuft; kein automatischer Start oder
+Neustart ist damit eingerichtet.
+
+Die erste vollständige Erfassung ist die Basis. Spätere vollständige Scans
+melden neue lokale Git-Repositorygruppen, neue Nicht-Git-Kandidaten und
+Arbeitskopien mit geändertem HEAD, Branch, Dirty-Zahl oder Dirty-Fingerabdruck.
+Fehlende Repositorygruppen werden nur bei vollständigen Scans als fehlend
+bezeichnet, niemals als gelöscht. Bei Fehlern bleibt der letzte lesbare Stand
+mit Fehlerstatus erhalten; unvollständige Scans sind keine neue Vergleichsbasis.
+Ein Scan ist nicht atomar und schließt Symlinkziele sowie generierte Ordner aus.
+
+Dirty-Fingerabdrücke verwenden Git-Status und Dateimetadaten statt Dateiinhalten.
+Gleichbleibende Metadaten und Änderungen innerhalb nicht verfolgter Ordner können
+unentdeckt bleiben. Projektidentität über Geräte, Manifest-Kandidaten und
+Beziehungen erfordern weitere Prüfung. Remote-Zustände werden nicht abgerufen.
