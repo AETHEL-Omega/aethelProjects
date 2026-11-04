@@ -748,3 +748,36 @@ Die Dateiauswahl kann beendet werden; nach App-Neustart muss sie erneut
 erfolgen. Die App startet keinen Projects-Scan und erzeugt keinen Export.
 Das Zeitpunkt-/Aktualitätsproblem der eigentlichen Daten bleibt unaufgelöst;
 das neue Lesen ist keine Quellen- oder Autoritätsprüfung.
+
+## AIX-Erstellungslauf für Y-1 (04.11.2026)
+
+Der vorhandene installierte `aix-copilot auftrag` hat einen Engineering-Input
+für einen isolierten Checkout des ausgewählten historischen Commits erzeugt
+(`c1b0c46cbae60a69a00332a050841044e64b32e1`, Tree
+`b09c77c936c088c4e87bb487d3be6a41f069cb17`). Seine automatische Ableitung
+meldete `contract_ready=true`, machte aber `flutter test` zur einzigen
+Abnahme und nannte als Erfolg lediglich Exit 0. Das belegt weder den echten
+Login noch separates unabhängiges Review oder Installation und Wirkung. Die
+vorgeschlagene Freigabe **und Ausführung** wurde deshalb nicht erteilt.
+
+Der aus dem AIX-Entwurf bearbeitete, bewusst nicht freigegebene Eingang liegt
+unter `components/plm-evidence/fixtures/y1-aix-engineering-draft.json`.
+Sein Projektpfad und die Akzeptanz bleiben offen; `extensions.y1_mbom_proposal`
+enthält nur die nicht gebundenen, überwiegend unbekannten POM-v2-Felder. Sie
+sind weder eine gültige mBOM noch ein neuer AIX-Zustand. Bei der Prüfung mit
+`aix-feed review` und dem isolierten Checkout meldete AIX
+`contract_ready=false`, Digest
+`aa5e2b2a56f8b23af803dbc1a4c2caaf158649564c6f529d42f20a94ec2c69b1` und
+blockierte wegen fehlender Kriterien, Projektpfad, Scope, Ausschlüssen und
+Akzeptanz. Dieser Digest gilt nur für den konkreten Prüflauf und ersetzt
+keine Freigabe.
+
+Eine getrennte POM-v2-Probe im bestehenden Feed zeigte zusätzlich den
+blockierenden Befund `factory.pom`: Der implementierte Feed fordert POM v1;
+weitere Fertigungsfelder sind ungebunden. Der installierte Kernel meldete in
+seiner Hilfe keinen `auftrag`-Befehl; der in einem anderen Checkout vorliegende
+`aix-kernel auftrag` migriert das Produktivledger und beansprucht Besitz.
+Ein für diesen Fall bestätigter installierter, berechtigter Auftragsweg und
+eine gültige mBOM-Quelle sind somit nicht nachgewiesen. Kein Besitz und keine
+Ledger-Bindung wurden vorgetäuscht. Automatische mBOM-Anbindung bleibt offen,
+bis der zuständige AIX-Weg und die konkrete Quelle verfügbar sind.

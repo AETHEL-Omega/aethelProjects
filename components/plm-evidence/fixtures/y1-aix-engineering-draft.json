@@ -1,0 +1,302 @@
+{
+  "schema": "aix.engineering_input.v1",
+  "kind": "prompt",
+  "metadata": {
+    "id": "AUF-190f2ddeed",
+    "title": "aethelBrowser Y-1: Google- und YouTube-Anmeldung im identifizierten Browser-Buil",
+    "revision": 1,
+    "owner": "human",
+    "source": "aix-copilot auftrag; Y-1 proposal adjusted for missing evidence"
+  },
+  "objective": {
+    "statement": "aethelBrowser Y-1: Google- und YouTube-Anmeldung im identifizierten Browser-Build bis zum sichtbar angemeldeten Zustand ermöglichen und nachweisen; Kandidat c1b0c46cbae60a69a00332a050841044e64b32e1. Unabhängiges Review und Gate sowie Installation und Wirkung jeweils belegen.",
+    "success_outcomes": [
+      "Google- und YouTube-Anmeldung erreicht im identifizierten Browser-Build den sichtbar angemeldeten Zustand."
+    ],
+    "acceptance_criteria": [],
+    "anti_goals": [
+      "Keine unbelegte Behauptung, dass Unit-Tests einen echten Login, unabhängiges Review, Gate, Installation oder Feldwirkung nachweisen."
+    ],
+    "stop_conditions": [
+      "Keine Freigabe oder Ausführung bei fehlender eindeutiger Kandidaten- oder Quellenbindung und fehlendem geeignetem Wirksamkeitsnachweis."
+    ],
+    "closure_rule": "all_required_criteria_pass_and_no_anti_goal_observed"
+  },
+  "intent": "feature",
+  "project": {
+    "id": "PRJ-98e623aec8",
+    "name": "aethelBrowser",
+    "path": "",
+    "subpath": ".",
+    "mode": "existing",
+    "repository": {
+      "vcs": "git",
+      "remote": "https://github.com/AETHEL-Omega/aethelBrowser.git",
+      "default_branch": "main",
+      "expected_head": "c1b0c46cbae60a69a00332a050841044e64b32e1"
+    },
+    "instructions": {
+      "sources": [
+        {
+          "path": "AGENTS.md",
+          "scope": ".",
+          "apply": "always"
+        },
+        {
+          "path": "CLAUDE.md",
+          "scope": ".",
+          "apply": "always"
+        },
+        {
+          "path": "README.md",
+          "scope": ".",
+          "apply": "always"
+        }
+      ],
+      "precedence": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "README.md"
+      ],
+      "conflict": "fail_closed"
+    },
+    "environment": {
+      "targets": [
+        "darwin-arm64"
+      ],
+      "bootstrap": {
+        "argv": [
+          "bin/aix-doctor"
+        ],
+        "idempotent": true
+      },
+      "secrets": {
+        "repository_forbidden": true,
+        "policy": "none"
+      },
+      "network": {
+        "mode": "offline",
+        "allow": []
+      }
+    }
+  },
+  "context": {
+    "problem": "aethelBrowser Y-1: Google- und YouTube-Anmeldung im identifizierten Browser-Build bis zum sichtbar angemeldeten Zustand ermöglichen und nachweisen; Kandidat c1b0c46cbae60a69a00332a050841044e64b32e1. Unabhängiges Review und Gate sowie Installation und Wirkung jeweils belegen.",
+    "stakeholders": [
+      "Operator"
+    ],
+    "use_cases": [
+      "Als Operator: aethelBrowser Y-1: Google- und YouTube-Anmeldung im identifizierten Browser-Build bis zum sichtbar angemeldeten Zustand ermöglichen und nachweisen; Kandidat c1b0c46cbae60a69a00332a050841044e64b32e1. Unabhängiges Review und Gate sowie Installation und Wirkung jeweils belegen."
+    ],
+    "assumptions": [],
+    "orakel_vorschlag": {
+      "quelle": "detect_test_command (pubspec.yaml)",
+      "orakel": [
+        "flutter",
+        "test"
+      ],
+      "bestaetigung": "operator_required"
+    },
+    "y1_candidate": {
+      "git_commit": "c1b0c46cbae60a69a00332a050841044e64b32e1",
+      "git_tree": "b09c77c936c088c4e87bb487d3be6a41f069cb17",
+      "status": "historical_unverified",
+      "binding": "proposal_only"
+    },
+    "y1_source": "components/plm-evidence/fixtures/y1-historical.json"
+  },
+  "scope": {
+    "include": []
+  },
+  "requirements": [],
+  "interfaces": [],
+  "constraints": {
+    "security": "keine neue Vertrauensgrenze",
+    "data_residency": "lokal",
+    "compatibility": "Python 3.14.7"
+  },
+  "solution_constraints": {
+    "technology": {
+      "mode": "open",
+      "unlisted": "propose_before_use",
+      "rules": []
+    },
+    "patterns": {
+      "mode": "open",
+      "unlisted": "propose_before_use",
+      "rules": []
+    },
+    "exception_policy": {
+      "mode": "deny",
+      "requires_new_proposal_digest": true
+    }
+  },
+  "language_contract": {
+    "language": "de",
+    "vocabulary_ref": "config/aix-terminology.json",
+    "one_term_one_meaning": true,
+    "undefined_abbreviations_forbidden": true,
+    "first_use_expansion_required": true,
+    "engineering_languages": [
+      "Python"
+    ],
+    "terms": [],
+    "abbreviations": []
+  },
+  "context_policy": {
+    "include": [
+      "."
+    ],
+    "exclude": [
+      ".git",
+      "dist",
+      "build",
+      "node_modules"
+    ],
+    "sensitive_data": "deny",
+    "cloud_export": "forbidden",
+    "compaction": "contract_digest_and_baton"
+  },
+  "visual_evidence": {},
+  "capabilities": {
+    "filesystem": {
+      "mode": "scoped_write",
+      "allow": [
+        "."
+      ],
+      "deny": [
+        ".git"
+      ]
+    },
+    "shell": {
+      "mode": "allowlist",
+      "allow": [
+        "git",
+        "python3.14",
+        "bin/run-tests"
+      ]
+    },
+    "mcp": {
+      "mode": "deny",
+      "allow": []
+    },
+    "network": {
+      "mode": "deny",
+      "allow": []
+    },
+    "git": {
+      "mode": "feature_branch",
+      "allow": []
+    },
+    "external_side_effects": "deny"
+  },
+  "verification": {
+    "regression": {
+      "kind": "command",
+      "argv": [
+        "bin/run-tests",
+        "--fast"
+      ],
+      "timeout_s": 1800
+    },
+    "baseline": {
+      "kind": "git",
+      "ref": "c1b0c46cbae60a69a00332a050841044e64b32e1"
+    },
+    "negative_tests": [
+      "Aenderung ausserhalb des Bereichs"
+    ],
+    "baseline_ref": "c1b0c46cbae60a69a00332a050841044e64b32e1",
+    "independent_review": {},
+    "acceptance": {}
+  },
+  "risk": {
+    "hazards": [
+      "Aenderung ausserhalb des Bereichs"
+    ],
+    "mitigations": [
+      "Bereich gebunden; Gate vor Merge"
+    ],
+    "rollback": "git revert des Zweigs",
+    "monitoring": "run-tests",
+    "level": "standard"
+  },
+  "delivery": {},
+  "factory": {},
+  "execution": {
+    "method": "aix-engineering",
+    "governance": "tdd",
+    "assurance": "C",
+    "compute_mode": "LOCAL_AI_ONLY",
+    "trigger": {
+      "kind": "manual",
+      "idempotency": {
+        "key_strategy": "trigger_window_and_contract_digest",
+        "deduplication_window_seconds": 900
+      },
+      "overlap_policy": "queue_one",
+      "misfire_policy": "fail_closed",
+      "activation": "operator_required"
+    },
+    "autonomy_policy": {
+      "default_level": "plan",
+      "ceiling": "merge_gated",
+      "uncertainty_action": "demote_and_request_decision",
+      "promotion": {
+        "requires_measured_evidence": true,
+        "automatic_ceiling_increase_forbidden": true
+      },
+      "demotion": {
+        "on_unknown": true,
+        "on_oracle_failure": true,
+        "on_scope_drift": true,
+        "on_cost_overrun": true
+      },
+      "inputs": [
+        "cost",
+        "data_locality",
+        "novelty",
+        "operator_presence",
+        "proof_strength",
+        "reversibility",
+        "risk",
+        "scope"
+      ],
+      "human_checkpoints": [
+        "proposal_digest_ack",
+        "merge"
+      ]
+    },
+    "standards_overlays": [],
+    "change_control": "proposal_digest_ack"
+  },
+  "work_form": {},
+  "decisions": {},
+  "approval": {},
+  "gesperrte_dateien": [],
+  "extensions": {
+    "y1_mbom_proposal": {
+      "status": "unbound_draft",
+      "contract_source": "aix.production_operations_model.v2 at 2ad5fb1c73a2ac921d5a873dd74bc6d750714cbc",
+      "work_order_id": null,
+      "product_binding": {
+        "spec_digest": null,
+        "model_refs": [],
+        "production_mode": null
+      },
+      "substrate_binding": {
+        "host_profile": null,
+        "compute_mode": null
+      },
+      "line": null,
+      "station": null,
+      "priority": null,
+      "dependencies": null,
+      "resource_budget": null,
+      "handoff": null,
+      "recovery": null,
+      "observability": null,
+      "output_contract": null
+    }
+  }
+}
