@@ -229,3 +229,7 @@ Details und Grenzen: [docs/PM-INPUT.md](docs/PM-INPUT.md).
 bindet den vorhandenen AIX-Engineering-Eingang an einen aktuellen Projektbefund.
 Es ergänzt nur Kontext und prüft Identität/HEAD/Quellen/Aktualität. Compilation,
 Freigabe, Rollenprüfung, Ausführung und Forge bleiben im bestehenden AIX-Weg.
+
+## Systemlandschaft und Arbeitsnachweise vom 4. November 2026
+
+[Versionierter Einstieg](analysen/2026-11-04/systemlandschaft/README.md): Konzeptabgleich, Architektur, Datenhaltung, Coder-/Chat-Zuordnung, Prüfaufträge und offene Lücken. Öffentliche bereinigte Fassung; private Quellen bleiben ausgeschlossen.

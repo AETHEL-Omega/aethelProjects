@@ -1,6 +1,160 @@
 {
   "entries": [
     {
+      "date": "2026-11-04",
+      "id": "systemlandschaft-20261104-arbeitsnachweise",
+      "path": "2026-11-04/systemlandschaft/ARBEITSNACHWEISE.md",
+      "scope": "workspace",
+      "sha256": "9b8715dc2ce6f8a4cfe983d0ce5ecf458b0233c094157da94fcfd333949a062b",
+      "summary": "Alle Chats in nachvollziehbare Arbeit überführen",
+      "tags": [
+        "systemlandschaft",
+        "reviewentwurf",
+        "bereinigt"
+      ],
+      "title": "Alle Chats in nachvollziehbare Arbeit überführen"
+    },
+    {
+      "date": "2026-11-04",
+      "id": "systemlandschaft-20261104-architektur",
+      "path": "2026-11-04/systemlandschaft/ARCHITEKTUR.md",
+      "scope": "workspace",
+      "sha256": "0ba8534d3d6a01c6708b2d088ed4c7d0cc044dd77db3812f4d1bdd40fb64071b",
+      "summary": "Architektur eigenständiger Produkte und gemeinsamer Nachweise",
+      "tags": [
+        "systemlandschaft",
+        "reviewentwurf",
+        "bereinigt"
+      ],
+      "title": "Architektur eigenständiger Produkte und gemeinsamer Nachweise"
+    },
+    {
+      "date": "2026-11-04",
+      "id": "systemlandschaft-20261104-datenhaltung",
+      "path": "2026-11-04/systemlandschaft/DATENHALTUNG.md",
+      "scope": "workspace",
+      "sha256": "5364685b5b8cf17faba43cc8eadeb249e0c2ea844040580f3bc21b72617404b9",
+      "summary": "Datenhaltung und bisherige Arbeitsmängel",
+      "tags": [
+        "systemlandschaft",
+        "reviewentwurf",
+        "bereinigt"
+      ],
+      "title": "Datenhaltung und bisherige Arbeitsmängel"
+    },
+    {
+      "date": "2026-11-04",
+      "id": "systemlandschaft-20261104-konzeptreview",
+      "path": "2026-11-04/systemlandschaft/KONZEPTREVIEW.md",
+      "scope": "workspace",
+      "sha256": "b16dcb02c1c28cf5a1fc191746702a0884db87858e310557ef3f9b53a9015ad7",
+      "summary": "Konzeptabgleich und Gegenprüfung",
+      "tags": [
+        "systemlandschaft",
+        "reviewentwurf",
+        "bereinigt"
+      ],
+      "title": "Konzeptabgleich und Gegenprüfung"
+    },
+    {
+      "date": "2026-11-04",
+      "id": "systemlandschaft-20261104-offene-luecken",
+      "path": "2026-11-04/systemlandschaft/OFFENE-LUECKEN.md",
+      "scope": "workspace",
+      "sha256": "20a867c7c91cf02818effa76075a05ab1ee084522f5c92f3baeaac90532f9fed",
+      "summary": "Offene Lücken und nächste Nachweise",
+      "tags": [
+        "systemlandschaft",
+        "reviewentwurf",
+        "bereinigt"
+      ],
+      "title": "Offene Lücken und nächste Nachweise"
+    },
+    {
+      "date": "2026-11-04",
+      "id": "systemlandschaft-20261104-projektlandschaft",
+      "path": "2026-11-04/systemlandschaft/PROJEKTLANDSCHAFT.md",
+      "scope": "workspace",
+      "sha256": "a35042e7eb67acb03bcffa7408c6de9b13ac290d82e5ea7cfd4586ea33b49c03",
+      "summary": "Projektlandschaft und Begriffe",
+      "tags": [
+        "systemlandschaft",
+        "reviewentwurf",
+        "bereinigt"
+      ],
+      "title": "Projektlandschaft und Begriffe"
+    },
+    {
+      "date": "2026-11-04",
+      "id": "systemlandschaft-20261104-prompt-aethelema",
+      "path": "2026-11-04/systemlandschaft/PROMPT-AETHELEMA.md",
+      "scope": "workspace",
+      "sha256": "2d9544989252b0effe1fbcbddad1b05b13505ffeb48a47b1a55bcd43f9d5b3b9",
+      "summary": "Prompt für die eigenständige Weiterentwicklung von aethelema",
+      "tags": [
+        "systemlandschaft",
+        "reviewentwurf",
+        "bereinigt"
+      ],
+      "title": "Prompt für die eigenständige Weiterentwicklung von aethelema"
+    },
+    {
+      "date": "2026-11-04",
+      "id": "systemlandschaft-20261104-prompt-aix",
+      "path": "2026-11-04/systemlandschaft/PROMPT-AIX.md",
+      "scope": "workspace",
+      "sha256": "37c7e3edffd819c206d7d885233c80287babbd5da01e248abf7b715a5e0e1b97",
+      "summary": "Prompt für AIX und Copilot zur Einordnung",
+      "tags": [
+        "systemlandschaft",
+        "reviewentwurf",
+        "bereinigt"
+      ],
+      "title": "Prompt für AIX und Copilot zur Einordnung"
+    },
+    {
+      "date": "2026-11-04",
+      "id": "systemlandschaft-20261104-pruefauftrag",
+      "path": "2026-11-04/systemlandschaft/PRUEFAUFTRAG.md",
+      "scope": "workspace",
+      "sha256": "1191f41e57bb8c0229493d4eca01caba233b76064c3e360af5cf3fc10783cac7",
+      "summary": "Unabhängiger Prüfauftrag für Fable und ChatGPT",
+      "tags": [
+        "systemlandschaft",
+        "reviewentwurf",
+        "bereinigt"
+      ],
+      "title": "Unabhängiger Prüfauftrag für Fable und ChatGPT"
+    },
+    {
+      "date": "2026-11-04",
+      "id": "systemlandschaft-20261104-readme",
+      "path": "2026-11-04/systemlandschaft/README.md",
+      "scope": "workspace",
+      "sha256": "ddb76e53ad3617fa35c37634c040a833826aaf1e6e79b9afa060377c87f1e965",
+      "summary": "AETHEL Systemlandschaft und Arbeitsnachweise",
+      "tags": [
+        "systemlandschaft",
+        "reviewentwurf",
+        "bereinigt"
+      ],
+      "title": "AETHEL Systemlandschaft und Arbeitsnachweise"
+    },
+    {
+      "date": "2026-11-04",
+      "id": "systemlandschaft-20261104-werkzeugvergleich",
+      "path": "2026-11-04/systemlandschaft/WERKZEUGVERGLEICH.md",
+      "scope": "workspace",
+      "sha256": "74237df853a5041b1ba0d6b62a244452116c845b6a775712f50f2fd4b62f1692",
+      "summary": "Fähigkeitsvergleich statt naiver Gleichsetzung",
+      "tags": [
+        "systemlandschaft",
+        "reviewentwurf",
+        "bereinigt"
+      ],
+      "title": "Fähigkeitsvergleich statt naiver Gleichsetzung"
+    },
+    {
       "date": "2026-11-03",
       "id": "applefirst-audit-2026-11-03",
       "path": "2026-11-03/APPLEFIRST-AUDIT-2026-11-03.md",
