@@ -366,3 +366,51 @@ veränderlichen Workspace-Pfad nutzen. Ein gemeinsamer, reviewter und
 veröffentlichter bzw. fest commitgebundener Stand samt Lockfile ist als
 P1-Vertrag festzulegen. Der aktuelle Owner ist wegen alter Lease/TODO-Stand und
 nicht zugeordneten laufenden Prozessen weiter nicht sicher bestimmbar.
+
+## Arbeitsraum und digitale Fabrik: Grenzen und nächste Verbindungen
+
+Der eigenständige macOS-Pilot unter `components/plm-evidence/ui` zeigt
+Rust-Ausgaben für Änderung, Qualität, Zusammenhang und explizit geöffnete
+Quellen. Y-1 ist eine historische Momentaufnahme, kein Live-Status. Eine
+Flutter-Rust-Bindung, die automatische Übernahme und Quellenverifikation sind
+nicht implementiert. Einzelheiten und Start stehen in der dortigen README.
+
+Für den weiteren Ausbau ist die gemeinsame Sicht auf die vorhandenen
+Zuständigkeiten entscheidend, nicht eine neue zentrale Auftragsdatenbank:
+
+| Schritt | Vorhandener Anknüpfungspunkt | Noch zu klärender oder zu belegender Übergang |
+| --- | --- | --- |
+| Bedarf und Produkt | Projects-Export und benannte Repositories | stabile Produkt-/Kundenreferenz und berechtigte Zuordnung zu Anforderungen und Entscheidungen |
+| Auftrag und Verantwortung | AIX-TaskContract, Copilot-Goal und bestehende Rollen-/Lease-Akten | wirksamer Scope, aktuelle Besitzgeneration, Rechte und geladener Kontext |
+| Ausführung | AIX/Copilot und bestehende austauschbare Ausführungswege | belegter Lauf mit tatsächlichem Modell, Host, Modus und Ergebnis; kein zweiter Executor |
+| Änderung | Git-Commit/Tree und isolierte Arbeitsbereiche | Ergebnisrevision statt bloßer Basisrevision, unveränderte Kandidatenbindung |
+| Prüfung und Landung | vorhandene Review- und aethelLanding-Verträge, `aix-merge-gated` | unabhängiges Review vor Gate, Gate am finalen Kopf, vertrauenswürdiger Review-/Prüfbeleg |
+| Bereitstellung | versionsgebundene Artefakte und Betriebsdaten als notwendige Quellen | Verbindung von freigegebener Revision, gebauten Artefakten und tatsächlich installierter Version |
+| Kundenwirkung | Issues, Maßnahmen und Wirksamkeitsprüfungen im Fachvertrag | reale Kunden-/Betriebsbelege, messbare Erfolgskriterien und gültige Wirksamkeitsentscheidung |
+
+Die Aufzählung beschreibt Integrationsbedarf, keinen Nachweis, dass diese
+Übergänge bereits Ende-zu-Ende laufen. Das vorhandene Landing-Architekturpapier
+ist ein Vorschlag; einzelne Implementierungen und Produktionsnutzung sind
+getrennt zu prüfen. Ein Git-Worktree oder eine selbst gemeldete erfolgreiche
+Prüfung ersetzt keinen Review-, Gate-, Installations- oder Wirkungsbeleg.
+
+Für eine digitale Firma fehlen zusätzlich explizite Verantwortlichkeiten und
+Verbindungen für Angebot/Vertrag, Kunden und Support, Kosten und Kapazität,
+Lieferanten und Lizenzen, Sicherheitsvorfälle, Betrieb und Produktstrategie.
+Vor neuen Modulen sind jeweils bestehender Owner, Quelle, Zugriffsrecht und
+konkrete Entscheidung zu bestimmen. Die Oberfläche soll lesend verbinden;
+Änderungen und Aufträge verbleiben bei den zuständigen Systemen.
+
+Cursor dokumentiert Git weiterhin als dauerhafte Versionsverwaltung;
+Agenten-Checkpoints dienen dem lokalen Rücksetzen und Worktrees der Isolation
+([Agent](https://cursor.com/docs/agent/overview),
+[Worktrees](https://cursor.com/docs/configuration/worktrees)). Daraus folgt
+kein nachgewiesener Ersatz für Git. Für Mistral ist AIX-seitig ein manueller,
+nicht automatisch installierter Eintrag vorhanden. Ein historischer lokaler
+Devstral-Versuch bestand ein enges Coding-Orakel, während ein anderer lokaler
+Prior Devstral aus der Leiter ausschließt; die unterschiedlichen Belege
+beweisen weder aktuelle Verfügbarkeit noch allgemeine Eignung. Mistral Vibe
+beschreibt lokale Modelle über einen vorhandenen kompatiblen Dienst
+([Dokumentation](https://docs.mistral.ai/vibe/code/cli/offline-models)).
+Keinen neuen Server, keine bezahlte API und keine neue Modellrunde aus diesem
+Papier ableiten; Review und Architektur bleiben unabhängig und hochwertig.
