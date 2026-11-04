@@ -1,4 +1,4 @@
-"""Apple-first-Audit (applefirst.py) — Sprachen, Frameworks, Unified Memory, Anti-Muster, Score."""
+"""TC-066 — Apple-first-Audit (applefirst.py) — Sprachen, Frameworks, Unified Memory, Anti-Muster, Score (REQ-025)."""
 
 from __future__ import annotations
 

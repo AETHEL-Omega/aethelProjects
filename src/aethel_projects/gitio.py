@@ -43,12 +43,25 @@ def run_git(
         return None
     if args[0] not in READ_ONLY_SUBCOMMANDS:
         return None
-    if args[0] == "worktree" and args[1:] != ("list", "--porcelain"):
+    if any(arg.startswith(("--output", "--exec", "--upload-pack", "--receive-pack"))
+           for arg in args[1:]):
         return None
-    if args[0] == "remote" and (len(args) != 3 or args[1] != "get-url"):
+    if args[0] == "log" and any(arg == "-o" or arg.startswith("-o") for arg in args[1:]):
         return None
-    if args[0] == "config" and (len(args) < 2 or args[1] not in {"--get", "--get-all", "--list"}):
+    if args[0] == "worktree" and (len(args) < 2 or args[1] != "list"):
         return None
+    # `remote show <name>` fragt den Remote über das Netz ab: nicht erlaubt.
+    if args[0] == "remote" and args[1:] not in ((), ("-v",)):
+        if len(args) != 3 or args[1] != "get-url":
+            return None
+    if args[0] == "config":
+        allowed = {"--get", "--get-all", "--get-regexp", "--list", "-l", "--show-origin",
+                   "--local", "--global", "--file", "-f", "--name-only", "--null", "-z"}
+        if any(arg.startswith("-") and arg not in allowed for arg in args[1:]):
+            return None
+        if not any(arg in {"--get", "--get-all", "--get-regexp", "--list", "-l"}
+                   for arg in args[1:]):
+            return None
     try:
         result = subprocess.run(
             ["git", "-c", "core.fsmonitor=false", "-C", str(repo), *args],

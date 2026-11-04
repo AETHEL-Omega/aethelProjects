@@ -1,4 +1,4 @@
-"""Versionierte Analysenablage (analysen/): Register lesen, registrieren, anzeigen, rendern.
+"""TC-059, TC-060 — Versionierte Analysenablage (analysen/): Register lesen, registrieren, anzeigen, rendern (REQ-020, REQ-021).
 
 Alle Tests arbeiten in ``tmp_path``; die echte Ablage im Repo wird nicht angefasst.
 """

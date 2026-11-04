@@ -354,10 +354,9 @@ def reconcile(
 
     * Worktrees sind die Pfade aus ``worktree_paths`` aller Scan-Einträge plus die
       Einträge mit ``is_worktree=True``. Ihre Ordnernamen gelten als im Scan
-      bekannt, sind aber keine Repos: sie erscheinen nie in ``missing_in_manifest``,
-      sondern ohne Manifest-Eintrag in ``unregistered_worktrees``.
-    * Ein Manifest-Name ist nur ``dead``, wenn weder ein Repo noch ein Worktree-Ordner
-      so heißt.
+      bekannt, sind aber keine Repos: sie erscheinen nie in ``missing_in_manifest``.
+      Nicht registrierte Worktrees werden als ``Repo:Ordner`` ausgegeben.
+    * Ein Worktree belegt einen Manifest-Namen nur ohne gleichnamiges Haupt-Repo.
     * Ein Profil gilt als im Manifest bzw. im Scan bekannt, wenn sein Ordnername
       **oder** ein deklarierter Name (``name``/``id``/``projekt``/``repo``) dort
       steht (Scan: Repos und Worktree-Ordner); gemeldet wird es unter dem Ordnernamen.
@@ -368,24 +367,36 @@ def reconcile(
         repo for repo in scan_repos
         if isinstance(repo, dict) and isinstance(repo.get("name"), str) and repo["name"]
     ]
-    wt_entries = [repo for repo in entries if repo.get("is_worktree") is True]
     plain = [repo for repo in entries if repo.get("is_worktree") is not True]
 
     wt_paths: set[str] = set()
+    worktrees: set[tuple[str, str]] = set()
     for repo in entries:
         listed = repo.get("worktree_paths")
         if isinstance(listed, (list, tuple)):
-            wt_paths.update(item for item in listed if isinstance(item, str) and item.strip())
-    wt_names = {PurePosixPath(path.replace("\\", "/")).name for path in wt_paths}
-    wt_names.discard("")
-    wt_names |= {repo["name"] for repo in wt_entries}
+            for path in listed:
+                if isinstance(path, str) and path.strip():
+                    wt_paths.add(path)
+                    name = PurePosixPath(path.replace("\\", "/")).name
+                    if name:
+                        worktrees.add((repo["name"], name))
+        if repo.get("is_worktree") is True:
+            path = repo.get("path")
+            if isinstance(path, str) and path.strip():
+                wt_paths.add(path)
+            worktrees.add((repo["name"], repo["name"]))
 
-    scan_names = {repo["name"] for repo in entries} | wt_names
+    wt_names = {name for _, name in worktrees}
+    plain_names = {repo["name"] for repo in plain}
+    scan_names = plain_names | wt_names
     manifest_names = set(manifest)
+    known_worktree_names = (wt_names & manifest_names) - plain_names
 
-    missing = sorted({repo["name"] for repo in plain} - manifest_names)
-    dead = sorted(manifest_names - scan_names)
-    unregistered = sorted(wt_names - manifest_names)
+    missing = sorted(plain_names - manifest_names)
+    dead = sorted(manifest_names - plain_names - known_worktree_names)
+    unregistered = sorted(
+        f"{repo}:{name}" for repo, name in worktrees if name not in known_worktree_names
+    )
 
     without_manifest = sorted(
         folder for folder, profile in profiles.items()
@@ -410,7 +421,7 @@ def reconcile(
         manifest_age_days=_manifest_age_days(manifest_path),
         counts={
             "scan_repos": len(plain),
-            "scan_worktrees": len(wt_paths) + len(wt_entries),
+            "scan_worktrees": len(wt_paths),
             "manifest_entries": len(manifest),
             "profiles": len(profiles),
             "auftraege_lines": max(auftraege_lines, len(auftraege)),

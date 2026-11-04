@@ -126,3 +126,5 @@ Neu in diesem Schnitt zusätzlich: `incubator` (Reifeleiter R0–R11, RF, RI), `
 Chat-Protokoll) sowie vier echte Läufe (Register-Abgleich, Schichtenkarte, Apple-first,
 Inkubator) als Markdown und JSON unter `analysen/2026-11-03/`; Leitstand als md/json/html.
 Komponente: aethelProjects@aethel.projects.incubator/v1, applefirst/v1, cockpit/v1.
+
+04.11.2026 — Review-Reste (Codex terra): Worktree-Abgleich unterscheidet Repo und Ordner und zählt eindeutige Pfade; Git-Aufrufe sperren schreibende Optionen; CLI-Ausgabefehler werden verständlich gemeldet; Testmodule nennen ihre TC- und REQ-IDs. Vollständige Testsuite: 563 bestanden; Ruff: 21 bestehende Befunde, keine neuen.

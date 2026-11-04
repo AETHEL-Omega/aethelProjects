@@ -1,4 +1,4 @@
-"""Register-Abgleich — Scan, Manifest, Projektprofile und Aufträge gegeneinander.
+"""TC-062, TC-063 — Register-Abgleich — Scan, Manifest, Projektprofile und Aufträge gegeneinander (REQ-022).
 
 Die Tests laufen vollständig in ``tmp_path``: kein Netz, kein echter Workspace.
 """
@@ -127,7 +127,7 @@ def test_reconcile_full_scenario_checks_every_field(tmp_path: Path, empty_report
 
     assert drift.missing_in_manifest == ("beta",)
     assert drift.dead_manifest_entries == ("geist",)
-    assert drift.unregistered_worktrees == ("gamma",)
+    assert drift.unregistered_worktrees == ("gamma:gamma",)
     assert drift.profiles_without_manifest == ("waise",)
     assert drift.profiles_without_repo == ("waise",)
     assert drift.auftraege_unknown_repos == ("unbekannt",)
@@ -205,7 +205,7 @@ def test_worktree_paths_are_worktrees_known_in_the_scan_and_counted() -> None:
 
     drift = reconcile(scan, _manifest("alpha"), {"alpha-wt1": {}, "gamma-b": {}}, [])
 
-    assert drift.unregistered_worktrees == ("alpha-wt1", "alpha-wt2", "gamma", "gamma-b")
+    assert drift.unregistered_worktrees == ("alpha:alpha-wt1", "alpha:alpha-wt2", "gamma:gamma", "gamma:gamma-b")
     assert drift.missing_in_manifest == ()  # Worktree-Ordner sind keine Repos
     assert drift.profiles_without_repo == ()  # Worktree-Ordner zählen als im Scan bekannt
     assert drift.profiles_without_manifest == ("alpha-wt1", "gamma-b")
@@ -231,9 +231,23 @@ def test_worktree_paths_are_deduplicated_and_malformed_values_ignored() -> None:
 
     drift = reconcile(scan, {}, {}, [])
 
-    assert drift.unregistered_worktrees == ("wt",)
+    assert drift.unregistered_worktrees == ("alpha:wt", "beta:wt")
     assert drift.counts["scan_worktrees"] == 1
     assert drift.counts["scan_repos"] == 4
+
+
+def test_same_worktree_folder_in_two_repos_keeps_owners_and_paths() -> None:
+    """Gleichnamige Worktrees bleiben getrennt und ein Haupt-Repo verdeckt sie nicht."""
+    scan = [
+        _repo("repoA", worktree_paths=["/ws/repoA/main"]),
+        _repo("repoB", worktree_paths=["/ws/repoB/main"]),
+        _repo("main"),
+        {**_repo("main", worktree=True), "path": "/ws/repoA/main"},
+    ]
+    drift = reconcile(scan, _manifest("main", "tot"), {}, [])
+    assert drift.unregistered_worktrees == ("main:main", "repoA:main", "repoB:main")
+    assert drift.dead_manifest_entries == ("tot",)
+    assert drift.counts["scan_worktrees"] == 2
 
 
 def test_auftraege_may_name_a_worktree_folder() -> None:
@@ -262,7 +276,7 @@ def test_real_git_worktree_is_recognised_and_its_profile_is_not_orphaned(tmp_pat
     assert scan[0]["is_worktree"] is False
     assert [Path(p).name for p in scan[0]["worktree_paths"]] == ["alpha-feat"]
     assert "alpha-feat" in profiles
-    assert drift.unregistered_worktrees == ("alpha-feat",)
+    assert drift.unregistered_worktrees == ("alpha:alpha-feat",)
     assert drift.missing_in_manifest == ()
     assert drift.dead_manifest_entries == ("geist",)
     assert drift.profiles_without_repo == ()

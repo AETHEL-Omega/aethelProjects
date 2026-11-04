@@ -1,4 +1,4 @@
-"""Schichtenkarte des Gesamtstacks (stack.py) — Namensregeln, Herkunft, Marker, Karte."""
+"""TC-064 — Schichtenkarte des Gesamtstacks (stack.py) — Namensregeln, Herkunft, Marker, Karte (REQ-023)."""
 
 from __future__ import annotations
 
