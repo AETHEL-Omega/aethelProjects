@@ -210,6 +210,7 @@ def test_end_to_end_repo_is_recognized(tmp_path: Path) -> None:
         "docs/landing.md": "# Landing\n",
         "deploy/app.yaml": "kind: app\n",
         "scripts/healthcheck.sh": "echo ok\n",
+        "systemd/app.service": "[Service]\n",
         ".aix/pcg.json": "{}\n",
     }
     repo = _report(tmp_path, "kette", files=alle, maturity=90)
