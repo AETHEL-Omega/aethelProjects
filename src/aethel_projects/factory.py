@@ -18,6 +18,8 @@ Es wird nichts erfunden: jede Zuordnung nennt den Beleg, aus der sie folgt.
 from __future__ import annotations
 
 import re
+import json
+import tomllib
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -133,6 +135,14 @@ FULL_COVERAGE_RATIO = 0.6
 SOURCE_SUFFIXES = (".py", ".rs", ".dart", ".ts", ".tsx", ".js", ".go", ".swift", ".kt", ".sh")
 
 
+ANWENDBARKEIT = {
+    "dienst": set(), "unbestimmt": set(),
+    "app_nativ": {"Container", "Deployment-Verzeichnis", "Service-Definition"},
+    "bibliothek": {"Container", "Deployment-Verzeichnis", "Startskript", "Service-Definition", "Betriebswerkzeug"},
+    "forschung": {name for stage in ("auslieferung", "betrieb") for name, _ in STAGE_EVIDENCE[stage]},
+}
+
+
 @dataclass(frozen=True)
 class Stage:
     """Eine Stufe der Wertschöpfungskette und ihre Belege.
@@ -152,7 +162,7 @@ class Stage:
 
     @property
     def score(self) -> int:
-        return {"leer": 0, "teilweise": 1, "voll": 2}[self.level]
+        return {"leer": 0, "teilweise": 1, "voll": 2, "nicht_anwendbar": 0}[self.level]
 
 
 @dataclass(frozen=True)
@@ -172,10 +182,19 @@ class FactoryView:
     belegt: tuple[dict, ...] = ()
     reife: int = 0
     stubs: tuple[dict, ...] = ()
+    rollen_quelle: dict[str, str] = field(default_factory=dict)
+    nicht_anwendbar: dict[str, list[str]] = field(default_factory=dict)
 
     def as_dict(self) -> dict:
         return {
             "schema": "aethel.projects.factory/v2",
+            "rollen_quelle": self.rollen_quelle,
+            "rollen_bedeutung": "Heuristik, keine bestätigte Verantwortung, außer quelle=deklariert",
+            "nicht_anwendbar": self.nicht_anwendbar,
+            "end_to_end_bedeutung": "Strukturindikator innerhalb eines Repositorys; kein Betriebs-, Integrations- oder Föderationsnachweis",
+            "kettenintegritaet_bedeutung": "Beste Einzelrepo-Strukturkette; keine vertragsgebundene Kette über Repos",
+            "nachweisstufen": {"struktur": "gemessen: Pfadtreffer", "inhalt": "gemessen: Datei gelesen, sha256",
+                               **{k: "nicht gemessen" for k in ("integration", "pruefung_bestanden", "betrieb", "nutzerwirkung")}},
             "vorhanden": list(self.vorhanden), "belegt": list(self.belegt),
             "reife": self.reife, "stubs": list(self.stubs),
             "readiness_legacy_bedeutung": "Pfadabdeckung, kein Reifenachweis",
@@ -214,20 +233,66 @@ def _has_source(root: Path) -> bool:
     return bool(walk_files(root, suffix=SOURCE_SUFFIXES, limit=1))
 
 
-def _classify_role(repo: RepoReport) -> str:
-    """Die Rolle eines Repositories in der Fabrik."""
-    name = repo.name
-    for role, pattern in ROLE_PATTERNS:
-        if pattern.search(name):
-            return role
+def _declaration(root: Path) -> dict:
+    try:
+        data = json.loads((root / ".aethel/projekt.json").read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except (OSError, UnicodeError, ValueError):
+        return {}
+
+
+def _role(repo: RepoReport) -> tuple[str, str]:
     root = Path(repo.path)
-    if (root / "dna" / "genome.yaml").is_file():
-        return "wissen"
+    declared = _declaration(root).get("rolle")
+    if isinstance(declared, str) and declared.strip():
+        return declared.strip(), "deklariert"
+    for role, pattern in ROLE_PATTERNS:
+        if pattern.search(repo.name):
+            return role, "vermutung_name"
+    if (root / "dna/genome.yaml").is_file():
+        return "wissen", "vermutung_datei"
     if (root / "pubspec.yaml").is_file() or (root / "Cargo.toml").is_file():
-        return "produkt"
+        return "produkt", "vermutung_datei"
     if repo.maturity and repo.maturity.score >= 60:
-        return "produkt"
-    return "experiment"
+        return "produkt", "vermutung_reife"
+    return "experiment", "vermutung_reife"
+
+
+def _classify_role(repo: RepoReport) -> str:
+    return _role(repo)[0]
+
+
+def _profile(repo: RepoReport, role: str) -> str:
+    root = Path(repo.path)
+    declared = _declaration(root).get("profil")
+    if isinstance(declared, str) and declared in ANWENDBARKEIT:
+        return declared
+    if any((root / p).exists() for p in ("Dockerfile", "docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml", "Procfile", "launchd", "systemd")):
+        return "dienst"
+    if role == "experiment":
+        return "forschung"
+    if list(root.glob("*.xcodeproj")) or ((root / "pubspec.yaml").is_file() and any((root / p).is_dir() for p in ("macos", "ios"))):
+        return "app_nativ"
+    package = root / "Package.swift"
+    if package.is_file():
+        try:
+            text = package.read_text(encoding="utf-8")
+            if re.search(r'(?i)\.(macOS|iOS)\s*\(', text) and re.search(r'(?i)(executable|app)', text):
+                return "app_nativ"
+        except (OSError, UnicodeError):
+            pass
+    for filename in ("Cargo.toml", "pyproject.toml"):
+        try:
+            data = tomllib.loads((root / filename).read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, ValueError):
+            continue
+        if filename == "Cargo.toml" and "lib" in data and not data.get("bin") and not (root / "src/main.rs").exists() and not (root / "src/bin").exists():
+            return "bibliothek"
+        if filename == "pyproject.toml" and "project" in data and not data["project"].get("scripts") and not data["project"].get("gui-scripts"):
+            return "bibliothek"
+    if (root / "pubspec.yaml").is_file():
+        return "bibliothek"
+    return "unbestimmt"
 
 
 def _stage_evidence(repo: RepoReport, stage: str) -> dict[str, str]:
@@ -244,6 +309,9 @@ def _stage_evidence(repo: RepoReport, stage: str) -> dict[str, str]:
         for pattern in patterns:
             regex = re.compile(pattern)
             for relative in paths:
+                if (requirement == "Landing oder Marktmaterial"
+                        and Path(relative).suffix.lower() not in {".md", ".rst", ".txt", ".html", ".pdf"}):
+                    continue
                 if regex.search(relative):
                     found[requirement] = relative
                     break
@@ -269,19 +337,31 @@ def build(repos: tuple[RepoReport, ...]) -> FactoryView:
     import hashlib
     from . import stubs as stub_module
 
+    from collections import Counter
+    counts = Counter(repo.name for repo in repos)
+    ids = {str(Path(r.path).resolve()): r for r in repos}
+    display = {key: (r.name if counts[r.name] == 1 else f"{r.name} ({'/'.join(Path(key).parts[-2:])})")
+               for key, r in ids.items()}
+    role_info = {key: _role(r) for key, r in ids.items()}
+    excluded = {key: ANWENDBARKEIT[_profile(r, role_info[key][0])] for key, r in ids.items()}
+    applicable = {key: {stage: {name for name, _ in STAGE_EVIDENCE[stage]} - excluded[key]
+                        for stage in STAGE_ORDER} for key in ids}
     evidence_by_stage: dict[str, dict[str, dict[str, str]]] = defaultdict(dict)
     vorhanden, belegt, stub_findings = [], [], []
     verified: dict[str, set[str]] = defaultdict(set)
     stub_repos = set()
     for repo in repos:
         root = Path(repo.path)
+        repo_id = str(root.resolve())
         findings = stub_module.scan(root)
         if findings:
-            stub_repos.add(repo.name)
-            stub_findings.extend({'repo': repo.name, **item} for item in findings)
+            stub_repos.add(repo_id)
+            stub_findings.extend({'repo': display[repo_id], **item} for item in findings)
         for stage in STAGE_ORDER:
             for requirement, relative in _stage_evidence(repo, stage).items():
-                vorhanden.append({'repo': repo.name, 'stufe': stage, 'anforderung': requirement, 'path': relative})
+                if requirement not in applicable[repo_id][stage]:
+                    continue
+                vorhanden.append({'repo': display[repo_id], 'stufe': stage, 'anforderung': requirement, 'path': relative})
                 path = root / relative
                 if not path.is_file() or not path.resolve().is_relative_to(root.resolve()):
                     continue
@@ -293,27 +373,29 @@ def build(repos: tuple[RepoReport, ...]) -> FactoryView:
                 if (not text or text in {'...', 'pass', '{}', '[]'} or len(raw) > 256_000
                         or re.search(r'(?i)todo\s*:\s*implement|\bstub\b|platzhalter', text)):
                     continue
-                belegt.append({'repo': repo.name, 'stufe': stage, 'anforderung': requirement,
+                belegt.append({'repo': display[repo_id], 'stufe': stage, 'anforderung': requirement,
                                'path': relative, 'quelle': 'Inhalt gelesen; Funktion nicht nachgewiesen',
                                'sha256': hashlib.sha256(raw).hexdigest()})
-                if repo.name not in stub_repos:
+                if repo_id not in stub_repos:
                     verified[stage].add(requirement)
-    earned_proofs = sum(STAGE_WEIGHTS[key] * len(verified[key]) / len(STAGE_EVIDENCE[key])
-                        for key in STAGE_ORDER if STAGE_EVIDENCE.get(key))
-    max_proofs = sum(STAGE_WEIGHTS[key] for key in STAGE_ORDER if STAGE_EVIDENCE.get(key))
+    requirements = {stage: set().union(*(applicable[k][stage] for k in ids)) for stage in STAGE_ORDER}
+    earned_proofs = sum(STAGE_WEIGHTS[key] * len(verified[key]) / len(requirements[key])
+                        for key in STAGE_ORDER if requirements[key])
+    max_proofs = sum(STAGE_WEIGHTS[key] for key in STAGE_ORDER if requirements[key])
     reife = round(100 * earned_proofs / max_proofs) if max_proofs else 0
     roles: dict[str, list[str]] = defaultdict(list)
 
     for repo in repos:
-        role = _classify_role(repo)
-        roles[role].append(repo.name)
+        repo_id = str(Path(repo.path).resolve())
+        role = role_info[repo_id][0]
+        roles[role].append(repo_id)
         for stage in STAGE_ORDER:
-            evidence = _stage_evidence(repo, stage)
+            evidence = {k: v for k, v in _stage_evidence(repo, stage).items() if k in applicable[repo_id][stage]}
             if evidence:
-                evidence_by_stage[stage][repo.name] = evidence
+                evidence_by_stage[stage][repo_id] = evidence
 
     stub_names = {
-        r.name
+        str(Path(r.path).resolve())
         for r in repos
         if r.maturity and r.maturity.score < 30 and r.commits_total > 0
     }
@@ -328,7 +410,7 @@ def build(repos: tuple[RepoReport, ...]) -> FactoryView:
             sorted(
                 name
                 for name, evidence in per_repo.items()
-                if alle_anforderungen.issubset(evidence)
+                if applicable[name][key] and applicable[name][key].issubset(evidence)
             )
         )
         # Ein Träger belegt die Stufe vollständig — er zählt für die Kettenintegrität,
@@ -337,7 +419,9 @@ def build(repos: tuple[RepoReport, ...]) -> FactoryView:
             if name not in stub_names:
                 ketten_pro_repo[name].add(key)
 
-        if not per_repo:
+        if not requirements[key] and ids:
+            level = "nicht_anwendbar"
+        elif not per_repo:
             level = "leer"
         elif traeger:
             level = "voll"
@@ -345,7 +429,7 @@ def build(repos: tuple[RepoReport, ...]) -> FactoryView:
             level = "teilweise"
 
         evidence_text = {
-            name: "; ".join(f"{anforderung} ({pfad})" for anforderung, pfad in sorted(evidence.items()))
+            display[name]: "; ".join(f"{anforderung} ({pfad})" for anforderung, pfad in sorted(evidence.items()))
             for name, evidence in sorted(per_repo.items())
         }
         stages.append(
@@ -354,15 +438,15 @@ def build(repos: tuple[RepoReport, ...]) -> FactoryView:
                 label=STAGE_LABELS[key],
                 description=STAGE_DESCRIPTIONS[key],
                 level=level,
-                covered_by=tuple(sorted(per_repo)),
-                carriers=traeger,
+                covered_by=tuple(sorted(display[n] for n in per_repo)),
+                carriers=tuple(sorted(display[n] for n in traeger)),
                 evidence=evidence_text,
             )
         )
 
     # Rollenverteilung
     role_map: dict[str, tuple[str, ...]] = {
-        role: tuple(sorted(names)) for role, names in sorted(roles.items())
+        role: tuple(sorted(display[n] for n in names)) for role, names in sorted(roles.items())
     }
 
     # Fabrik-Motor: die Werkzeuge, die die Fabrik bauen.
@@ -391,17 +475,19 @@ def build(repos: tuple[RepoReport, ...]) -> FactoryView:
     maximum = 0
     for stage in stages:
         weight = STAGE_WEIGHTS[stage.key]
-        maximum += weight * 2
-        earned += weight * stage.score
+        if requirements[stage.key]:
+            maximum += weight * 2
+            earned += weight * stage.score
     readiness = int(round(100 * earned / maximum)) if maximum else 0
 
     # Kettenintegrität: trägt ein Repository die Kette von Ende zu Ende?
     ketten_laengen = {name: len(stufen) for name, stufen in ketten_pro_repo.items()}
+    applicable_stages = {name: {s for s in STAGE_ORDER if applicable[name][s]} for name in ids}
     beste_kette = max(ketten_laengen.values(), default=0)
-    kettenintegritaet = int(round(100 * beste_kette / len(STAGE_ORDER)))
-    end_to_end = tuple(
-        sorted(name for name, laenge in ketten_laengen.items() if laenge >= len(STAGE_ORDER) - 2)
-    )
+    kettenintegritaet = max((round(100 * len(ketten_pro_repo[name]) / len(stages))
+                            for name, stages in applicable_stages.items() if stages), default=0)
+    end_to_end = tuple(sorted(display[name] for name, stages in applicable_stages.items()
+                              if stages and stages.issubset(ketten_pro_repo[name])))
 
     notes: list[str] = []
     if engine:
@@ -411,7 +497,7 @@ def build(repos: tuple[RepoReport, ...]) -> FactoryView:
     if beste_kette:
         notes.append(
             f"Beste Einzelkette: {beste_kette}/{len(STAGE_ORDER)} Stufen in einem Repository — "
-            f"die digitale Firma existiert damit als Föderation, nicht an einem Ort."
+            f"dies ist kein Nachweis einer Föderation."
         )
     else:
         notes.append(
@@ -436,4 +522,6 @@ def build(repos: tuple[RepoReport, ...]) -> FactoryView:
         end_to_end=end_to_end,
         notes=tuple(notes),
         vorhanden=tuple(vorhanden), belegt=tuple(belegt), reife=reife, stubs=tuple(stub_findings),
+        rollen_quelle={display[key]: info[1] for key, info in role_info.items()},
+        nicht_anwendbar={display[key]: sorted(value) for key, value in excluded.items()},
     )

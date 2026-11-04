@@ -585,6 +585,10 @@ def _cmd_factory(args: argparse.Namespace) -> int:
     lines.append(f"Pfadabdeckung (bisher readiness): {view.readiness}/100; kein Reifenachweis.  ")
     lines.append(f"Vorhanden: {len(view.vorhanden)}; belegt: {len(view.belegt)}; Stubs: {len(view.stubs)}.  ")
     lines.append(f"**Kettenintegrität: {view.kettenintegritaet}/100**")
+    meanings = view.as_dict()
+    lines.append(meanings["end_to_end_bedeutung"] + "  ")
+    lines.append(meanings["kettenintegritaet_bedeutung"] + "  ")
+    lines.append("Nachweisstufen: " + "; ".join(f"{k}: {v}" for k, v in meanings["nachweisstufen"].items()) + "  ")
     lines.append("")
     lines.append(
         "> Pfade zeigen Vorhandensein; Inhaltsbelege belegen keine Funktion oder Ausführung. "
@@ -602,7 +606,7 @@ def _cmd_factory(args: argparse.Namespace) -> int:
     lines.append("| Stufe | Zustand | Träger | Mitwirkende | Bedeutung |")
     lines.append("|---|---|---|---|---|")
     for stage in view.stages:
-        mark = {"voll": "🟢", "teilweise": "🟡", "leer": "🔴"}[stage.level]
+        mark = {"voll": "🟢", "teilweise": "🟡", "leer": "🔴", "nicht_anwendbar": "⚪"}[stage.level]
         lines.append(
             f"| **{stage.label}** | {mark} {stage.level} | {len(stage.carriers)} | "
             f"{len(stage.covered_by)} | {stage.description} |"
@@ -624,8 +628,7 @@ def _cmd_factory(args: argparse.Namespace) -> int:
         lines.append("## End-to-End-Ketten")
         lines.append("")
         lines.append(
-            "Diese Repos tragen die Kette von der Marktanforderung bis zur Rückkopplung "
-            "fast vollständig — sie sind das Nächstliegende zu einer digitalen Firma:"
+            "Diese Repos tragen alle für ihr Profil anwendbaren Stufen:"
         )
         lines.append("")
         for name in view.end_to_end[:20]:
