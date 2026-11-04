@@ -76,12 +76,12 @@ def observe(root, previous=None, *, jobs=4, builder=None):
         result['scan'] = scan
         if not _complete(scan):
             result['status'] = 'partial'
-        if previous and previous.get('scan') and _complete(previous['scan']):
+        if previous and previous.get('scan'):
             old, new = previous['scan'], scan
             old_ids, new_ids = _identity(old), _identity(new)
             result['changes']['new_repositories'] = sorted(set(new_ids) - set(old_ids))
             # Missing does not imply deleted; only compare fully readable inventories.
-            if _complete(scan):
+            if _complete(old) and _complete(scan):
                 result['changes']['missing_repositories'] = sorted(set(old_ids) - set(new_ids))
             before, after = _checkouts(old), _checkouts(scan)
             result['changes']['changed_checkouts'] = sorted(k for k in before.keys() & after.keys() if before[k] != after[k])
@@ -123,8 +123,9 @@ def watch_inventory(root, target, *, jobs=4, interval=300, once=False):
         while True:
             result = observe(root, previous, jobs=jobs)
             _write_private(path, json.dumps(result, ensure_ascii=False))
-            # Never compare to a failed/partial inventory; preserve prior good baseline.
-            if result['status'] == 'ok':
+            # A partial scan can identify newly observed entries, but never removals.
+            # An exception retains the most recent readable observation as baseline.
+            if result['status'] in ('ok', 'partial'):
                 previous = result
             print(json.dumps({'status': result['status'], 'attempted_at': result['attempted_at']}), flush=True)
             if once:

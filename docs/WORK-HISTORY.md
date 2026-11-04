@@ -176,12 +176,13 @@ Sperre verhindert parallele Schreiber. `Ctrl-C` beendet den Prozess. Der Lauf
 ist nur aktiv, solange dieser Prozess läuft; kein automatischer Start oder
 Neustart ist damit eingerichtet.
 
-Die erste vollständige Erfassung ist die Basis. Spätere vollständige Scans
-melden neue lokale Git-Repositorygruppen, neue Nicht-Git-Kandidaten und
+Der erste lesbare Stand ist die Vergleichsbasis. Spätere Scans melden neu
+beobachtete lokale Git-Repositorygruppen, neue Nicht-Git-Kandidaten und
 Arbeitskopien mit geändertem HEAD, Branch, Dirty-Zahl oder Dirty-Fingerabdruck.
 Fehlende Repositorygruppen werden nur bei vollständigen Scans als fehlend
 bezeichnet, niemals als gelöscht. Bei Fehlern bleibt der letzte lesbare Stand
-mit Fehlerstatus erhalten; unvollständige Scans sind keine neue Vergleichsbasis.
+mit Fehlerstatus erhalten; teilweise Scans dürfen neue Beobachtungen, aber keine
+fehlenden Repositorygruppen melden. Fehlend bedeutet nicht gelöscht.
 Ein Scan ist nicht atomar und schließt Symlinkziele sowie generierte Ordner aus.
 
 Dirty-Fingerabdrücke verwenden Git-Status und Dateimetadaten statt Dateiinhalten.

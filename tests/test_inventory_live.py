@@ -37,6 +37,14 @@ class InventoryLiveTests(unittest.TestCase):
         self.assertEqual(result['scan'],first['scan'])
         self.assertNotIn('hidden path',result['message'])
 
+    def test_repeated_partial_scans_can_find_new_observations_but_not_removals(self):
+        first=observe('/synthetic',builder=lambda root,jobs:scan(repos=['/a'],errors=1))
+        second=observe('/synthetic',first,builder=lambda root,jobs:scan(repos=['/b'],errors=1))
+        self.assertFalse(second['baseline'])
+        self.assertEqual(second['changes']['new_repositories'],['/b'])
+        self.assertEqual(second['changes']['missing_repositories'],[])
+        self.assertIsNone(second['last_success_at'])
+
     def test_real_inventory_detects_new_repo_and_repeated_dirty_change(self):
         with tempfile.TemporaryDirectory() as t:
             root=Path(t).resolve()
