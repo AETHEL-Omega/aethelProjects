@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 import time
 
-from . import inventory, gitio
+from . import inventory, gitio, intent
 from .work_history import _write_private, private_directory
 
 SCHEMA = 'aethel.projects.inventory-live/v1'
@@ -61,7 +61,148 @@ def enrich_dirty(scan):
     return scan
 
 
-def observe(root, previous=None, *, jobs=4, builder=None):
+def enrich_purposes(scan):
+    """Reuse Projects' README extraction as a bounded, source-labelled observation."""
+    checkouts = {x.get('path'): x for x in scan.get('checkouts', [])}
+    for group in scan.get('repositories', []):
+        paths = group.get('paths') or []
+        common = Path(group.get('git_common_dir') or '/')
+        primary = str(common.parent) if common.name == '.git' and str(common.parent) in paths else (paths[0] if paths else None)
+        if not primary:
+            continue
+        root = Path(primary)
+        for name in ('README.md', 'README.rst', 'README.txt'):
+            path = root / name
+            try:
+                if path.is_symlink() or not path.is_file() or path.stat().st_size > 256_000:
+                    continue
+                before = path.read_bytes()
+                purpose = intent._from_readme(path)
+                after = path.read_bytes()
+                if before != after or not purpose or not purpose.text:
+                    continue
+                checkout = checkouts.get(primary) or {}
+                group['readme_purpose'] = {'text': purpose.text, 'source': str(path),
+                    'sha256': hashlib.sha256(after).hexdigest(), 'head_observed': checkout.get('head'),
+                    'dirty_files': checkout.get('dirty_files'), 'confidence': purpose.confidence,
+                    'limitation': 'README working-copy statement; not proof of implemented or installed behavior.'}
+                break
+            except OSError:
+                continue
+    return scan
+
+
+def attach_observations(scan, directory):
+    """Attach source-backed notes only on exact repository, checkout and source bytes."""
+    if not directory:
+        return scan
+    try:
+        base = Path(directory).expanduser().resolve()
+        observations = json.loads((base / 'direct-observations.json').read_text())
+        findings = json.loads((base / 'independent-findings.json').read_text())
+        if not isinstance(observations.get('projects'), list) or not isinstance(findings.get('findings'), list):
+            raise ValueError('invalid observation sources')
+    except (OSError, ValueError, AttributeError):
+        scan['external_observation_status'] = 'unavailable_or_invalid'
+        return scan
+    scan['external_observation_status'] = 'available_untrusted'
+    checkouts = {x.get('path'): x for x in scan.get('checkouts', [])}
+    by_common = {x.get('git_common_dir'): x for x in scan.get('repositories', [])}
+    for obs in observations['projects']:
+        if not isinstance(obs, dict):
+            continue
+        group = by_common.get(obs.get('common_dir'))
+        checkout = checkouts.get(obs.get('path'))
+        if not group or not checkout or checkout.get('git_common_dir') != obs.get('common_dir'):
+            continue
+        summary = {'state': 'no_matching_verified_finding', 'observed_at': obs.get('observed_at'),
+                   'checkout': obs.get('path'), 'observed_head': obs.get('head')}
+        group['direct_observation'] = summary
+        if not obs.get('head') or checkout.get('head') != obs.get('head'):
+            summary['state'] = 'stale_revision'
+            continue
+        if isinstance(obs.get('recent'), str):
+            summary['recent'] = obs['recent'][:1000]
+        repo = Path(obs['path']).resolve()
+        for item in findings['findings']:
+            if not isinstance(item, dict) or not isinstance(item.get('sources'), list) or not item['sources']:
+                continue
+            valid = True
+            evidence = []
+            for source in item['sources']:
+                if not isinstance(source, dict) or not isinstance(source.get('path'), str):
+                    valid = False; break
+                path = Path(source['path'])
+                try:
+                    resolved = path.resolve(strict=True)
+                    if not resolved.is_relative_to(repo) or not resolved.is_file() or resolved.stat().st_size > 2_000_000:
+                        valid = False; break
+                    digest = hashlib.sha256(resolved.read_bytes()).hexdigest()
+                    if digest != source.get('sha256'):
+                        valid = False; break
+                    evidence.append({'path': str(resolved), 'line': source.get('line'), 'sha256': digest})
+                except OSError:
+                    valid = False; break
+            if valid:
+                summary.update(state='source_bytes_match', purpose=item.get('purpose'),
+                               finding=item.get('finding'), next_step=item.get('next_step'), sources=evidence,
+                               limitation='Source observation, not a test, authority or installed-state proof.')
+                break
+    # Previously generated analyzer observations are optional, never executed here.
+    for report_path in sorted(base.glob('*-analyzer.json'))[:100]:
+        try:
+            if report_path.is_symlink() or report_path.stat().st_size > 2_000_000:
+                continue
+            raw = report_path.read_bytes()
+            report = json.loads(raw)
+            run_path = report_path.with_name(report_path.name.replace('-analyzer.json', '-analyzer-run.json'))
+            if run_path.is_symlink() or run_path.stat().st_size > 1_000_000:
+                continue
+            receipt = json.loads(run_path.read_text())
+            if (report.get('schema') != 'aethel.code_analyzer.aix_findings.v1'
+                    or receipt.get('returncode') != 0 or receipt.get('sha256') != hashlib.sha256(raw).hexdigest()
+                    or not isinstance(report.get('findings'), list)):
+                continue
+            scope = report.get('scope')
+            checkout = checkouts.get(scope)
+            group = by_common.get(checkout.get('git_common_dir')) if checkout else None
+            if not group or not isinstance(scope, str):
+                continue
+            project = Path(scope).resolve()
+            digests = (report.get('scan') or {}).get('file_digests')
+            if not isinstance(digests, dict) or not digests or len(digests) > 10_000:
+                continue
+            changed = 0
+            for name, digest in digests.items():
+                try:
+                    relative = Path(name)
+                    if relative.is_absolute() or '..' in relative.parts:
+                        changed += 1; continue
+                    path = (project / relative).resolve(strict=True)
+                    if not path.is_relative_to(project) or not path.is_file() or path.stat().st_size > 4_000_000:
+                        changed += 1; continue
+                    if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+                        changed += 1
+                except (OSError, TypeError, ValueError):
+                    changed += 1
+            findings_out = []
+            for item in report['findings'][:100]:
+                if isinstance(item, dict):
+                    findings_out.append({key: item.get(key) for key in
+                                         ('file', 'line', 'rule', 'severity', 'message', 'evidence_tier', 'kind')})
+            group['analyzer_observation'] = {'source': str(report_path), 'observed_at': receipt.get('observed_at'),
+                'release_reported': receipt.get('installed_release'), 'output_sha256': receipt['sha256'],
+                'source_state': 'matched_scanned_files' if not changed else 'stale_or_missing_scanned_files',
+                'changed_or_unavailable_files': changed, 'scanned_file_count': len(digests),
+                'incomplete_reasons': (report.get('scan') or {}).get('incomplete_reasons', []),
+                'truncated': report.get('truncated'), 'reported_finding_count': len(report['findings']),
+                'findings': findings_out, 'limitation': 'Reported bounded scan; matching scanned files is not full-scope coverage, a clean result or a current release proof.'}
+        except (OSError, ValueError, AttributeError, TypeError):
+            continue
+    return scan
+
+
+def observe(root, previous=None, *, jobs=4, builder=None, observations_dir=None):
     """A delta is an observation, not a product or deletion decision."""
     now = datetime.now(timezone.utc).isoformat()
     result = {'schema': SCHEMA, 'attempted_at': now, 'status': 'ok', 'scan': None,
@@ -73,6 +214,8 @@ def observe(root, previous=None, *, jobs=4, builder=None):
             raise ValueError('inventory result invalid')
         if builder is None:
             enrich_dirty(scan)
+            enrich_purposes(scan)
+        attach_observations(scan, observations_dir)
         result['scan'] = scan
         if not _complete(scan):
             result['status'] = 'partial'
@@ -98,7 +241,7 @@ def observe(root, previous=None, *, jobs=4, builder=None):
     return result
 
 
-def watch_inventory(root, target, *, jobs=4, interval=300, once=False):
+def watch_inventory(root, target, *, jobs=4, interval=300, once=False, observations_dir=None):
     if interval < 300:
         raise ValueError('interval must be at least 300 seconds')
     path = Path(target).expanduser()
@@ -121,7 +264,7 @@ def watch_inventory(root, target, *, jobs=4, interval=300, once=False):
             except (OSError, ValueError, AttributeError):
                 previous = None
         while True:
-            result = observe(root, previous, jobs=jobs)
+            result = observe(root, previous, jobs=jobs, observations_dir=observations_dir)
             _write_private(path, json.dumps(result, ensure_ascii=False))
             # A partial scan can identify newly observed entries, but never removals.
             # An exception retains the most recent readable observation as baseline.
