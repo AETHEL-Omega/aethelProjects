@@ -125,6 +125,8 @@ def _build_parser() -> argparse.ArgumentParser:
     analyses_mode.add_argument("--list", action="store_true", help="Alle registrierten Analysen")
     analyses_mode.add_argument("--show", metavar="ID", default=None, help="Eine Analyse ausgeben (Prüfsumme wird geprüft)")
     analyses_mode.add_argument("--proposals", action="store_true", help="Vorgeschlagene Projekte (vorschlaege.json)")
+    analyses_mode.add_argument("--rat", action="store_true", help="Rat-Register")
+    analyses_mode.add_argument("--geschaeftsfaelle", action="store_true", help="Geschäftsfälle")
     analyses_mode.add_argument("--loops", action="store_true", help="Definierte Kreisläufe (kreislaeufe.json)")
     analyses_mode.add_argument("--stats", action="store_true", help="Zähler der Ablage")
     analyses_mode.add_argument("--register", metavar="PATH", default=None, help="Markdown-Datei unter analysen/ registrieren")
@@ -737,6 +739,17 @@ def _cmd_analyses(args: argparse.Namespace) -> int:
             entries = analyses_mod.list_entries(base)
             text = (json.dumps(analyses_mod.render_index_json(entries), ensure_ascii=False, indent=2, sort_keys=True)
                     if args.format == "json" else analyses_mod.render_index_markdown(entries))
+        elif args.rat or args.geschaeftsfaelle:
+            is_rat = args.rat
+            records = analyses_mod.load_rat(base) if is_rat else analyses_mod.load_geschaeftsfaelle(base)
+            key = "raete" if is_rat else "geschaeftsfaelle"
+            schema = analyses_mod.SCHEMA_RAT if is_rat else analyses_mod.SCHEMA_GESCHAEFTSFAELLE
+            rows = [record.as_dict() for record in records]
+            if args.format == "json":
+                text = json.dumps({"schema": schema, key: rows}, ensure_ascii=False, indent=2, sort_keys=True)
+            else:
+                headers = tuple(rows[0]) if rows else (("id",) if is_rat else ("produkt",))
+                text = analyses_mod._table(headers, [tuple(row[k] if row[k] is not None else "" for k in headers) for row in rows])
         elif args.proposals:
             proposals = analyses_mod.load_proposals(base)
             text = (json.dumps(analyses_mod.render_proposals_json(proposals), ensure_ascii=False, indent=2, sort_keys=True)

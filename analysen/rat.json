@@ -1,0 +1,245 @@
+{
+  "schema": "aethel.projects.rat/v1",
+  "raete": [
+    {
+      "id": "bwl-e3",
+      "sicht": "bwl",
+      "ebene": "E3",
+      "luecke": "kein Geschäftsfall je Projekt: Nutzerproblem, Zielgruppe, Preis, Kosten, Deckungsbeitrag fehlen in allen 55 Produkten",
+      "rat": "Erfasse für jedes Projekt einen belegten Geschäftsfall.",
+      "konsument": "projects",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "bwl-e4",
+      "sicht": "bwl",
+      "ebene": "E4",
+      "luecke": "Kosten je Schnitt nur als Token, nicht als Gesamtkosten (Fehlversuche, Nacharbeit, Wartezeit, Manuels Zeit); kein Budget je Produkt; WIP ohne Kostenwirkung",
+      "rat": "Miss Gesamtkosten je Schnitt und ordne Budgets den Produkten zu.",
+      "konsument": "factory",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "bwl-e5",
+      "sicht": "bwl",
+      "ebene": "E5",
+      "luecke": "keine Gewinn- und Verlustsicht, keine Liquiditätsplanung, keine Make-or-Buy-Regel außer Kanon-Sätzen; Abo-Kosten (Codex, Claude, Cursor) nicht je Produkt zugeordnet",
+      "rat": "Erstelle eine Gewinn-, Verlust- und Liquiditätssicht und entscheide Make-or-Buy anhand belegter Kosten.",
+      "konsument": "company",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "bwl-e6",
+      "sicht": "bwl",
+      "ebene": "E6",
+      "luecke": "kein Marktpreis-Abgleich, keine Zahlungsbereitschaft gemessen",
+      "rat": "Prüfe Marktpreise und Zahlungsbereitschaft anhand datierter Belege.",
+      "konsument": "company",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "marketing-e3",
+      "sicht": "marketing",
+      "ebene": "E3",
+      "luecke": "Intent aus README-Erstzeilen; keine Positionierung, kein Nutzenversprechen, kein Name-Test (Athelix, Nuru, heritageBibel nebeneinander)",
+      "rat": "Prüfe Positionierung, Nutzenversprechen und Namen je Produkt.",
+      "konsument": "projects",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "marketing-e4",
+      "sicht": "marketing",
+      "ebene": "E4",
+      "luecke": "market-Modul erzeugt Claims, die niemand prüft oder nutzt",
+      "rat": "Prüfe die Claims des Marktmoduls und führe sie einer Nutzung zu.",
+      "konsument": "factory",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "marketing-e5",
+      "sicht": "marketing",
+      "ebene": "E5",
+      "luecke": "keine Marke, keine Botschaft, kein Kanal, keine Zielgruppe für AETHEL als Ganzes; Kiraa zeigt, dass „lokal-nativ auf Apple Silicon“ ein verkaufbares Versprechen ist",
+      "rat": "Entscheide Marke, Botschaft, Zielgruppe und Kanal für AETHEL.",
+      "konsument": "company",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "marketing-e6",
+      "sicht": "marketing",
+      "ebene": "E6",
+      "luecke": "keine Wettbewerberliste mit Datum (Cursor, Kiro, Antigravity, Devin, Kiraa, Mendix) als Datensatz, nur in Berichten",
+      "rat": "Erfasse Wettbewerber mit Datum und Quelle.",
+      "konsument": "company",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "vwl-e3",
+      "sicht": "vwl",
+      "ebene": "E3",
+      "luecke": "Lizenz- und Kostenklasse je Komponente nicht als Daten (nur CLAUDE.md)",
+      "rat": "Erfasse Lizenz und Kostenklasse jeder Komponente als Daten.",
+      "konsument": "projects",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "vwl-e4",
+      "sicht": "vwl",
+      "ebene": "E4",
+      "luecke": "keine Abhängigkeitsökonomie: welche Fremdleistung (Apple, Anthropic, OpenAI) ist Single Point of Failure, zu welchem Preis, mit welcher Austrittsoption",
+      "rat": "Erfasse kritische Fremdleistungen, Preise und Austrittsoptionen.",
+      "konsument": "factory",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "vwl-e5",
+      "sicht": "vwl",
+      "ebene": "E5",
+      "luecke": "keine Regulatorik als Vertrag (CRA seit 11.09.2026, AI Act, DSGVO); keine Open-Source-Strategie (was offen, was eigen, welche Lizenz); keine Förder- oder Partnerlogik",
+      "rat": "Entscheide Rechts-, Open-Source- und Partnerstrategie anhand konkreter Anforderungen.",
+      "konsument": "company",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "vwl-e6",
+      "sicht": "vwl",
+      "ebene": "E6",
+      "luecke": "Plattformzyklen (WWDC jährlich) und Modellpreise nicht als Zeitreihe verfolgt",
+      "rat": "Verfolge Plattformzyklen und Modellpreise als datierte Zeitreihe.",
+      "konsument": "company",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "it-e3",
+      "sicht": "it",
+      "ebene": "E3",
+      "luecke": "Reife misst Dateien, nicht Funktion; Analyzer nur Rust/Dart; Stubs nur als Marker",
+      "rat": "Miss Funktion und Stubs anhand prüfbarer Codebefunde.",
+      "konsument": "projects",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "it-e4",
+      "sicht": "it",
+      "ebene": "E4",
+      "luecke": "zwei Kerne, vier Sandboxen, drei Gedächtnisse, Deploy-Drift, keine Verträge (Teil 2)",
+      "rat": "Kläre Kern-, Sandbox- und Gedächtnisverträge und behebe Deploy-Drift.",
+      "konsument": "factory",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "it-e5",
+      "sicht": "it",
+      "ebene": "E5",
+      "luecke": "keine Architekturentscheidungen als RFD mit Status; Kanon als Prosa an 289 Orten",
+      "rat": "Dokumentiere Architekturentscheidungen mit Status und mache den Kanon als Daten verfügbar.",
+      "konsument": "company",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "it-e6",
+      "sicht": "it",
+      "ebene": "E6",
+      "luecke": "Plattform (FM, Core AI, Containerization, Xcode-Agenten, ACP) ungenutzt",
+      "rat": "Prüfe Plattformfunktionen auf ihren belegten Nutzen.",
+      "konsument": "company",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "strategie-e3",
+      "sicht": "strategie",
+      "ebene": "E3",
+      "luecke": "kein Tor zwischen Idee und Repo: Projekte entstehen ohne Entscheidung (Inkubator fehlt)",
+      "rat": "Definiere ein prüfbares Tor zwischen Idee und Repository.",
+      "konsument": "projects",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "strategie-e4",
+      "sicht": "strategie",
+      "ebene": "E4",
+      "luecke": "keine Hebel-Reihenfolge im Betrieb (Teil 3, Abschnitt 4 liefert sie); Stufe 2 wird vor Stufe 1 gebaut",
+      "rat": "Ordne die Umsetzung nach belegtem Hebel und Abhängigkeiten.",
+      "konsument": "factory",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "strategie-e5",
+      "sicht": "strategie",
+      "ebene": "E5",
+      "luecke": "kein Zielbild mit Zeitachse, kein Portfolio-Zustand (Start/Weiter/Pause/Archiv), keine Entscheidung eigen/fremd je Schicht als Beschluss",
+      "rat": "Beschließe Zielbild, Portfolio-Zustände und Eigen- oder Fremdleistung je Schicht.",
+      "konsument": "company",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "strategie-e6",
+      "sicht": "strategie",
+      "ebene": "E6",
+      "luecke": "kein Radar als Dienst; Forschung (Helix, Omega, v6) ohne Verwertungspfad",
+      "rat": "Entscheide einen Verwertungspfad für Forschung und richte ein Radar ein.",
+      "konsument": "company",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "organisation-e3",
+      "sicht": "organisation",
+      "ebene": "E3",
+      "luecke": "Lehren bleiben in Akten statt Tests",
+      "rat": "Überführe belegte Lehren in Regressionstests.",
+      "konsument": "projects",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "organisation-e4",
+      "sicht": "organisation",
+      "ebene": "E4",
+      "luecke": "Kreise nicht registriert, S3* und S4 fehlen",
+      "rat": "Registriere die Kreise und verankere Audit und Radar in der Fabrik.",
+      "konsument": "factory",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "organisation-e5",
+      "sicht": "organisation",
+      "ebene": "E5",
+      "luecke": "S5 nicht maschinenlesbar; ein Mensch als einziger Vergleicher",
+      "rat": "Mache Politik und Entscheidungskriterien maschinenlesbar und kläre die Verantwortung.",
+      "konsument": "company",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    },
+    {
+      "id": "organisation-e6",
+      "sicht": "organisation",
+      "ebene": "E6",
+      "luecke": "Rückkopplung Betrieb → Anforderung fehlt",
+      "rat": "Miss die Rückkopplung vom Betrieb in die Anforderungen.",
+      "konsument": "company",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "offen"
+    }
+  ]
+}

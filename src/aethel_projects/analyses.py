@@ -37,7 +37,7 @@ import os
 import tempfile
 import re
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from pathlib import Path, PurePosixPath
 from typing import Any
 
@@ -700,3 +700,96 @@ def summary(base: Path | None = None) -> dict[str, int]:
         "loops_teilweise": sum(1 for loop in loops if loop.status == "teilweise"),
         "loops_geschlossen": sum(1 for loop in loops if loop.status == "geschlossen"),
     }
+
+
+RAT_SICHTEN = ("bwl", "marketing", "vwl", "it", "strategie", "organisation")
+RAT_EBENEN = ("E3", "E4", "E5", "E6")
+KLASSEN = ("forschung", "infrastruktur", "produkt", "inhalt")
+SCHEMA_RAT = "aethel.projects.rat/v1"
+SCHEMA_GESCHAEFTSFAELLE = "aethel.projects.geschaeftsfaelle/v1"
+
+
+@dataclass(frozen=True)
+class Rat:
+    """Ein Rat mit Herkunft und Rückkopplung."""
+
+    id: str
+    sicht: str
+    ebene: str
+    luecke: str
+    rat: str
+    konsument: str
+    quelle: str
+    status: str
+    wirkung: str | None = None
+
+    def as_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class Geschaeftsfall:
+    """Ein dokumentierter Geschäftsfall mit offenen Entscheidungen."""
+
+    produkt: str
+    klasse: str
+    nutzerproblem: str | None
+    zielgruppe: str | None
+    kanal: str | None
+    preis_oder_nutzen: str | None
+    kosten_monat: str | None
+    risiko: str
+    abhaengigkeiten: tuple[str, ...]
+    entscheidung: str
+    entschieden_am: str | None
+    beleg: str | None
+    inkubator_stufe: str | None = None
+
+    def as_dict(self) -> dict[str, Any]:
+        result = asdict(self)
+        result["abhaengigkeiten"] = list(self.abhaengigkeiten)
+        return result
+
+
+def _nullable(obj: dict[str, Any], key: str, ctx: str) -> str | None:
+    value = obj.get(key)
+    if value is not None and (not isinstance(value, str) or not value.strip()):
+        raise ValueError(f"{ctx}: Feld {key!r} muss Text oder null sein")
+    return value
+
+
+def load_rat(base: Path | None = None) -> tuple[Rat, ...]:
+    """Liest und prüft das Rat-Register; eine fehlende Datei ergibt eine leere Liste."""
+    items = _read_document(_root(base) / "rat.json", SCHEMA_RAT, "raete") or []
+    result = []
+    for raw in items:
+        ctx = "rat.json"
+        obj = _check_keys(raw, ctx, frozenset({"id", "sicht", "ebene", "luecke", "rat", "konsument", "quelle", "status"}), frozenset({"wirkung"}))
+        result.append(Rat(_text(obj, "id", ctx), _choice(obj, "sicht", ctx, RAT_SICHTEN),
+                          _choice(obj, "ebene", ctx, RAT_EBENEN), _text(obj, "luecke", ctx),
+                          _text(obj, "rat", ctx), _choice(obj, "konsument", ctx, ("company", "factory", "projects", "incubator")),
+                          _text(obj, "quelle", ctx), _choice(obj, "status", ctx, ("offen", "befolgt", "verworfen")),
+                          _nullable(obj, "wirkung", ctx)))
+    _check_unique("rat.json", "Rat", [r.id for r in result])
+    return tuple(result)
+
+
+def load_geschaeftsfaelle(base: Path | None = None) -> tuple[Geschaeftsfall, ...]:
+    """Liest und prüft die Geschäftsfälle; eine fehlende Datei ergibt eine leere Liste."""
+    items = _read_document(_root(base) / "geschaeftsfaelle.json", SCHEMA_GESCHAEFTSFAELLE, "geschaeftsfaelle") or []
+    result = []
+    required = frozenset({"produkt", "klasse", "nutzerproblem", "zielgruppe", "kanal", "preis_oder_nutzen", "kosten_monat", "risiko", "abhaengigkeiten", "entscheidung", "entschieden_am", "beleg"})
+    for raw in items:
+        ctx = "geschaeftsfaelle.json"
+        obj = _check_keys(raw, ctx, required, frozenset({"inkubator_stufe"}))
+        datum = _nullable(obj, "entschieden_am", ctx)
+        if datum is not None:
+            _check_date(datum, ctx)
+        result.append(Geschaeftsfall(
+            _text(obj, "produkt", ctx), _choice(obj, "klasse", ctx, KLASSEN),
+            *(_nullable(obj, k, ctx) for k in ("nutzerproblem", "zielgruppe", "kanal", "preis_oder_nutzen", "kosten_monat")),
+            _choice(obj, "risiko", ctx, ("niedrig", "mittel", "hoch", "unbekannt")),
+            _texts(obj, "abhaengigkeiten", ctx), _choice(obj, "entscheidung", ctx, ("start", "weiter", "pause", "archiv", "offen")),
+            datum, _nullable(obj, "beleg", ctx), _nullable(obj, "inkubator_stufe", ctx)))
+    _check_unique("geschaeftsfaelle.json", "Produkt", [g.produkt for g in result])
+    return tuple(result)

@@ -82,7 +82,7 @@ def test_tc065_leitstand_liest_juengste_laeufe(tmp_path: Path) -> None:
     assert not any("Register-Abgleich" in f for f in view.fehlt)
 
     payload = json.loads(cockpit.render_json(view))
-    assert payload["schema"] == "aethel.projects.cockpit/v1"
+    assert payload["schema"] == "aethel.projects.cockpit/v2"
     assert payload["quellen"]["registers"] == "2026-11-03/register-abgleich.json"
     page = cockpit.render_html(view)
     assert page.startswith("<!doctype html>") and "AETHEL Leitstand" in page and "S16 Distribution" in page

@@ -6,7 +6,7 @@ und die jeweils jüngste JSON-Ausgabe von ``registers``, ``stack``, ``incubator`
 ``applefirst`` (abgelegt als ``analysen/<Datum>/*.json``). Er rechnet nichts neu und
 schreibt nichts; er verdichtet.
 
-Schema der JSON-Ausgabe: ``aethel.projects.cockpit/v1``.
+Schema der JSON-Ausgabe: ``aethel.projects.cockpit/v2``.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ from typing import Any
 
 from . import analyses as analyses_mod
 
-SCHEMA = "aethel.projects.cockpit/v1"
+SCHEMA = "aethel.projects.cockpit/v2"
 
 # Welche Lauf-Ausgabe unter welchem Schema erwartet wird; der jüngste Treffer gewinnt.
 RUN_SCHEMAS = {
@@ -60,6 +60,9 @@ class Leitstand:
     leere_schichten: tuple[str, ...]
     analysen: tuple[str, ...]
     fehlt: tuple[str, ...]
+    firma: dict[str, Any] = field(default_factory=dict)
+    rat: dict[str, Any] = field(default_factory=dict)
+    inkubator_tore: dict[str, Any] = field(default_factory=dict)
     quellen: dict[str, str] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, Any]:
@@ -77,6 +80,9 @@ class Leitstand:
             "leere_schichten": list(self.leere_schichten),
             "analysen": list(self.analysen),
             "fehlt": list(self.fehlt),
+            "firma": self.firma,
+            "rat": self.rat,
+            "inkubator_tore": self.inkubator_tore,
             "quellen": dict(self.quellen),
         }
 
@@ -129,6 +135,8 @@ def build(base: Path | None = None) -> Leitstand:
     entries = analyses_mod.list_entries(root)
     proposals = analyses_mod.load_proposals(root)
     loops = analyses_mod.load_loops(root)
+    raete = analyses_mod.load_rat(root)
+    faelle = analyses_mod.load_geschaeftsfaelle(root)
     quellen: dict[str, str] = {}
 
     kreise = Counter(loop.status for loop in loops)
@@ -163,6 +171,27 @@ def build(base: Path | None = None) -> Leitstand:
         quellen["incubator"] = inc_src
         inkubator = dict(sorted(Counter(str(item.get("stufe", "?")) for item in _items(inc_payload)).items()))
 
+    inc_items = _items(inc_payload)
+    by_repo = {item.get("repo"): item for item in inc_items}
+    entscheidungen = {key: sum(g.entscheidung == key for g in faelle) for key in ("start", "weiter", "pause", "archiv", "offen")}
+    firma = {"entscheidungen": entscheidungen, "geschaeftsfaelle": [], "ohne_geschaeftsfall": []}
+    for g in faelle:
+        item = by_repo.get(g.produkt, {})
+        firma["geschaeftsfaelle"].append({"produkt": g.produkt, "klasse": g.klasse, "entscheidung": g.entscheidung,
+            "risiko": g.risiko, "inkubator_stufe": item.get("stufe"), "naechste_luecken": item.get("naechste_luecken", [])})
+    known = {g.produkt for g in faelle}
+    for item in inc_items:
+        stages = item.get("stages", [])
+        if item.get("repo") not in known and any(stage.get("code") == "R3" and stage.get("erreicht") for stage in stages):
+            firma["ohne_geschaeftsfall"].append(item["repo"])
+    matrix = {sicht: {ebene: sum(r.sicht == sicht and r.ebene == ebene and r.status == "offen" for r in raete)
+                      for ebene in analyses_mod.RAT_EBENEN} for sicht in analyses_mod.RAT_SICHTEN}
+    rat = {"matrix": matrix, "wochenentscheidungen": [r.as_dict() for r in raete if r.konsument == "company" and r.status == "offen"][:10]}
+    verteilung = {klasse: dict(sorted(Counter(str(i.get("stufe", "?")) for i in inc_items if i.get("klasse") == klasse).items())) for klasse in analyses_mod.KLASSEN}
+    kandidaten = [i for i in inc_items if isinstance(i.get("naechste_luecken"), list) and len(i["naechste_luecken"]) == 1 and i.get("naechste_stufe")]
+    kandidaten.sort(key=lambda i: (-(i.get("rang") if isinstance(i.get("rang"), int) else 0), str(i.get("repo", ""))))
+    tore = {"verteilung": verteilung, "naechste_tore": [{"repo": i.get("repo"), "klasse": i.get("klasse"), "stufe": i.get("stufe"), "naechste_stufe": i.get("naechste_stufe"), "luecke": i["naechste_luecken"][0]} for i in kandidaten[:3]]}
+
     af_payload, af_src = _latest_run(root, RUN_SCHEMAS["applefirst"])
     applefirst: dict[str, int] = {}
     schlechteste: tuple[str, ...] = ()
@@ -195,7 +224,14 @@ def build(base: Path | None = None) -> Leitstand:
     if not any(p.status == "existiert" for p in proposals) and proposals:
         fehlt.append("Keiner der Vorschläge ist als existierende Komponente markiert")
 
+    if faelle and all(g.entscheidung == "offen" for g in faelle):
+        fehlt.append("Keine Entscheidung getroffen")
+    if raete and not any(r.status in ("befolgt", "verworfen") for r in raete):
+        fehlt.append("Rat ohne Rückkopplung")
+
     kacheln = (
+        Kachel("Geschäftsfälle", str(len(faelle)), "analysen/geschaeftsfaelle.json", f"{entscheidungen['offen']} offen"),
+        Kachel("Offener Rat", str(sum(r.status == "offen" for r in raete)), "analysen/rat.json"),
         Kachel("Analysen", str(len(entries)), "analysen/INDEX.json"),
         Kachel("Vorschläge", str(len(proposals)), "analysen/vorschlaege.json",
                ", ".join(f"{k} {v}" for k, v in sorted(vorschlaege.items()))),
@@ -222,15 +258,25 @@ def build(base: Path | None = None) -> Leitstand:
         leere_schichten=leere,
         analysen=tuple(f"{e.date} {e.id}: {e.title}" for e in entries),
         fehlt=tuple(fehlt),
+        firma=firma, rat=rat, inkubator_tore=tore,
         quellen=quellen,
     )
 
 
 def render_markdown(view: Leitstand) -> str:
     lines = ["# Leitstand", "", "Eine Seite für alles: Ablage, Vorschläge, Kreisläufe, Register, Schichten, Inkubator, Apple-first.", ""]
+    lines += ["Sichten: [Firma (aethelCompany)](#firma-aethelcompany) · [Rat (aethelConsultant)](#rat-aethelconsultant) · [Inkubator-Tore](#inkubator-tore)", ""]
     lines += ["| Kennzahl | Wert | Quelle | Hinweis |", "|---|---:|---|---|"]
     for k in view.kacheln:
         lines.append(f"| {k.titel} | {k.wert} | `{k.quelle}` | {k.hinweis or '-'} |")
+    lines += ["", "## Firma (aethelCompany)", "", "Entscheidungen: " + ", ".join(f"{k}: {v}" for k, v in view.firma["entscheidungen"].items()), "", "| Produkt | Klasse | Entscheidung | Risiko | Inkubator-Stufe | Nächste Lücke |", "|---|---|---|---|---|---|"]
+    lines += ["| " + " | ".join(analyses_mod._cell(x) for x in (g["produkt"], g["klasse"], g["entscheidung"], g["risiko"], g["inkubator_stufe"] or "–", "; ".join(g["naechste_luecken"]) or "–")) + " |" for g in view.firma["geschaeftsfaelle"]]
+    lines += ["", "Ohne Geschäftsfall: " + (", ".join(view.firma["ohne_geschaeftsfall"]) or "keine"), "", "## Rat (aethelConsultant)", "", "| Sicht | E3 | E4 | E5 | E6 |", "|---|---:|---:|---:|---:|"]
+    lines += [f"| {sicht} | " + " | ".join(str(cells[e]) for e in analyses_mod.RAT_EBENEN) + " |" for sicht, cells in view.rat["matrix"].items()]
+    lines += ["", "Wochen-Entscheidungsliste:"] + [f"- {r['id']}: {r['rat']}" for r in view.rat["wochenentscheidungen"]]
+    lines += ["", "## Inkubator-Tore", "", "| Klasse | Stufenverteilung |", "|---|---|"]
+    lines += [f"| {k} | " + (", ".join(f"{st}: {n}" for st, n in v.items()) or "–") + " |" for k, v in view.inkubator_tore["verteilung"].items()]
+    lines += [""] + [f"- {i['repo']} ({i['stufe']} → {i['naechste_stufe']}): {i['luecke']}" for i in view.inkubator_tore["naechste_tore"]]
     lines += ["", "## Was fehlt (aus den Daten abgeleitet)", ""]
     lines += [f"- {f}" for f in view.fehlt] or ["- nichts Offenes aus den vorliegenden Läufen"]
     lines += ["", "## Dominosteine (Vorschläge mit größtem Hebel)", ""]
@@ -311,6 +357,22 @@ def render_html(view: Leitstand, *, standalone: bool = True) -> str:
         "<h2>Dominosteine: Vorschläge mit größtem Hebel</h2>", ul(view.dominosteine, "keine Vorschläge"),
         f"<h2>Offene Kreisläufe ({len(view.kreise_offen)})</h2>", ul(view.kreise_offen, "keine"),
     ]
+    def html_table(headers: tuple[str, ...], rows: list[tuple[object, ...]]) -> str:
+        head = "".join(f"<th>{esc(h)}</th>" for h in headers)
+        body = "".join("<tr>" + "".join(f"<td>{esc(v)}</td>" for v in row) + "</tr>" for row in rows)
+        return f"<div class='tbl'><table><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>"
+
+    parts += ["<h2>Firma (aethelCompany)</h2>",
+              "<p>Entscheidungen: " + esc(", ".join(f"{k}: {v}" for k, v in view.firma["entscheidungen"].items())) + "</p>",
+              html_table(("Produkt", "Klasse", "Entscheidung", "Risiko", "Inkubator-Stufe", "Nächste Lücke"),
+                         [(g["produkt"], g["klasse"], g["entscheidung"], g["risiko"], g["inkubator_stufe"] or "–", "; ".join(g["naechste_luecken"]) or "–") for g in view.firma["geschaeftsfaelle"]]),
+              "<p>Ohne Geschäftsfall: " + esc(", ".join(view.firma["ohne_geschaeftsfall"]) or "keine") + "</p>",
+              "<h2>Rat (aethelConsultant)</h2>",
+              html_table(("Sicht", *analyses_mod.RAT_EBENEN), [(sicht, *(cells[e] for e in analyses_mod.RAT_EBENEN)) for sicht, cells in view.rat["matrix"].items()]),
+              "<p>Wochen-Entscheidungsliste:</p>", ul(tuple(f"{r['id']}: {r['rat']}" for r in view.rat["wochenentscheidungen"]), "keine"),
+              "<h2>Inkubator-Tore</h2>",
+              html_table(("Klasse", "Stufenverteilung"), [(k, ", ".join(f"{st}: {n}" for st, n in v.items()) or "–") for k, v in view.inkubator_tore["verteilung"].items()]),
+              ul(tuple(f"{i['repo']} ({i['stufe']} → {i['naechste_stufe']}): {i['luecke']}" for i in view.inkubator_tore["naechste_tore"]), "keine") ]
     if view.register_drift:
         parts += ["<h2>Register-Drift</h2>", table(view.register_drift, ("Kategorie", "Anzahl"))]
     if view.leere_schichten:
