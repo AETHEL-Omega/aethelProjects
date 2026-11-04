@@ -38446,5 +38446,55 @@
       "source_id": "Manuels Ziel und Helix-Quellprüfung, 04.11.2026; Arbeitsakte PLM-EVIDENCE-P0.md",
       "generated_at": "2026-11-04"
     }
+  ],
+  "node_observations": [
+    {
+      "node_id": "repo:f7581357c91c83dd",
+      "kind": "dokumentierter_zweck",
+      "text": "Das README beschreibt eine experimentelle P2P-Kommunikationsbibliothek mit macOS-Messenger. Ein unabhängiges Sicherheitsaudit des Kerns ist dort als offen bezeichnet.",
+      "source": "~/workspace/aethelema/README.md",
+      "observed_at": "2026-11-04",
+      "source_revision": "988b1d8e9c1d91a4022f2c1ea2cf681cde06b11d",
+      "source_digest": "sha256:8d72822d28ce24f07b83c9d1e96ceac43ac61bdfeaf6f30b7e9521d740e4654c",
+      "details": {
+        "evidence_level": "Dokumentation; Funktion und heutige Aktualität nicht unabhängig geprüft"
+      },
+      "origin": "supplement: Manuels Ziel und Helix-Quellprüfung, 04.11.2026; Arbeitsakte PLM-EVIDENCE-P0.md"
+    },
+    {
+      "node_id": "repo:a9be6f68e2d93f19",
+      "kind": "codeanalyse",
+      "text": "aethelProjects hat einen lokalen CodeAnalyzer-Lauf an den angegebenen HEAD gebunden: 2187 Fundstellen wurden gebunden, vier konnten nicht zugeordnet werden. Das ist keine Gesamtbewertung der Softwarequalität.",
+      "source": "aethelProjects codeanalysis.head_findings / aethelCodeAnalyzer",
+      "observed_at": "2026-11-04",
+      "source_revision": "6e70e86176e7fcf2e9749a7f6bc986ce04171b80",
+      "source_digest": null,
+      "details": {
+        "bound_findings": 2187,
+        "configuration_digest": null,
+        "coverage": "Rust/Dart; andere Sprachen nicht vollständig, Laufzeit und Architektur nicht beurteilt",
+        "rejected_findings": 4,
+        "tool": "aethel_code_analyzer 0.1.0"
+      },
+      "origin": "supplement: Manuels Ziel und Helix-Quellprüfung, 04.11.2026; Arbeitsakte PLM-EVIDENCE-P0.md"
+    },
+    {
+      "node_id": "component:omegam0-lambda0",
+      "kind": "codefund",
+      "text": "Der Analyzer meldet erhöhte Komplexität in src/bin/lambda0.rs, Zeile 85. Fachliche Relevanz und weitere Behandlung sind offen.",
+      "source": "aethelProjects codeanalysis.head_findings / aethelCodeAnalyzer",
+      "observed_at": "2026-11-04",
+      "source_revision": "6e70e86176e7fcf2e9749a7f6bc986ce04171b80",
+      "source_digest": "sha256:6fa9174099634a4d0cf126e4030ea91d092c1aaac9de85465886732444658b84",
+      "details": {
+        "configuration_digest": null,
+        "decision": "ungeprüft; kein Auftrag erzeugt",
+        "line": 85,
+        "path": "src/bin/lambda0.rs",
+        "rule": "high-complexity",
+        "tool": "aethel_code_analyzer 0.1.0"
+      },
+      "origin": "supplement: Manuels Ziel und Helix-Quellprüfung, 04.11.2026; Arbeitsakte PLM-EVIDENCE-P0.md"
+    }
   ]
 }

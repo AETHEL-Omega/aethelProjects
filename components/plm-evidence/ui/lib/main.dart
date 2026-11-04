@@ -19,6 +19,7 @@ class AethelPlm extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'AETHEL Arbeitsraum',
+    debugShowCheckedModeBanner: false,
     theme: ThemeData(
       colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff27566a)),
       useMaterial3: true,
@@ -263,7 +264,9 @@ class _WorkspaceState extends State<Workspace> {
             color: Theme.of(context).colorScheme.secondaryContainer,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
             child: Text(
-              '$origin · Lesende Ansicht · Quelle und Autorität nicht geprüft',
+              section == 0
+                  ? '$landscapeOrigin · Lesende Ansicht · Angaben nicht live geprüft'
+                  : '$origin · Lesende Ansicht · Quelle und Autorität nicht geprüft',
             ),
           ),
           if (error != null)

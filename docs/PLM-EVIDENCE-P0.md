@@ -531,3 +531,41 @@ Einzelbefund ist ein Zusatz zur Rechercheansicht, kein allgemeiner
 Komponentenentdecker. Athelix beschreibt eine Low-Code-/Compilerlinie im
 README; eine durchgängige Laufzeit wurde hier nicht geprüft. Fabrik-, Runtime-
 und Sensorprojekte dürfen wegen ähnlicher Namen nicht gleichgesetzt werden.
+
+Für die Informationsqualität zeigt der Arbeitsraum Quelle, Stand und
+Revisionsbindung getrennt von der berichteten Aussage. Ein gezielter Lauf des
+vorhandenen `aethelProjects.codeanalysis.head_findings` nutzte am 04.11. den
+lokalen aethelCodeAnalyzer 0.1.0 für aethelOmegaM0 am HEAD `6e70e861…`: 2187
+Fundstellen konnten an Quelldatei und Commit gebunden werden, vier wurden
+verworfen. Die Konfiguration ist nicht digestgebunden, andere Sprachen als
+Rust/Dart sind nicht vollständig abgedeckt; der Lauf ist kein Nachweis für
+fehlerfreie Architektur oder Betrieb. Ein konkreter `high-complexity`-Hinweis
+auf `src/bin/lambda0.rs:85` wird mit Datei-Digest angezeigt, seine fachliche
+Behandlung ist offen. Er erzeugt keinen Auftrag. Das vorhandene README von
+aethelema ist separat als datierte Dokumentationsaussage mit Revision und
+Digest aufgenommen; sein Inhalt ist keine erneute Prüfung des Produkts.
+
+Für einen späteren echten Durchstich vorhandene Befunde bei gleicher Quelle,
+Tool-/Regelkonfiguration und Revision wiederverwenden; bei Änderung oder
+fehlender Bindung neu beurteilen. Abgeschnittene Scans, unbekannte Sprachen und
+verworfene Fundstellen dürfen nicht als mängelfrei erscheinen. Der existierende
+`aix-input`-Adapter von Projects bindet ein ausgewähltes frisches Dossier an
+einen rohen AIX-Eingang; AIX/Copilot bleibt für Paket, Rechte und Ausführung
+zuständig. Erst eine Owner-Entscheidung über einen konkreten Fund, dann den
+bereits vorhandenen Weg zu Auftrag, Ergebnis, Landing-Beleg und Rückmessung
+verbinden. Keine automatische Auftragserzeugung oder zweiter Analyzerlauf allein
+für die Oberfläche.
+
+Eine nachfolgende, separat erstellte Katalogrecherche berichtet 685 Datensätze
+einschließlich 61 zusätzlicher Manifestkomponenten und 986 Beziehungsangaben.
+Diese neuere Recherche ist in der hier ausgelieferten älteren
+Landschaftsprojektion noch nicht enthalten und nicht automatisch ein
+Produktbestand oder Betriebsnachweis. Die dauerhafte Übernahme gehört in den
+beschriebenen Projects-Providerschnitt mit Abdeckungs- und Identitätsprüfung.
+
+Für spätere Produktfreigaben sind Bedienungsanleitung, Warnhinweise und
+anwendbare rechtliche Anforderungen als versionierte Releasebestandteile mit
+menschlicher Zuständigkeit vorzusehen. Diese Oberfläche erzeugt daraus weder
+eine Rechtsbewertung noch ein Konformitätslabel. Versionsgebundene
+Anforderung–Test–Release-Baselines und eine Verdachtsmarkierung nach Änderung
+sind als nächster Fachvertrag zu prüfen; dieser Schnitt implementiert sie nicht.

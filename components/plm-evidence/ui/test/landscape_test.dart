@@ -11,6 +11,56 @@ Map<String, dynamic> load(String file) =>
 
 void main() {
   testWidgets(
+    'at desktop window width selection and explanation are side by side',
+    (tester) async {
+      tester.view.physicalSize = const Size(1600, 1300);
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        AethelPlm(
+          initialJson: File('assets/y1-assessment.json').readAsStringSync(),
+          initialLandscapeJson: File(
+            'assets/landscape-historical.json',
+          ).readAsStringSync(),
+          initialLandingJson: File(
+            'assets/y1-landing-observation.json',
+          ).readAsStringSync(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('landscape-search')),
+        'aethelema',
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('2 Repositorygruppen · 1 Registereintrag'),
+        findsOneWidget,
+      );
+      final result = find.byKey(const ValueKey('node-repo:f7581357c91c83dd'));
+      await tester.ensureVisible(result);
+      await tester.tap(result);
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('Eine im Scan ermittelte Git-Historie'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('experimentelle P2P-Kommunikationsbibliothek'),
+        findsWidgets,
+      );
+      expect(find.text('Installierter Stand'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.byKey(const Key('landscape-detail'))).dx,
+        greaterThan(
+          tester.getTopLeft(find.byKey(const Key('landscape-list'))).dx,
+        ),
+      );
+    },
+  );
+
+  testWidgets(
     'same-named archive, repository and registry entry explain their difference',
     (tester) async {
       tester.view.physicalSize = const Size(1600, 1300);
@@ -94,10 +144,7 @@ void main() {
     expect(find.textContaining('Fall Y-1'), findsOneWidget);
     expect(find.textContaining('Von aethelBrowser'), findsWidgets);
     expect(find.textContaining('Zu memoristorCursor'), findsWidgets);
-    expect(
-      find.textContaining('kein Produkt- oder Betriebsnachweis'),
-      findsOneWidget,
-    );
+    expect(find.textContaining('Bereiche sind Suchhilfen'), findsOneWidget);
     final bind = find.textContaining('Temporär zuordnen: Y-1 PR 1518');
     await tester.ensureVisible(bind);
     await tester.tap(bind);
@@ -313,6 +360,46 @@ void main() {
       expect(
         find.textContaining('Kandidatenangabe stimmt überein'),
         findsNothing,
+      );
+    },
+  );
+
+  testWidgets(
+    'actual analyzer observation preserves rejected findings and unknown configuration',
+    (tester) async {
+      tester.view.physicalSize = const Size(1600, 1300);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final data = load('landscape-historical.json');
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: LandscapePanel(
+                data: data,
+                origin: 'Test',
+                currentAssessment: load('y1-assessment.json'),
+                selectedId: 'repo:a9be6f68e2d93f19',
+                sources: const [],
+                selectedSourceIndex: null,
+                onBindSource: (_) {},
+                selectedLandingIndex: null,
+                onBindLanding: (_) {},
+                onSelect: (_) {},
+                onOpenY1: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.textContaining('2187 Fundstellen'), findsOneWidget);
+      expect(find.textContaining('Nicht zuordenbar: 4'), findsOneWidget);
+      expect(find.text('Werkzeugkonfiguration: nicht belegt'), findsOneWidget);
+      expect(
+        find.textContaining('keine Gesamtbewertung der Softwarequalität'),
+        findsOneWidget,
       );
     },
   );

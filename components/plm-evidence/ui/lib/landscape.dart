@@ -6,6 +6,12 @@ List<Map<String, dynamic>> _maps(dynamic v) =>
 String _show(dynamic v) =>
     v == null || v.toString().isEmpty ? 'Unbekannt' : v.toString();
 
+String _sourceDate(dynamic value) {
+  final text = _show(value);
+  final match = RegExp(r'^(\d{4})-(\d{2})-(\d{2})').firstMatch(text);
+  return match == null ? text : '${match[3]}.${match[2]}.${match[1]}';
+}
+
 String _nodeDescription(Map<String, dynamic> node) {
   final kind = node['kind'];
   if (kind == 'repository') {
@@ -39,6 +45,26 @@ String _nodeDescription(Map<String, dynamic> node) {
     return 'Geplanter oder dokumentierter Regelkreis · ${_show(node['loop_status'])}';
   }
   return '${_show(kind)} · Quelle: ${_show(node['source'])}';
+}
+
+String _nodeExplanation(Map<String, dynamic> node) {
+  if (node['kind'] == 'repository') {
+    final location = _show(node['git_common_dir']);
+    if (location.contains('/_archive/')) {
+      return 'Eine eigene Git-Historie unter einem Archivpfad. Ob sie fachlich zu einem anderen gleichnamigen Eintrag gehört, ist ungeklärt.';
+    }
+    return 'Eine im Scan ermittelte Git-Historie mit zugehörigen Arbeitsverzeichnissen. Die Anzahl bedeutet nicht, dass es so viele Produkte gibt.';
+  }
+  if (node['kind'] == 'registereintrag') {
+    return 'Ein Katalogeintrag im Workspace-Manifest. Gleiche Namen reichen nicht aus, um ihn einem bestimmten Repository zuzuordnen.';
+  }
+  if (node['kind'] == 'vorschlag') {
+    return 'Ein dokumentierter Vorschlag. Aus dem Eintrag folgt keine abgeschlossene Umsetzung.';
+  }
+  if (node['kind'] == 'komponente') {
+    return 'Eine getrennt erfasste Komponente. Ihre Quelle beschreibt den jeweiligen Stand; ein Betriebsnachweis ist gesondert nötig.';
+  }
+  return 'Ein Eintrag aus der vorgelegten Recherche. Die Quelle und etwaige Beziehungen sind gesondert zu prüfen.';
 }
 
 const _areas = ['Firma', 'Fabrik', 'Produkte', 'Plattform', 'Unzugeordnet'];
@@ -84,8 +110,16 @@ class _LandscapePanelState extends State<LandscapePanel> {
     final edges = _maps(widget.data['edges']);
     final byId = {for (final n in nodes) _show(n['id']): n};
     final visible = nodes.where((n) {
-      final text = '${_show(n['name'])} ${_show(n['id'])} ${_show(n['kind'])}'
-          .toLowerCase();
+      final text = [
+        n['name'],
+        n['id'],
+        n['kind'],
+        n['git_common_dir'],
+        n['path'],
+        n['source'],
+        n['purpose'],
+        n['category'],
+      ].map(_show).join(' ').toLowerCase();
       final tags = n['areas'] is List ? (n['areas'] as List) : const [];
       return text.contains(query.toLowerCase()) &&
           (area == 'Alle' ||
@@ -117,6 +151,17 @@ class _LandscapePanelState extends State<LandscapePanel> {
           : _show(a['id']).compareTo(_show(b['id']));
     });
     final selected = byId[widget.selectedId];
+    final exact = visible
+        .where(
+          (n) => _show(n['name']).toLowerCase() == query.trim().toLowerCase(),
+        )
+        .toList();
+    final repositoryCount = exact
+        .where((n) => n['kind'] == 'repository')
+        .length;
+    final registryCount = exact
+        .where((n) => n['kind'] == 'registereintrag')
+        .length;
     final types = edges.map((e) => _show(e['type'])).toSet().toList()..sort();
     final effectiveType = types.contains(relationType) ? relationType : 'Alle';
 
@@ -129,12 +174,9 @@ class _LandscapePanelState extends State<LandscapePanel> {
         ),
         const SizedBox(height: 6),
         Text(
-          '${widget.origin} · Quellenzeit: ${_show(widget.data['source_time_reported'])}',
+          '${widget.origin} · Erfasst: ${_sourceDate(widget.data['source_time_reported'])}',
         ),
-        const Text(
-          'Ausgewählte Quellenbehauptungen · Aktualität, Identität und Betrieb nicht geprüft.',
-        ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         TextField(
           key: const Key('landscape-search'),
           decoration: const InputDecoration(
@@ -157,16 +199,30 @@ class _LandscapePanelState extends State<LandscapePanel> {
               ),
           ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          'Bereiche stammen aus Quellangaben bzw. Manifestkategorien und sind Suchhilfen, kein Produkt- oder Betriebsnachweis.',
-          style: Theme.of(context).textTheme.bodySmall,
+        const SizedBox(height: 8),
+        Tooltip(
+          message:
+              'Bereiche sind Suchhilfen aus Quellangaben und Manifestkategorien; sie bestätigen keine Produktidentität oder Laufzeit.',
+          child: Text(
+            'Bereiche sind Suchhilfen · nicht zugeordnete Einträge bleiben sichtbar',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
+        if (query.trim().isNotEmpty && exact.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              repositoryCount + registryCount == exact.length
+                  ? '$repositoryCount ${repositoryCount == 1 ? 'Repositorygruppe' : 'Repositorygruppen'} · $registryCount ${registryCount == 1 ? 'Registereintrag' : 'Registereinträge'} · Zuordnung bei gleichem Namen ungeprüft'
+                  : '${exact.length} gleichnamige Einträge · Zuordnung ungeprüft',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
         LayoutBuilder(
           builder: (context, constraints) {
             final list = SizedBox(
-              height: 350,
+              height: 440,
               child: Card(
                 child: Column(
                   children: [
@@ -193,7 +249,11 @@ class _LandscapePanelState extends State<LandscapePanel> {
                                   key: ValueKey('node-${n['id']}'),
                                   selected: n['id'] == widget.selectedId,
                                   title: Text(_show(n['name'])),
-                                  subtitle: Text(_nodeDescription(n)),
+                                  subtitle: Text(
+                                    _nodeDescription(n),
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                   isThreeLine: _nodeDescription(
                                     n,
                                   ).contains('\n'),
@@ -216,7 +276,7 @@ class _LandscapePanelState extends State<LandscapePanel> {
                     ),
                   )
                 : _detail(context, selected, byId, edges, types, effectiveType);
-            if (constraints.maxWidth < 760) {
+            if (constraints.maxWidth < 460) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [list, const SizedBox(height: 12), detail],
@@ -225,7 +285,14 @@ class _LandscapePanelState extends State<LandscapePanel> {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(width: 330, child: list),
+                SizedBox(
+                  width: constraints.maxWidth < 560
+                      ? 200
+                      : constraints.maxWidth < 760
+                      ? 255
+                      : 330,
+                  child: list,
+                ),
                 const SizedBox(width: 16),
                 Expanded(child: detail),
               ],
@@ -310,6 +377,7 @@ class _LandscapePanelState extends State<LandscapePanel> {
       widget.data['attachments'],
     ).where((a) => a['node_id'] == id);
     return Card(
+      key: const Key('landscape-detail'),
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
@@ -320,15 +388,16 @@ class _LandscapePanelState extends State<LandscapePanel> {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             Text(_nodeDescription(n)),
+            const SizedBox(height: 8),
+            Text(_nodeExplanation(n)),
+            const SizedBox(height: 14),
+            for (final a in attachments) _caseLink(context, a),
+            _informationQuality(context, n),
             Text(
               'Technische Identität: ${_show(n['id'])}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 10),
-            Text('Zweck: ${_show(n['purpose'])}'),
-            Text(
-              'Status der Quelle: ${_show(n['proposal_status'] ?? n['recorded_status'] ?? n['loop_status'])}',
-            ),
             if (n['git_common_dir'] != null)
               SelectableText(
                 'Lokale Repository-Identität: ${_show(n['git_common_dir'])}',
@@ -350,16 +419,19 @@ class _LandscapePanelState extends State<LandscapePanel> {
               'Quellenrevision: ${_show(n['source_revision'] ?? widget.data['source_revision'])} · Zeit: ${_show(widget.data['source_time_reported'])}',
             ),
             const SizedBox(height: 18),
-            for (final a in attachments) _caseLink(context, a),
             _projectSources(context, n),
             _landingSources(context, n, attachments.toList()),
             Text('Beziehungen', style: Theme.of(context).textTheme.titleLarge),
             DropdownButton<String>(
               key: const Key('relation-filter'),
               value: effectiveType,
+              isExpanded: true,
               items: [
                 for (final t in ['Alle', ...types])
-                  DropdownMenuItem(value: t, child: Text(t)),
+                  DropdownMenuItem(
+                    value: t,
+                    child: Text(t, overflow: TextOverflow.ellipsis),
+                  ),
               ],
               onChanged: (v) => setState(() => relationType = v ?? 'Alle'),
             ),
@@ -379,6 +451,122 @@ class _LandscapePanelState extends State<LandscapePanel> {
       ),
     );
   }
+
+  Widget _informationQuality(BuildContext context, Map<String, dynamic> node) {
+    final observations = _maps(
+      widget.data['node_observations'],
+    ).where((entry) => entry['node_id'] == node['id']).toList();
+    final descriptions = observations
+        .where((entry) => entry['kind'] == 'dokumentierter_zweck')
+        .toList();
+    final withRevision = observations
+        .where((entry) => entry['source_revision'] != null)
+        .toList();
+    final purpose = descriptions.isNotEmpty
+        ? _show(descriptions.first['text'])
+        : node['purpose'] != null
+        ? _show(node['purpose'])
+        : 'Aus dieser Quelle noch nicht beschrieben.';
+    final declaration =
+        node['proposal_status'] ??
+        node['recorded_status'] ??
+        node['loop_status'];
+    final source = observations.isNotEmpty
+        ? observations.first['source']
+        : node['source'] ?? widget.data['source_id'];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Was wissen wir?', style: Theme.of(context).textTheme.titleMedium),
+        _informationRow('Zweck / Fähigkeit', purpose),
+        _informationRow(
+          'Deklarierter Stand',
+          declaration == null
+              ? 'In dieser Quelle nicht angegeben.'
+              : '${_show(declaration)} (laut Quelle)',
+        ),
+        _informationRow(
+          'Beleglage',
+          withRevision.isEmpty
+              ? 'Keine revisionsgebundene Einzelquelle in dieser Ansicht.'
+              : 'Quellenangabe mit Revision ${_show(withRevision.first['source_revision'])}; Funktion und Betrieb gesondert prüfen.',
+        ),
+        _informationRow(
+          'Installierter Stand',
+          'Nicht aus dieser Ansicht ermittelt.',
+        ),
+        _informationRow(
+          'Offene Frage',
+          'Aktualität, Produktzuordnung und tatsächlichen Betrieb klären.',
+        ),
+        _informationRow('Zuständige Quelle', _show(source)),
+        _informationRow(
+          'Nächste Entscheidung',
+          'Vorschlag: Zuständigkeit und Gültigkeit der vorhandenen Belege klären.',
+        ),
+        const SizedBox(height: 8),
+        if (observations.isEmpty)
+          const Text(
+            'Für diesen Eintrag enthält die vorgelegte Sicht noch keine gesonderte Beschreibung oder Analyse. Das ist kein Urteil über das Projekt.',
+          ),
+        for (final observation in observations)
+          Card.outlined(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(_show(observation['text'])),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Quelle: ${_show(observation['source'])} · Erfasst: ${_show(observation['observed_at'])}',
+                  ),
+                  SelectableText(
+                    'Revision: ${_show(observation['source_revision'])}',
+                  ),
+                  if (observation['source_digest'] != null)
+                    SelectableText(
+                      'Quelldigest: ${_show(observation['source_digest'])}',
+                    ),
+                  if (_map(observation['details']) case final details?) ...[
+                    if (details['tool'] != null)
+                      Text('Werkzeug: ${_show(details['tool'])}'),
+                    if (details['rule'] != null)
+                      Text('Regel: ${_show(details['rule'])}'),
+                    if (details.containsKey('rejected_findings'))
+                      Text(
+                        'Nicht zuordenbar: ${_show(details['rejected_findings'])}',
+                      ),
+                    if (details['coverage'] != null)
+                      Text('Abdeckung: ${_show(details['coverage'])}'),
+                    if (details.containsKey('configuration_digest') &&
+                        details['configuration_digest'] == null)
+                      const Text('Werkzeugkonfiguration: nicht belegt'),
+                    if (details['decision'] != null)
+                      Text('Behandlung: ${_show(details['decision'])}'),
+                  ],
+                  const Text(
+                    'Zeitgebundene Quellenangabe; Aktualität und externe Autorität sind nicht geprüft.',
+                  ),
+                ],
+              ),
+            ),
+          ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
+  Widget _informationRow(String label, String value) => Padding(
+    padding: const EdgeInsets.only(top: 6),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: Theme.of(context).textTheme.labelMedium),
+        Text(value),
+      ],
+    ),
+  );
 
   Widget _projectSources(BuildContext context, Map<String, dynamic> node) {
     final identity = node['git_common_dir'];

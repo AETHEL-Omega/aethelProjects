@@ -73,6 +73,23 @@ pub struct Supplement {
     pub generated_at: String,
     pub nodes: Vec<Node>,
     pub edges: Vec<Edge>,
+    #[serde(default)]
+    pub observations: Vec<NodeObservation>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct NodeObservation {
+    pub node_id: String,
+    pub kind: String,
+    pub text: String,
+    pub source: String,
+    pub observed_at: String,
+    pub source_revision: Option<String>,
+    pub source_digest: Option<String>,
+    pub details: serde_json::Value,
+    #[serde(default)]
+    pub origin: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -135,6 +152,7 @@ pub struct Projection {
     pub excluded_paths: serde_json::Value,
     pub symlinks: serde_json::Value,
     pub supplements: Vec<SupplementInfo>,
+    pub node_observations: Vec<NodeObservation>,
 }
 
 fn present(s: &str) -> bool {
@@ -261,6 +279,7 @@ pub fn project(
         excluded_paths: observation.excluded_paths,
         symlinks: observation.symlinks,
         supplements: Vec::new(),
+        node_observations: Vec::new(),
     })
 }
 
@@ -289,8 +308,24 @@ pub fn supplement(p: &mut Projection, mut extra: Supplement) -> Result<(), Strin
         }
         e.origin = Some(format!("supplement: {}", extra.source_id));
     }
+    for observation in &mut extra.observations {
+        if !ids.contains(&observation.node_id)
+            || ![
+                &observation.kind,
+                &observation.text,
+                &observation.source,
+                &observation.observed_at,
+            ]
+            .iter()
+            .all(|v| present(v))
+        {
+            return Err("invalid supplement observation".into());
+        }
+        observation.origin = Some(format!("supplement: {}", extra.source_id));
+    }
     p.nodes.extend(extra.nodes);
     p.edges.extend(extra.edges);
+    p.node_observations.extend(extra.observations);
     p.supplements.push(SupplementInfo {
         source_id: extra.source_id,
         generated_at: extra.generated_at,

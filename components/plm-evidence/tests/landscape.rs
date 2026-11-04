@@ -104,7 +104,7 @@ fn explicit_supplement_keeps_original_summary_and_provenance() {
     let obs: Observation = serde_json::from_value(observation()).unwrap();
     let mut projection = project(obs, "snapshot", None).unwrap();
     let before = projection.nodes.len();
-    let v = json!({"schema":"aethel.plm.landscape-supplement/v1", "source_id":"manifest", "generated_at":"date", "nodes":[{"id":"component:lambda","name":"Lambda","kind":"komponente"}], "edges":[{"from":"repo:ed4da66dacb79098","to":"component:lambda","type":"declared","status":"geplant","evidence":"manifest","detail":"source assertion"}]});
+    let v = json!({"schema":"aethel.plm.landscape-supplement/v1", "source_id":"manifest", "generated_at":"date", "nodes":[{"id":"component:lambda","name":"Lambda","kind":"komponente"}], "edges":[{"from":"repo:ed4da66dacb79098","to":"component:lambda","type":"declared","status":"geplant","evidence":"manifest","detail":"source assertion"}], "observations":[{"node_id":"component:lambda","kind":"codefund","text":"test finding","source":"analyzer","observed_at":"date","details":{"rejected":4}}]});
     plm_evidence::landscape::supplement(
         &mut projection,
         serde_json::from_value(v.clone()).unwrap(),
@@ -116,6 +116,7 @@ fn explicit_supplement_keeps_original_summary_and_provenance() {
         Some("supplement: manifest")
     );
     assert_eq!(projection.supplements.len(), 1);
+    assert_eq!(projection.node_observations[0].node_id, "component:lambda");
     assert!(plm_evidence::landscape::supplement(
         &mut projection,
         serde_json::from_value(v).unwrap()

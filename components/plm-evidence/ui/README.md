@@ -6,6 +6,12 @@ pseudonymisierte Rechercheprojektion der Projektlandschaft: 624 Einträge und
 gekennzeichnete Komponenten und drei Beziehungen als Zusatz. Es handelt sich
 nicht um 626 eigenständige Produkte. Die Quelle enthält Erfassungsprobleme,
 ausgelassene Pfade und ungeprüfte Beziehungen; diese Grenzen sind einsehbar.
+Trefferliste und Details zeigen gleichnamige Repositorygruppen und
+Registereinträge getrennt. Zweck, deklarierter Stand, Beleglage, installierter
+Stand und offene Fragen sind eigene Felder. Ausgewählte, datierte Quellen
+ergänzen das aethelema-README und einen tatsächlichen lokalen CodeAnalyzer-Lauf
+für aethelOmegaM0; verworfene Fundstellen und unbekannte Konfiguration werden
+ausgewiesen. Die Einzelfunde sind kein Qualitätsurteil für das gesamte Projekt.
 
 Die Oberfläche zeigt eine historische Momentaufnahme des aethelBrowser-Piloten
 Y-1 sowie ein synthetisches Qualitätsbeispiel. Die Ansichten verbinden Aussagen, referenzierte Belege,
