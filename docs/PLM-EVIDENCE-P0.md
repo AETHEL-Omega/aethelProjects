@@ -833,3 +833,14 @@ historischen Checkout erzeugt (`revision=0`, `modus=LOCAL_AI_ONLY`,
 Kontextdigest vorhanden). Das sind ausschließlich Testdaten. Es wurde kein
 Modelllauf und keine `binde`-Aktion durchgeführt; die Probe belegt weder
 produktive Besitzerrechte noch einen echten Y-1-Auftrag oder eine mBOM.
+
+AIX-PR #1387, Kopf `20e606f612859f4adee528e24067d69d3b7db51a`, ergänzt eine
+ASSM-Laufzeitvorprüfung: Das deklarierte Hostprofil wird mit der vorhandenen
+Host-Erkennung und der deklarierte Modus mit der wirksamen AIX-Modusautorität
+verglichen. Fehlende oder abweichende Angaben blockieren. Auch bei passenden
+Beobachtungen bleiben Host-Lease, Produkt- und Outputbindung ungeprüft und
+POM v2 wird nicht freigegeben. Ein direkt gestartetes oder fortgesetztes Goal
+mit POM v2 hält vor dem Ausführungspfad an. Prüfergebnis: 80 Feed-Tests und
+der gezielte Goal-Test grün. Es existieren weiterhin kein produktiv gebundener
+Y-1-Auftrag und keine maßgebliche mBOM-Quelle; eine automatische Anbindung darf
+dies nicht suggerieren. Das separate Opus-Review ist ausstehend.
