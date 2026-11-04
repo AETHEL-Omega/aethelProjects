@@ -267,3 +267,43 @@ neuen Gesamtkopf steht aus. Für Flutter ist die bestehende `flutter_rust_bridge
 mit eigenem Owner, vorhandenen Änderungen und mehreren Worktrees. P2 benötigt
 separat validierte Source-/Rechte-/Aktualitätsverträge. Beide sind nicht als
 implementiert oder freigegeben aus dem vorliegenden P0-Kern abzuleiten.
+
+## Anschlussabgleich: Projects, AIX Copilot und AgentRuntime
+
+Lesebefund vom 04.11.2026, kein Live-Integrationsnachweis:
+
+- **aethelProjects:** `docs/PM-INPUT.md` und `src/aethel_projects/aix_input.py`
+  beschreiben den bestehenden `aethel.projects.pm-input/v1`-Export und einen
+  separaten Consumer für rohe `aix.engineering_input.v1`. Der vorhandene
+  AIX-Input-Adapter bindet u. a. Dossier, Quelle und Digest vor der Compilation;
+  dies ist kein PLM-Import und prüft nicht die Produktwirkung. Ein künftiger
+  PLM-Leseadapter muss Quellenzeit, betrachteten HEAD, unterschiedliche
+  Export-/Scanzeit und lokale Repository-Identität erhalten. Nie aus `path`
+  oder `repository_id` eine globale Produkt-ID ableiten. Private Dossiers nicht
+  in Fixtures/Logs übernehmen.
+- **AIX Copilot:** `docs/AIX-COPILOT-GOAL.md` beschreibt einen getrennten
+  Rohprompt-, Proposal-/Digest-, Freigabe- und Auftragsweg sowie Goal-Artefakte
+  und Receipts. Ein zukünftiger Adapter muss diese Zustände und ihren jeweiligen
+  konkreten Digest/Kandidaten unterscheiden. Eine bloße Proposal-, Rollen- oder
+  `reviewer.json`-Referenz ist keine nachgewiesene Befugnis, Prüfung oder
+  Landung. AIX bleibt für Auftrag, Modus, Besitz und Rechte zuständig.
+- **aethelAgentRuntime:** `docs/agent-proposal-surface.md` beschreibt
+  Proposal-ID, Zielfingerprint, Zustandsversion, Kontext-Epoch, Risiko, Belege,
+  Prüfplan und Reconciliation; `docs/executor-e1-content.md` unterscheidet
+  Payload-Digest von tatsächlich gemessenem Effekt. Künftige Projektionen
+  müssen diese Bindungen erhalten und fehlende oder veraltete Epoch-/Receipt-
+  Belege offenlassen. Text oder UI-Freigabe ist kein ausgeführter, geprüfter
+  Effekt. Die Dokumente enthalten zeitgebundene Kandidatenstände; keine
+  vollständige heutige AIX→Runtime-Ausführung behaupten.
+- **Grenze der vorliegenden Verknüpfung:** Ihre Links sind manuelle,
+  quellengebundene Behauptungen. Sie prüfen keine Proposal-Digests, Leases,
+  Kontext-Epochen, Signaturen, Projektidentitäten oder Live-Quellen. Sie starten
+  weder Copilot noch Runtime und legen keine zweite Auftragsakte an.
+
+Prüforakel für spätere Adapter: unveränderte Quelle/Kandidat/Scope positiv;
+fehlende oder fremde Quelle, abweichender Digest/Kandidat, abgelaufene oder
+unbelegte Autorität, alte Zustandsversion/Kontext-Epoch und nicht erfolgte
+Reconciliation negativ. Bestehende Adapter und Rechtewege verwenden; keine
+zweite Registry, keinen Scheduler und keinen Executor ergänzen. Owner,
+P1-Dateiumfang und veröffentlichte Abhängigkeits-/Paketbindung für aethelema
+sind vor dem Cross-Repo-Schnitt noch zu bestimmen.
