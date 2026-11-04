@@ -25,7 +25,7 @@
 | REQ-015 Marketing-Claims | TC-029 | `test_market.py` |
 | REQ-016 Offline, ohne echten Workspace | TC-030 | `test_readonly.py` |
 
-**Abdeckungsgrad:** 16 von 16 REQs abgedeckt, 30 Testfälle.
+**Abdeckungsgrad:** 27 von 27 REQs abgedeckt, 44 Testfälle.
 Ein Test prüft die Vollständigkeit der Zuordnung (TC-031 in `test_coverage.py`).
 
 ---
@@ -150,3 +150,5 @@ Ein Test prüft die Vollständigkeit der Zuordnung (TC-031 in `test_coverage.py`
 | TC-065 | REQ-024 | Ablage mit Index, Vorschlägen, Kreisläufen, mit und ohne Lauf-JSON, kaputte und fremde JSON | `tests/test_cockpit.py` | Kennzahlen, Lücken, Dominosteine, offene Kreise; Läufe werden gelesen; md/json/html; Störer ignoriert |
 | TC-066 | REQ-025 | Swift-Repo mit Metal/MLX/XPC/Unified Memory; Python-Repo mit Dockerfile, torch ohne mps, subprocess; Repo ohne Code; Worktree | `tests/test_applefirst.py` | Score ≥ 80 bzw. niedrig mit Findings; Score None ohne Code; Sprachanteile; Scan-Grenzen (Tiefe, 256 KiB, Symlinks); md/json; summary |
 | TC-067 | REQ-026 | Repos je Stufe (leer, README+SPEC, 200 LOC, REQ-Zeilen, Tests, CI mit pytest), Lücke blockiert höhere Stufe, Klassen forschung/infrastruktur, Stub-Mehrheit, Worktree | `tests/test_incubator.py` | Höchste erreichte Stufe und nächste Lücken korrekt; Klassenpfade RF/RI; md mit Verteilung; json mit Schema |
+
+| TC-068 | REQ-027 | Mini-Repos und Scan-Snapshot, falsches Schema oder fehlende Datei | `tests/test_cli_snapshot.py` | JSON-Rundlauf identisch; stack, incubator, applefirst und audit mit Snapshot wie beim Scan; Schemafehler Exit 1, fehlende Datei Exit 2. |

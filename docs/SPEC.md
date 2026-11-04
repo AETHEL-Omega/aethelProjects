@@ -99,6 +99,8 @@ Komponente: `aethelProjects@aethel.projects.analysen/v1` (Ablage), `aethelProjec
 | REQ-025 | MUST | Jedes Repo MUSS auf Apple-first geprüft werden: Sprachanteile, Apple-Frameworks, Unified-Memory-Bewusstsein, Anti-Muster, Score 0–100 mit Grade und Befunden. | `applefirst` liefert je Repo Score, Grade (Apple-first, teilweise, vernachlässigt, fremdgeführt, ohne Code), Python-Anteil, Frameworks, Unified-Memory-Treffer, Anti-Muster (Docker lokal, sandbox-exec, ML ohne mps/coreml/MLX, subprocess-lastig, große Bash-Skripte, launchd ohne SMAppService, numpy ohne MLX, Electron, Modellzugang nur HTTP) und Findings `applefirst-*`; `--min-score N` als Gate mit Exit 1; Schema `aethel.projects.applefirst/v1`. |
 | REQ-026 | MUST | Die Inkubator-Reifeleiter MUSS je Repo die höchste erreichte Stufe von R0 Idee bis R11 Betrieb mit Belegen je Signal und der nächsten Lücke liefern, abhängig von der Portfolio-Klasse (forschung, infrastruktur, produkt, inhalt). | `incubator` prüft je Stufe alle Signale (Dateimarker, LOC, Tests, CI mit Testkommando, Doku, Lizenz, Lock, Version, Plattformreife, Vertriebsreife, Betrieb; RF Reproduzierbar für Forschung, RI Vertrag für Infrastruktur); eine nicht erreichte Stufe blockiert höhere; Ausgabe md und json (`aethel.projects.incubator/v1`). |
 
+| REQ-027 | MUST | Alle Sichten, die den Workspace scannen, MÜSSEN einen Scan-Snapshot als Eingabe akzeptieren. | `--snapshot` lädt `aethel.projects/v1` verlustfrei; stack, incubator, applefirst und audit liefern dieselbe Ausgabe wie beim Scan; Dateimarker werden weiter unter `--root` gelesen. Falsches Schema → Exit 1, fehlende Datei → Exit 2 mit Hinweis auf `scan --json`. |
+
 ## Akzeptanzkriterien (gesamt)
 
 - `pytest` läuft grün ohne Netzwerk und ohne Zugriff auf den echten `~/workspace`.
