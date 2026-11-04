@@ -113,6 +113,10 @@ class _InventoryPanelState extends State<InventoryPanel> {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               Text(widget.status),
+              if (data['message'] != null) Text('Hinweis: ${data['message']}'),
+              Text(
+                'Leseprobleme: ${(scan['summary'] is Map ? (scan['summary'] as Map)['checkout_errors'] : null) ?? 'unbekannt'} Git-Orte · ${(scan['summary'] is Map ? (scan['summary'] as Map)['filesystem_errors'] : null) ?? 'unbekannt'} Dateisystemfehler',
+              ),
               Text(freshness),
               Text(
                 'Erfassung: ${data['attempted_at'] ?? 'unbekannt'} · letzter vollständiger Lauf: ${data['last_success_at'] ?? 'unbekannt'} · Zustand: ${data['status']}',
@@ -121,7 +125,7 @@ class _InventoryPanelState extends State<InventoryPanel> {
                 'Lokale Beobachtung, kein Produkt- oder Liefernachweis. Nicht gefundene Einträge sind nicht automatisch gelöscht.',
               ),
               Text(
-                'Neue Repositorygruppen: ${(changes['new_repositories'] is List ? changes['new_repositories'] as List : []).length} · geänderte Arbeitskopien: ${(changes['changed_checkouts'] is List ? changes['changed_checkouts'] as List : []).length} · neue Nicht-Git-Kandidaten: ${(changes['new_non_git_candidates'] is List ? changes['new_non_git_candidates'] as List : []).length}',
+                'Neu beobachtete Repositorygruppen: ${(changes['new_repositories'] is List ? changes['new_repositories'] as List : []).length} · geänderte Arbeitskopien: ${(changes['changed_checkouts'] is List ? changes['changed_checkouts'] as List : []).length} · neu beobachtete Nicht-Git-Kandidaten: ${(changes['new_non_git_candidates'] is List ? changes['new_non_git_candidates'] as List : []).length}',
               ),
               TextField(
                 decoration: const InputDecoration(

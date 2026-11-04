@@ -33,7 +33,14 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(const AethelPlm());
+    await tester.pumpWidget(
+      AethelPlm(
+        initialJson: File('assets/y1-assessment.json').readAsStringSync(),
+        initialLandscapeJson: File(
+          'assets/landscape-historical.json',
+        ).readAsStringSync(),
+      ),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Projekte aktuell'));
     await tester.pump();
