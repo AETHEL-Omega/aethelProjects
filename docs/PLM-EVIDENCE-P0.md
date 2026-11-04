@@ -853,6 +853,11 @@ Modus und erwartetem Output auf. Die Felder bleiben Angaben der gewählten
 Quelle; sie sind weder eine automatische Y-1-Zuordnung noch eine geprüfte
 Auftrags-, Lease- oder Outputbindung.
 
+Bei aktivierter lokaler AIX-Dashboardverbindung zeigt die Produktansicht auch
+die dort bereits vorhandene letzte Kernel-Transaktionsprojektion mit Kennung,
+Zustand und Quellzeit. Die Sicht prüft dabei weder die Ledgerkette noch eine
+Zuordnung zu Y-1; Auftragsinhalte und andere private Felder werden verworfen.
+
 1. **Spezifikation:** Vorhandene Living-Spec-Sitzung und Graph aus ihrer
    zuständigen Quelle laden, Quellenidentität/Freigabe und Git-Stand binden;
    Digest und Inhalt mit AIX nachrechnen. Der reine Prüfbaustein ist in

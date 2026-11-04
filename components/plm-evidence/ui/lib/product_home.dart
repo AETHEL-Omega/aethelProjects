@@ -43,6 +43,9 @@ class ProductHome extends StatelessWidget {
     final project = factoryInput?['project'] is Map
         ? factoryInput!['project'] as Map
         : const {};
+    final transaction = aixDashboard?['kernel_transaction'] is Map
+        ? aixDashboard!['kernel_transaction'] as Map
+        : null;
     String value(Object? item) =>
         item is String && item.trim().isNotEmpty ? item : 'nicht angegeben';
     String values(Object? items) =>
@@ -187,6 +190,15 @@ class ProductHome extends StatelessWidget {
           Text(
             'Letztes Goal: ${aixDashboard!['goal_id'] ?? 'nicht angegeben'} · Zustand: ${aixDashboard!['state'] ?? 'unbekannt'} · Belegstatus: ${aixDashboard!['proof'] ?? 'unbekannt'}',
           ),
+          if (transaction != null) ...[
+            Text('Letzte Kernel-Transaktion: ${value(transaction['id'])}'),
+            Text(
+              'Transaktionszustand: ${value(transaction['state'])} · Zeit laut AIX: ${value(transaction['created_at'])}',
+            ),
+            const Text(
+              'Lesende Projektion; Ledgerkette und Zuordnung nicht geprüft.',
+            ),
+          ],
           const Text(
             'Nicht automatisch dem Pilot Y-1 zugeordnet; Quelle und Aktualität nicht unabhängig geprüft.',
           ),

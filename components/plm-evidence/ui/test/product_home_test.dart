@@ -22,6 +22,15 @@ void main() {
           body: SingleChildScrollView(
             child: ProductHome(
               cockpit: cockpit,
+              aixDashboard: {
+                'source': 'AIX Dashboard',
+                'timestamp': '2026-11-04',
+                'kernel_transaction': {
+                  'id': 'tx-1',
+                  'state': 'open',
+                  'created_at': '2026-11-04',
+                },
+              },
               onOpenY1: () => opened = true,
               onLandscape: () {},
             ),
@@ -34,6 +43,11 @@ void main() {
     expect(find.text('Firma'), findsOneWidget);
     expect(find.text('Fabrik'), findsOneWidget);
     expect(find.text('mBOM'), findsOneWidget);
+    expect(find.text('Letzte Kernel-Transaktion: tx-1'), findsOneWidget);
+    expect(
+      find.text('Lesende Projektion; Ledgerkette und Zuordnung nicht geprüft.'),
+      findsOneWidget,
+    );
     expect(
       find.textContaining('Eine Y-1-mBOM liegt dieser Sicht nicht vor'),
       findsOneWidget,

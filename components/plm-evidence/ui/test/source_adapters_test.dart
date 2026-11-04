@@ -108,6 +108,15 @@ void main() {
       final result = readAixDashboard(source, 'aix.json');
       expect(result['goal_id'], 'G-1');
       expect(result.toString(), isNot(contains('private')));
+      final nested = readAixDashboard({
+        ...source,
+        'latest_kernel_transaction': {
+          'transaction_id': {'intent': 'private'},
+          'state': ['private'],
+          'created_at': {'private': true},
+        },
+      }, 'aix.json');
+      expect(nested.toString(), isNot(contains('private')));
       expect(
         () => readAixDashboard({...source, 'projection_only': false}, 'x'),
         throwsFormatException,

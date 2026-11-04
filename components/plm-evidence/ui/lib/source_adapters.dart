@@ -31,10 +31,13 @@ Map<String, dynamic> readAixDashboard(
       data['projection_only'] != true ||
       data['timestamp'] is! String ||
       data['components'] is! List ||
+      (data['latest_kernel_transaction'] != null &&
+          data['latest_kernel_transaction'] is! Map) ||
       (data['latest_goal'] != null && data['latest_goal'] is! Map)) {
     throw const FormatException('Ungültige AIX-Dashboardprojektion');
   }
   final goal = data['latest_goal'] as Map?;
+  final transaction = data['latest_kernel_transaction'] as Map?;
   // Do not retain prompt, raw telemetry, credentials, or unrelated ledgers.
   return {
     'source': source,
@@ -43,6 +46,19 @@ Map<String, dynamic> readAixDashboard(
     'state': goal?['state'],
     'proof': goal?['proof'],
     'missing_bindings': goal?['missing_bindings'],
+    'kernel_transaction': transaction == null
+        ? null
+        : {
+            'id': transaction['transaction_id'] is String
+                ? transaction['transaction_id']
+                : null,
+            'state': transaction['state'] is String
+                ? transaction['state']
+                : null,
+            'created_at': transaction['created_at'] is String
+                ? transaction['created_at']
+                : null,
+          },
   };
 }
 

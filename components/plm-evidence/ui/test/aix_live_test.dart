@@ -16,12 +16,19 @@ void main() {
           'timestamp': '2026-11-04T12:00:00Z',
           'components': [],
           'latest_goal': {'goal_id': 'G-1', 'prompt': 'private'},
+          'latest_kernel_transaction': {
+            'transaction_id': 'tx-1',
+            'state': 'open',
+            'created_at': '2026-11-04',
+            'intent': 'private',
+          },
         }),
       );
       request.response.close();
     });
     final result = await readLocalAix(port: server.port);
     expect(result['goal_id'], 'G-1');
+    expect(result['kernel_transaction']['id'], 'tx-1');
     expect(result.toString(), isNot(contains('private')));
   });
   test('does not follow a redirect from local source', () async {
