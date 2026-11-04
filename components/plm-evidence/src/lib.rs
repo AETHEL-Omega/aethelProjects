@@ -342,3 +342,7 @@ pub use render::render_text;
 pub mod quality;
 
 pub mod link;
+
+pub mod projects;
+
+pub mod copilot;

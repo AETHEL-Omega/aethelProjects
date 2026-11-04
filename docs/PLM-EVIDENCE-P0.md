@@ -307,3 +307,51 @@ Reconciliation negativ. Bestehende Adapter und Rechtewege verwenden; keine
 zweite Registry, keinen Scheduler und keinen Executor ergänzen. Owner,
 P1-Dateiumfang und veröffentlichte Abhängigkeits-/Paketbindung für aethelema
 sind vor dem Cross-Repo-Schnitt noch zu bestimmen.
+
+## Erste explizite Quellenprojektionen
+
+`project-observation` liest ein ausdrücklich bereitgestelltes
+`aethel.projects.pm-input/v1`-Exportpaket und verlangt die exakte lokale
+`--repository-id`, `--source-id` und `--evidence-id`. Keine automatische
+Workspace-Suche, kein Öffnen referenzierter Dokumente. Mehrdeutige oder fehlende
+Auswahl und unbekannte Versionen sind Strukturfehler. Die Ausgabe
+`aethel.plm.project-observation/v1` bewahrt die berichteten Scan-/Exportzeiten
+getrennt; Produktreferenz ist `null`, Aktualität `not_checked`. Der gemeldete
+HEAD bleibt eine Quellenbehauptung. Das enthaltene `evidence`-Objekt kann
+explizit in einem bestehenden `case/v1` referenziert werden. Weder Export noch
+Repository oder Quelle werden durch diesen Parser verifiziert.
+
+`copilot-observation` liest ein ausdrücklich übergebenes `aix.copilot_goal.v1`
+und verlangt `--goal-id`, `--source-id` und `--evidence-id`. Es projiziert nur
+Goal-ID, berichteten Zustand/Akteur/Agenten-ID/Modus/Zeit und die gemeldete
+**Basisrevision**. Kein Prompt, Artefaktpfad, Eventlog oder Kontoinhalt wird
+übernommen. Ergebnis `aethel.plm.copilot-observation/v1` meldet Aktualität und
+tatsächlichen Inferenzort ungeprüft/`null`; die Basis ist kein Ergebnis- oder
+Reviewkandidat. Beide Kommandos akzeptieren nur `--format json`. Ihre Ausgabe
+ist ein Quellenbericht, niemals eine Freigabe, ein neuer Auftrag oder ein Lauf.
+
+```sh
+plm-evidence project-observation --input export.json --format json \
+  --repository-id '<lokale-repository-identitaet>' --source-id '<quelle>' --evidence-id '<id>'
+plm-evidence copilot-observation --input goal.json --format json \
+  --goal-id '<goal-id>' --source-id '<quelle>' --evidence-id '<id>'
+```
+
+Kompatibilitätsprobe: Die **echte** Projects-Funktion `dossier.build` erzeugte
+mit synthetischem Projekteintrag einen Export, der vom Adapter gelesen wurde;
+dies ist kein Live-Repo-/Quellen-/Rechte- oder Frische-Nachweis. Copilot-Tests
+nutzen synthetische Daten nach dem gelesenen vorhandenen Schema. Keine echten
+privaten Akten, Prompts oder Zugangsdaten wurden übernommen. Ein prüfender
+Adapter für Scope, Lease, Signatur, Provenienz und Aktualität sowie Bezüge zu
+Bot-/Runtime-Läufen stehen aus. Versionierte Eingaben erlauben spätere Provider,
+Träger und Quellen ohne zweite Rollen- oder Auftragsautorität.
+
+Owner-/Paketprüfung 04.11.: Rollenlease nennt `codex-terra-aethelema-1028`, Gen 1,
+`haelt`, Puls jedoch > 7 Tage alt; `bauer-aethelema/stand.json` enthält nur
+TODO-Vorlage. Zuständiger aktiver Owner und Besitzfreigabe für P1 sind deshalb
+nicht belegt. `flutter_rust_bridge` 2.13.0 und Codegen sind vorhanden. Ein
+Git-Dependency-Pin auf den exakten PLM-Commit ist technisch reproduzierbar als
+Quellreferenz, aber der PLM-PR ist noch ungeprüft/unveröffentlicht; eine
+freigegebene Distribution und Cross-Repo-Verifikation sind nicht nachgewiesen.
+Kein bewegliches lokales Workspace-Verzeichnis als Abhängigkeit eintragen.
+Flutter-Anbindung bleibt offen. Keine fremde Rolle oder Worktree übernommen.
