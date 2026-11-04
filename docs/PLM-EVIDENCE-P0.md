@@ -877,3 +877,14 @@ Stand: Der isolierte Spezifikationsprüfer kann Graph, Digest und Kandidat
 nachrechnen; die autoritative Quellenkette, Lease- und Outputprüfung sowie die
 produktive Y-1-Anbindung sind noch offen. Ein technischer Graphabgleich ist
 keine menschliche Freigabe, kein Gate und kein Wirksamkeitsbeleg.
+
+## Provenienzprüfung und unabhängige Sicht (04.11.2026)
+
+AIX-PR #1387, Kopf `e1300707f748bca344e200e96fabde607f2059ef`, weist
+beschädigte, unvollständige oder fehlende `aix.provenance.v1`-Kettendateien
+bei der bestehenden Kettenprüfung ab; 44 pBOM-Tests und sechs Attesttests
+waren grün. Die Kette bleibt das bestehende Provenienzformat und wird nicht
+als `aix.pbom.v2` oder als Y-1-Outputbindung ausgegeben. Die Prüfung der
+aktiven Ressourcenlease und die autoritative Spezifikations-/Outputbindung
+bleiben offen. Eine getrennte Astra-Instanz meldete für diesen AIX-Kopf keine
+konkreten Befunde; sie führte keine Tests, kein Gate und keinen Merge aus.
