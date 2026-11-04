@@ -1,6 +1,20 @@
 # Alle Chats in nachvollziehbare Arbeit überführen
 
-## Tatsächlich erfasster Stand
+## Implementierungsfortschritt
+
+Der lokale Adapter `work-history` erfasst jetzt Codex- und Claude-Protokolle,
+einschließlich komprimierter Codex-Archive, in einer privaten SQLite-Projektion.
+Er trennt Aussagen, Toolausgaben und lokale Commitexistenz, gleicht Kataloge ab
+und erzeugt eine private HTML-Übersicht sowie eine abgeleitete Prüfliste.
+Quellhash, Zeile, Offset und explizite Abdeckungsgrenzen bleiben erhalten.
+
+Dies schließt die bisherige reine Dateiinventur, nicht die vollständige fachliche
+Auswertung: fehlende Transkripte, Mehrfachbezüge zu bestehenden Aufträgen sowie
+Prüf-/Lieferbelege bleiben offene Arbeit. Aktuelle private Zahlen und Inhalte
+werden nicht in diese öffentliche Akte übernommen.
+[Implementierung und Grenzen](../../../docs/WORK-HISTORY.md).
+
+## Historischer Stand vor dem Inhaltsimport
 
 Am 4. November 2026 wurden über die Codex-App auf dem lokalen Host alle Seiten der aktiven und archivierten Chatmetadaten abgerufen: 423 aktive und zwei archivierte Chats, beide Cursor erschöpft. Dies ist ein vollständiges Metadateninventar dieses Hosts, keine Inhaltsauswertung und keine Aussage zu anderen Hosts.
 

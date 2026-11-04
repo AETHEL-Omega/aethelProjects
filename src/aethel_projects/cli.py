@@ -65,6 +65,12 @@ def _build_parser() -> argparse.ArgumentParser:
         _common_args(child, suppress=True)
         return child
 
+    history_cmd = add("work-history", "Private lokale Codex-/Claude-Arbeitsnachweise; keine Veröffentlichung")
+    history_cmd.add_argument("--home", type=Path, default=Path.home())
+    history_cmd.add_argument("--out", type=Path, required=True, help="Privates Ziel außerhalb aller Git-Arbeitsbäume")
+    history_cmd.add_argument("--no-git", action="store_true", help="Git-Objektprüfung ausdrücklich auslassen")
+    history_cmd.add_argument("--codex-catalog", type=Path, help="Privater Metadatenexport der Codex-App zum Vollständigkeitsabgleich")
+
     aix_cmd = add("aix-input", "Projektdossier an bestehenden AIX-Eingang binden (nur Kontext)")
     aix_cmd.add_argument("--input", required=True, help="Unfreigegebener aix.engineering_input.v1")
     aix_cmd.add_argument("--dossiers", required=True, help="Export aus dossier")
@@ -895,7 +901,15 @@ def _cmd_incubator(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _cmd_work_history(args: argparse.Namespace) -> int:
+    from .work_history import build_history
+    result = build_history(args.home, args.out, not args.no_git, args.codex_catalog)
+    print(json.dumps(result, ensure_ascii=False))
+    return EXIT_OK
+
+
 COMMANDS = {
+    "work-history": _cmd_work_history,
     "aix-input": _cmd_aix_input,
     "inventory": _cmd_inventory,
     "dossier": _cmd_dossier,

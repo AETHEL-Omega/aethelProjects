@@ -233,3 +233,8 @@ Freigabe, Rollenprüfung, Ausführung und Forge bleiben im bestehenden AIX-Weg.
 ## Systemlandschaft und Arbeitsnachweise vom 4. November 2026
 
 [Versionierter Einstieg](analysen/2026-11-04/systemlandschaft/README.md): Konzeptabgleich, Architektur, Datenhaltung, Coder-/Chat-Zuordnung, Prüfaufträge und offene Lücken. Öffentliche bereinigte Fassung; private Quellen bleiben ausgeschlossen.
+
+`work-history` erfasst lokale Codex-/Claude-Protokolle in einer privaten Ablage
+außerhalb von Git, gleicht Sessionkataloge ab und prüft referenzierte lokale
+Commitobjekte. [Betrieb, Beleggrenzen und offene fachliche Zuordnung](docs/WORK-HISTORY.md).
+Die Erfassung ist keine automatische Abnahme historischer Arbeiten.
