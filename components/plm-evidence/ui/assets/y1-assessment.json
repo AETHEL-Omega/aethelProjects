@@ -1,0 +1,183 @@
+{
+  "schema": "aethel.plm.assessment/v1",
+  "change": {
+    "id": "Y-1",
+    "product_reference": null,
+    "problem": "Google-/YouTube-Anmeldung funktioniert nicht wie gewünscht.",
+    "goal": "Anmeldung im identifizierten Browser-Build bis zum sichtbar angemeldeten Zustand.",
+    "candidate": "c1b0c46cbae60a69a00332a050841044e64b32e1",
+    "context": "Historische Momentaufnahme vom 04.11.2026; kein Live-Stand. Basis ea1d94424c884c569823981876d92b95ca0bfa8e; Branchkopf mit Changelog 532c170bd23ca9d5f905262c4fad9bb043b92937."
+  },
+  "snapshot": {
+    "kind": "historical",
+    "captured_on": "2026-11-04"
+  },
+  "unreferenced_evidence": [],
+  "claims": [
+    {
+      "id": "gate",
+      "statement": "Unabhängiges Gate für den Kandidaten.",
+      "required_kind": "independent_gate",
+      "references": [
+        {
+          "evidence": {
+            "id": "reported-tests",
+            "source": "docs/changelog/entries.jsonl",
+            "source_id": "Y-1 Changelog",
+            "revision_or_digest": "532c170bd23ca9d5f905262c4fad9bb043b92937",
+            "kind": "reported_test_summary",
+            "candidate": "c1b0c46cbae60a69a00332a050841044e64b32e1",
+            "provenance": "Changelog berichtet Kettentest und 269 grüne Tests; kein Rohlog in der Fallakte.",
+            "reported_result": "pass",
+            "explanation": null,
+            "verified": false
+          },
+          "kind_match": "different",
+          "candidate_binding": "match",
+          "assurance": "source_assertion_only"
+        }
+      ],
+      "gaps": [
+        {
+          "code": "independent_verification_missing",
+          "explanation": "References and caller assertions are not independent verification.",
+          "evidence_ids": []
+        },
+        {
+          "code": "missing_applicable_evidence",
+          "explanation": "No reference of the required kind is bound to the candidate and reported applicable.",
+          "evidence_ids": []
+        },
+        {
+          "code": "wrong_kind",
+          "explanation": "reported-tests: evidence kind does not match the required kind.",
+          "evidence_ids": [
+            "reported-tests"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "login",
+      "statement": "Echter Login erreicht den angemeldeten Zustand.",
+      "required_kind": "real_login",
+      "references": [
+        {
+          "evidence": {
+            "id": "ua-chain",
+            "source": "test/widgets/browser_controller_factory_ua_chain_test.dart",
+            "source_id": "Y-1 UA-Kettentest",
+            "revision_or_digest": "c1b0c46cbae60a69a00332a050841044e64b32e1",
+            "kind": "unit_test",
+            "candidate": "c1b0c46cbae60a69a00332a050841044e64b32e1",
+            "provenance": "Historische Fallakte: prüft berechnete User-Agent-Werte, keinen Login.",
+            "reported_result": "pass",
+            "explanation": null,
+            "verified": false
+          },
+          "kind_match": "different",
+          "candidate_binding": "match",
+          "assurance": "source_assertion_only"
+        }
+      ],
+      "gaps": [
+        {
+          "code": "independent_verification_missing",
+          "explanation": "References and caller assertions are not independent verification.",
+          "evidence_ids": []
+        },
+        {
+          "code": "missing_applicable_evidence",
+          "explanation": "No reference of the required kind is bound to the candidate and reported applicable.",
+          "evidence_ids": []
+        },
+        {
+          "code": "wrong_kind",
+          "explanation": "ua-chain: evidence kind does not match the required kind.",
+          "evidence_ids": [
+            "ua-chain"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "provenance",
+      "statement": "Agenten-, Host- und Inferenzangaben sind nachgewiesen.",
+      "required_kind": "verified_provenance",
+      "references": [
+        {
+          "evidence": {
+            "id": "agent-report",
+            "source": "docs/changelog/entries.jsonl",
+            "source_id": "Y-1 Arbeitsangaben",
+            "revision_or_digest": "532c170bd23ca9d5f905262c4fad9bb043b92937",
+            "kind": "reported_provenance",
+            "candidate": "c1b0c46cbae60a69a00332a050841044e64b32e1",
+            "provenance": "Historische Agenten- und Modusangaben sind berichtet; Host und tatsächlicher Inferenzort unbekannt.",
+            "reported_result": "unknown",
+            "explanation": null,
+            "verified": false
+          },
+          "kind_match": "different",
+          "candidate_binding": "match",
+          "assurance": "source_assertion_only"
+        }
+      ],
+      "gaps": [
+        {
+          "code": "independent_verification_missing",
+          "explanation": "References and caller assertions are not independent verification.",
+          "evidence_ids": []
+        },
+        {
+          "code": "missing_applicable_evidence",
+          "explanation": "No reference of the required kind is bound to the candidate and reported applicable.",
+          "evidence_ids": []
+        },
+        {
+          "code": "wrong_kind",
+          "explanation": "agent-report: evidence kind does not match the required kind.",
+          "evidence_ids": [
+            "agent-report"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "release",
+      "statement": "Release und Installation sind nachgewiesen.",
+      "required_kind": "installation",
+      "references": [],
+      "gaps": [
+        {
+          "code": "independent_verification_missing",
+          "explanation": "References and caller assertions are not independent verification.",
+          "evidence_ids": []
+        },
+        {
+          "code": "missing_evidence",
+          "explanation": "No evidence references were provided for this claim.",
+          "evidence_ids": []
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "statement": "Unabhängiges Review des Kandidaten.",
+      "required_kind": "independent_review",
+      "references": [],
+      "gaps": [
+        {
+          "code": "independent_verification_missing",
+          "explanation": "References and caller assertions are not independent verification.",
+          "evidence_ids": []
+        },
+        {
+          "code": "missing_evidence",
+          "explanation": "No evidence references were provided for this claim.",
+          "evidence_ids": []
+        }
+      ]
+    }
+  ]
+}

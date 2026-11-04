@@ -1,0 +1,63 @@
+{
+  "schema": "aethel.plm.cockpit-observation/v1",
+  "source_schema": "aethel.projects.cockpit/v1",
+  "source_id": "aethelProjects PR #2: abgelegte Leitstanddatei vom 03.11.2026",
+  "source_time": null,
+  "freshness": "not_checked",
+  "authority": "source_assertions_only; source_and_authority_not_verified",
+  "tiles": [
+    {
+      "titel": "Analysen",
+      "wert": "11",
+      "quelle": "analysen/INDEX.json",
+      "hinweis": ""
+    },
+    {
+      "titel": "Vorschläge",
+      "wert": "30",
+      "quelle": "analysen/vorschlaege.json",
+      "hinweis": "existiert 1, in-arbeit 1, vorgeschlagen 28"
+    },
+    {
+      "titel": "Kreisläufe",
+      "wert": "22",
+      "quelle": "analysen/kreislaeufe.json",
+      "hinweis": "offen 17, teilweise 5"
+    },
+    {
+      "titel": "Register-Drift",
+      "wert": "375",
+      "quelle": "2026-11-03/register-abgleich-2026-11-03.json",
+      "hinweis": "Summe der Abweichungen"
+    },
+    {
+      "titel": "Leere Schichten",
+      "wert": "5",
+      "quelle": "2026-11-03/schichtenkarte-2026-11-03.json",
+      "hinweis": ""
+    },
+    {
+      "titel": "Inkubator",
+      "wert": "322 Repos",
+      "quelle": "2026-11-03/inkubator-2026-11-03.json",
+      "hinweis": "-: 2, R0: 94, R1: 9, R2: 171, R3: 32, R4: 6, R5: 4, R6: 1, R7: 2, R9: 1"
+    },
+    {
+      "titel": "Apple-first",
+      "wert": "322 Repos",
+      "quelle": "2026-11-03/applefirst-2026-11-03.json",
+      "hinweis": "Apple-first: 10, fremdgeführt: 50, ohne Code: 22, teilweise: 70, vernachlässigt: 170"
+    }
+  ],
+  "missing": [
+    "Kein Kreislauf ist geschlossen: Loop-Registry im Kern (aixd) fehlt",
+    "Manifest ist 66 Tage alt: Registry mit Produkt-ID fehlt",
+    "5 Stack-Schichten ohne eigenes Repo"
+  ],
+  "sources": {
+    "applefirst": "2026-11-03/applefirst-2026-11-03.json",
+    "incubator": "2026-11-03/inkubator-2026-11-03.json",
+    "registers": "2026-11-03/register-abgleich-2026-11-03.json",
+    "stack": "2026-11-03/schichtenkarte-2026-11-03.json"
+  }
+}

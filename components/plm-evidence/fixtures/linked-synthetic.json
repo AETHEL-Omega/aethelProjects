@@ -1,0 +1,100 @@
+{
+  "schema": "aethel.plm.linked-case/v1",
+  "change_case": {
+    "schema": "aethel.plm.case/v1",
+    "change": {
+      "id": "change-1",
+      "product_reference": null,
+      "problem": "Synthetic operation fails",
+      "goal": "Synthetic operation reaches the expected result",
+      "candidate": "new-build",
+      "context": "Synthetic example; not live product data"
+    },
+    "claims": [
+      {
+        "id": "claim-1",
+        "statement": "Operation reaches its expected result",
+        "required_kind": "effectiveness",
+        "evidence_ids": []
+      }
+    ],
+    "evidence": []
+  },
+  "quality_case": {
+    "schema": "aethel.plm.quality-case/v1",
+    "id": "synthetic-quality-example",
+    "issues": [
+      {
+        "id": "issue-1",
+        "revision": 1,
+        "state": "investigating",
+        "problem": "Synthetic operation does not reach its expected result",
+        "affected_configuration": "old-build",
+        "severity": "functional",
+        "triage_reason": "Synthetic reproducible deviation",
+        "closure_decision_reference": null
+      }
+    ],
+    "actions": [
+      {
+        "id": "action-1",
+        "revision": 4,
+        "plan_revision": 1,
+        "state": "awaiting_effectiveness",
+        "kind": "corrective",
+        "objective": "Remove the synthetic failure cause",
+        "owner_reference": "implementer",
+        "due_on": "2026-11-30",
+        "cause_reference": "source:synthetic-cause-report",
+        "scopes": [
+          {
+            "issue_id": "issue-1",
+            "candidate": "new-build",
+            "environment": "synthetic-environment",
+            "criterion": "operation reaches expected result",
+            "observation_window": "synthetic-protocol-v1"
+          }
+        ],
+        "implementation_evidence_ids": [
+          "implementation-1"
+        ],
+        "disposition": null
+      }
+    ],
+    "checks": [],
+    "evidence": [
+      {
+        "id": "implementation-1",
+        "source": "synthetic:implementation",
+        "source_id": "synthetic-report-1",
+        "revision_or_digest": "synthetic-revision",
+        "kind": "implementation",
+        "candidate": "new-build",
+        "provenance": "Synthetic example, not an actual run",
+        "reported_result": "pass",
+        "explanation": null,
+        "verified": false
+      }
+    ],
+    "transitions": [
+      {
+        "object_type": "action",
+        "id": "request-1",
+        "object_id": "action-1",
+        "expected_revision": 4,
+        "to": "closed",
+        "reason": "Request closure of the synthetic action",
+        "decision_reference": "source:unverified-decision"
+      }
+    ]
+  },
+  "links": [
+    {
+      "id": "link-1",
+      "issue_id": "issue-1",
+      "action_id": "action-1",
+      "claim_id": "claim-1",
+      "provenance": "Synthetic source assertion"
+    }
+  ]
+}

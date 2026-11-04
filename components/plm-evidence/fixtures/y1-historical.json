@@ -1,0 +1,24 @@
+{
+  "schema": "aethel.plm.case/v1",
+  "snapshot": {"kind": "historical", "captured_on": "2026-11-04"},
+  "change": {
+    "id": "Y-1",
+    "product_reference": null,
+    "problem": "Google-/YouTube-Anmeldung funktioniert nicht wie gewünscht.",
+    "goal": "Anmeldung im identifizierten Browser-Build bis zum sichtbar angemeldeten Zustand.",
+    "candidate": "c1b0c46cbae60a69a00332a050841044e64b32e1",
+    "context": "Historische Momentaufnahme vom 04.11.2026; kein Live-Stand. Basis ea1d94424c884c569823981876d92b95ca0bfa8e; Branchkopf mit Changelog 532c170bd23ca9d5f905262c4fad9bb043b92937."
+  },
+  "claims": [
+    {"id":"login", "statement":"Echter Login erreicht den angemeldeten Zustand.", "required_kind":"real_login", "evidence_ids":["ua-chain"]},
+    {"id":"gate", "statement":"Unabhängiges Gate für den Kandidaten.", "required_kind":"independent_gate", "evidence_ids":["reported-tests"]},
+    {"id":"review", "statement":"Unabhängiges Review des Kandidaten.", "required_kind":"independent_review", "evidence_ids":[]},
+    {"id":"release", "statement":"Release und Installation sind nachgewiesen.", "required_kind":"installation", "evidence_ids":[]},
+    {"id":"provenance", "statement":"Agenten-, Host- und Inferenzangaben sind nachgewiesen.", "required_kind":"verified_provenance", "evidence_ids":["agent-report"]}
+  ],
+  "evidence": [
+    {"id":"ua-chain", "source":"test/widgets/browser_controller_factory_ua_chain_test.dart", "source_id":"Y-1 UA-Kettentest", "revision_or_digest":"c1b0c46cbae60a69a00332a050841044e64b32e1", "kind":"unit_test", "candidate":"c1b0c46cbae60a69a00332a050841044e64b32e1", "provenance":"Historische Fallakte: prüft berechnete User-Agent-Werte, keinen Login.", "reported_result":"pass", "explanation":null},
+    {"id":"reported-tests", "source":"docs/changelog/entries.jsonl", "source_id":"Y-1 Changelog", "revision_or_digest":"532c170bd23ca9d5f905262c4fad9bb043b92937", "kind":"reported_test_summary", "candidate":"c1b0c46cbae60a69a00332a050841044e64b32e1", "provenance":"Changelog berichtet Kettentest und 269 grüne Tests; kein Rohlog in der Fallakte.", "reported_result":"pass", "explanation":null},
+    {"id":"agent-report", "source":"docs/changelog/entries.jsonl", "source_id":"Y-1 Arbeitsangaben", "revision_or_digest":"532c170bd23ca9d5f905262c4fad9bb043b92937", "kind":"reported_provenance", "candidate":"c1b0c46cbae60a69a00332a050841044e64b32e1", "provenance":"Historische Agenten- und Modusangaben sind berichtet; Host und tatsächlicher Inferenzort unbekannt.", "reported_result":"unknown", "explanation":null}
+  ]
+}

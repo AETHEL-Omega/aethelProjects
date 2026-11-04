@@ -1,0 +1,374 @@
+{
+  "schema": "aethel.workspace.relationship-observation/v1",
+  "generated_at": "2026-11-04T13:12:27+0100",
+  "nodes": [
+    {
+      "id": "repo:3e10592042824aed",
+      "name": "aethelCodeAnalyzer",
+      "kind": "repository",
+      "git_common_dir": "~/workspace/_archive/_cloned_from_github/aethelCodeAnalyzer/.git"
+    },
+    {
+      "id": "repo:ed4da66dacb79098",
+      "name": "aethelBrowser",
+      "kind": "repository",
+      "git_common_dir": "~/workspace/aethelBrowser/.git"
+    },
+    {
+      "id": "repo:8633a2ef9ab10d1c",
+      "name": "aethelAnalytics",
+      "kind": "repository",
+      "git_common_dir": "~/workspace/aethelAnalytics/.git"
+    },
+    {
+      "id": "repo:e7183a349fe8cf98",
+      "name": "aethelBot",
+      "kind": "repository",
+      "git_common_dir": "~/workspace/aethelBot/.git"
+    },
+    {
+      "id": "repo:b8262724fc6c78a3",
+      "name": "aethelCodeAnalyzer",
+      "kind": "repository",
+      "git_common_dir": "~/workspace/aethelCodeAnalyzer_git"
+    },
+    {
+      "id": "repo:20a9cbc874b4d868",
+      "name": "aethelFactory",
+      "kind": "repository",
+      "git_common_dir": "~/workspace/aethelFactory/.git"
+    },
+    {
+      "id": "repo:f34e89d554c0fde3",
+      "name": "aethelLanding",
+      "kind": "repository",
+      "git_common_dir": "~/workspace/aethelLanding/.git"
+    },
+    {
+      "id": "repo:1c546d75147bb823",
+      "name": "aethelLocalCoder",
+      "kind": "repository",
+      "git_common_dir": "~/workspace/aethelLocalCoder/.git"
+    },
+    {
+      "id": "repo:20c0b9a3cfe9e159",
+      "name": "aethelProjects",
+      "kind": "repository",
+      "git_common_dir": "~/workspace/aethelProjects/.git"
+    },
+    {
+      "id": "repo:2fa7b31678f0b299",
+      "name": "aethelScripts",
+      "kind": "repository",
+      "git_common_dir": "~/workspace/aethelScripts/.git"
+    },
+    {
+      "id": "repo:1eeab475f9154add",
+      "name": "memoristorCursor",
+      "kind": "repository",
+      "git_common_dir": "~/workspace/memoristorCursor/.git"
+    },
+    {
+      "id": "candidate:62c862ad2bdcb680",
+      "name": "aethel-dependency-scanner",
+      "kind": "nicht_git_kandidat",
+      "path": "~/workspace/aethel-dependency-scanner"
+    },
+    {
+      "id": "registry:2c1f33a64ac8e676",
+      "name": "aethelBrowser",
+      "kind": "registereintrag",
+      "category": "omega",
+      "recorded_status": "active",
+      "source": "~/workspace/workspace-manifest/projects.yaml"
+    },
+    {
+      "id": "registry:f036c4ff1ae231d9",
+      "name": "aethelCodeAnalyzer",
+      "kind": "registereintrag",
+      "category": "quality",
+      "recorded_status": "active",
+      "source": "~/workspace/workspace-manifest/projects.yaml"
+    },
+    {
+      "id": "registry:93862f821a603734",
+      "name": "aethelFactory",
+      "kind": "registereintrag",
+      "category": "factory",
+      "recorded_status": "active",
+      "source": "~/workspace/workspace-manifest/projects.yaml"
+    },
+    {
+      "id": "registry:98d7a2855bddd651",
+      "name": "aethelLocalCoder",
+      "kind": "registereintrag",
+      "category": "coding-agent",
+      "recorded_status": "active",
+      "source": "~/workspace/workspace-manifest/projects.yaml"
+    },
+    {
+      "id": "registry:3349f78450c08967",
+      "name": "aethelScripts",
+      "kind": "registereintrag",
+      "category": "kernel",
+      "recorded_status": "active",
+      "source": "~/workspace/workspace-manifest/projects.yaml"
+    },
+    {
+      "id": "registry:166b04c8ab1bd03e",
+      "name": "memoristorCursor",
+      "kind": "registereintrag",
+      "category": "misc",
+      "recorded_status": "active",
+      "source": "~/workspace/workspace-manifest/projects.yaml"
+    },
+    {
+      "id": "proposal:C1",
+      "name": "aethelCompany",
+      "kind": "vorschlag",
+      "purpose": "Firmensteuerung als nicht-technische Daten: Produkt, Geschäftsfall, Portfolio-Entscheidung, Budget, Rollen, Marke, Recht",
+      "proposal_status": "vorgeschlagen",
+      "source": "~/workspace/aethelProjects/analysen/vorschlaege.json"
+    },
+    {
+      "id": "proposal:C2",
+      "name": "aethelConsultant",
+      "kind": "vorschlag",
+      "purpose": "Ort allen grundsätzlichen Rats: Disziplinen × Ebenen, Grundsätze, Muster, Checklisten, Entscheidungsvorlagen mit Version, Beleg, Rückkopplung",
+      "proposal_status": "vorgeschlagen",
+      "source": "~/workspace/aethelProjects/analysen/vorschlaege.json"
+    },
+    {
+      "id": "proposal:C3",
+      "name": "aethelIncubator",
+      "kind": "vorschlag",
+      "purpose": "Tore Idee→Konzept→Prototyp→Produkt→Betrieb→Archiv für vier Portfolio-Klassen; Zustand in der Registry",
+      "proposal_status": "vorgeschlagen",
+      "source": "~/workspace/aethelProjects/analysen/vorschlaege.json"
+    },
+    {
+      "id": "proposal:B1",
+      "name": "aethelRegistry",
+      "kind": "vorschlag",
+      "purpose": "Produkt-ID und eine Wahrheit; erzeugt projects.yaml, CLAUDE.md, AGENTS.md, Cursor-Regeln, MCP-Registries, Plists",
+      "proposal_status": "vorgeschlagen",
+      "source": "~/workspace/aethelProjects/analysen/vorschlaege.json"
+    },
+    {
+      "id": "component:aix-copilot",
+      "name": "AIX Copilot",
+      "kind": "komponente",
+      "source": "~/workspace/aethelScripts/docs/AIX-COPILOT-GOAL.md"
+    }
+  ],
+  "edges": [
+    {
+      "from": "registry:2c1f33a64ac8e676",
+      "to": "repo:ed4da66dacb79098",
+      "type": "benennt",
+      "status": "ungeprüft",
+      "evidence": "~/workspace/workspace-manifest/projects.yaml",
+      "detail": "Namensgleichheit; Identität nicht bewiesen"
+    },
+    {
+      "from": "registry:f036c4ff1ae231d9",
+      "to": "repo:b8262724fc6c78a3",
+      "type": "benennt",
+      "status": "ungeprüft",
+      "evidence": "~/workspace/workspace-manifest/projects.yaml",
+      "detail": "Namensgleichheit; Identität nicht bewiesen"
+    },
+    {
+      "from": "registry:f036c4ff1ae231d9",
+      "to": "repo:3e10592042824aed",
+      "type": "benennt",
+      "status": "ungeprüft",
+      "evidence": "~/workspace/workspace-manifest/projects.yaml",
+      "detail": "Namensgleichheit; Identität nicht bewiesen"
+    },
+    {
+      "from": "registry:93862f821a603734",
+      "to": "repo:20a9cbc874b4d868",
+      "type": "benennt",
+      "status": "ungeprüft",
+      "evidence": "~/workspace/workspace-manifest/projects.yaml",
+      "detail": "Namensgleichheit; Identität nicht bewiesen"
+    },
+    {
+      "from": "registry:98d7a2855bddd651",
+      "to": "repo:1c546d75147bb823",
+      "type": "benennt",
+      "status": "ungeprüft",
+      "evidence": "~/workspace/workspace-manifest/projects.yaml",
+      "detail": "Namensgleichheit; Identität nicht bewiesen"
+    },
+    {
+      "from": "registry:3349f78450c08967",
+      "to": "repo:2fa7b31678f0b299",
+      "type": "benennt",
+      "status": "ungeprüft",
+      "evidence": "~/workspace/workspace-manifest/projects.yaml",
+      "detail": "Namensgleichheit; Identität nicht bewiesen"
+    },
+    {
+      "from": "registry:166b04c8ab1bd03e",
+      "to": "repo:1eeab475f9154add",
+      "type": "benennt",
+      "status": "ungeprüft",
+      "evidence": "~/workspace/workspace-manifest/projects.yaml",
+      "detail": "Namensgleichheit; Identität nicht bewiesen"
+    },
+    {
+      "from": "proposal:C1",
+      "to": "proposal:C2",
+      "type": "hebt",
+      "status": "geplant",
+      "evidence": "~/workspace/aethelProjects/analysen/vorschlaege.json",
+      "detail": "C1 → C2"
+    },
+    {
+      "from": "proposal:C1",
+      "to": "proposal:C3",
+      "type": "hebt",
+      "status": "geplant",
+      "evidence": "~/workspace/aethelProjects/analysen/vorschlaege.json",
+      "detail": "C1 → C3"
+    },
+    {
+      "from": "proposal:C1",
+      "to": "proposal:B1",
+      "type": "hebt",
+      "status": "geplant",
+      "evidence": "~/workspace/aethelProjects/analysen/vorschlaege.json",
+      "detail": "C1 → B1"
+    },
+    {
+      "from": "proposal:C2",
+      "to": "proposal:C1",
+      "type": "hebt",
+      "status": "geplant",
+      "evidence": "~/workspace/aethelProjects/analysen/vorschlaege.json",
+      "detail": "C2 → C1"
+    },
+    {
+      "from": "proposal:C2",
+      "to": "proposal:C3",
+      "type": "hebt",
+      "status": "geplant",
+      "evidence": "~/workspace/aethelProjects/analysen/vorschlaege.json",
+      "detail": "C2 → C3"
+    },
+    {
+      "from": "proposal:C3",
+      "to": "proposal:B1",
+      "type": "hebt",
+      "status": "geplant",
+      "evidence": "~/workspace/aethelProjects/analysen/vorschlaege.json",
+      "detail": "C3 → B1"
+    },
+    {
+      "from": "proposal:C3",
+      "to": "proposal:C1",
+      "type": "hebt",
+      "status": "geplant",
+      "evidence": "~/workspace/aethelProjects/analysen/vorschlaege.json",
+      "detail": "C3 → C1"
+    },
+    {
+      "from": "repo:ed4da66dacb79098",
+      "to": "repo:1eeab475f9154add",
+      "type": "lokale Paketabhängigkeit",
+      "status": "bestehend",
+      "evidence": "~/workspace/aethelBrowser/Cargo.toml",
+      "detail": "memristor → ../memoristorCursor/crates/memristor (deklariert; Laufzeit ungeprüft)"
+    },
+    {
+      "from": "repo:ed4da66dacb79098",
+      "to": "repo:1eeab475f9154add",
+      "type": "lokale Paketabhängigkeit",
+      "status": "bestehend",
+      "evidence": "~/workspace/aethelBrowser/Cargo.toml",
+      "detail": "memristor_metal → ../memoristorCursor/crates/memristor_metal (deklariert; Laufzeit ungeprüft)"
+    },
+    {
+      "from": "repo:ed4da66dacb79098",
+      "to": "repo:1eeab475f9154add",
+      "type": "lokale Paketabhängigkeit",
+      "status": "bestehend",
+      "evidence": "~/workspace/aethelBrowser/Cargo.toml",
+      "detail": "aethel_mlx_runtime → ../memoristorCursor/crates/aethel_mlx_runtime (deklariert; Laufzeit ungeprüft)"
+    },
+    {
+      "from": "component:aix-copilot",
+      "to": "repo:2fa7b31678f0b299",
+      "type": "Bestandteil von",
+      "status": "bestehend",
+      "evidence": "~/workspace/aethelScripts/docs/AIX-COPILOT-GOAL.md",
+      "detail": "Copilot befindet sich im AIX-Repository"
+    },
+    {
+      "from": "repo:20c0b9a3cfe9e159",
+      "to": "repo:b8262724fc6c78a3",
+      "type": "ruft Analyzer auf",
+      "status": "bestehend",
+      "evidence": "~/workspace/aethelProjects/analysen/2026-11-03/WORKSPACE-ANALYSE-2026-11-03.md",
+      "detail": "Dokumentierte Aussage; kein eigener Live-Test"
+    },
+    {
+      "from": "repo:20c0b9a3cfe9e159",
+      "to": "repo:2fa7b31678f0b299",
+      "type": "liefert Projektkontext",
+      "status": "ungeprüft",
+      "evidence": "~/workspace/aethelProjects/docs/STATUS.md",
+      "detail": "Dokumentierte Aussage; kein eigener Live-Test"
+    },
+    {
+      "from": "repo:20a9cbc874b4d868",
+      "to": "repo:2fa7b31678f0b299",
+      "type": "Worklane-AIX-Integration",
+      "status": "geplant",
+      "evidence": "~/workspace/aethelFactory/docs/SPEC.md",
+      "detail": "Dokumentierte Aussage; kein eigener Live-Test"
+    },
+    {
+      "from": "repo:f34e89d554c0fde3",
+      "to": "repo:e7183a349fe8cf98",
+      "type": "Prüfaufträge und Belege",
+      "status": "geplant",
+      "evidence": "~/workspace/aethelLanding/docs/BOT-VERTRAG.md",
+      "detail": "Dokumentierte Aussage; kein eigener Live-Test"
+    },
+    {
+      "from": "proposal:C1",
+      "to": "repo:20c0b9a3cfe9e159",
+      "type": "nutzt Projektbefunde",
+      "status": "geplant",
+      "evidence": "~/workspace/aethelProjects/analysen/2026-11-03/NEUE-PROJEKTE-KREISLAEUFE-RAT.md",
+      "detail": "Zielbild"
+    },
+    {
+      "from": "proposal:C1",
+      "to": "repo:20a9cbc874b4d868",
+      "type": "priorisiert Fabrik",
+      "status": "geplant",
+      "evidence": "~/workspace/aethelProjects/analysen/2026-11-03/NEUE-PROJEKTE-KREISLAEUFE-RAT.md",
+      "detail": "Zielbild"
+    },
+    {
+      "from": "proposal:C2",
+      "to": "repo:20a9cbc874b4d868",
+      "type": "liefert Rat",
+      "status": "geplant",
+      "evidence": "~/workspace/aethelProjects/analysen/2026-11-03/NEUE-PROJEKTE-KREISLAEUFE-RAT.md",
+      "detail": "Zielbild"
+    },
+    {
+      "from": "proposal:C2",
+      "to": "repo:20c0b9a3cfe9e159",
+      "type": "liefert Kriterien",
+      "status": "geplant",
+      "evidence": "~/workspace/aethelProjects/analysen/2026-11-03/NEUE-PROJEKTE-KREISLAEUFE-RAT.md",
+      "detail": "Zielbild"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+name: aethel_plm
+description: "Lesender AETHEL Arbeitsraum für Softwareentwicklung und Qualität."
+publish_to: 'none'
+version: 0.3.4+9
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  file_selector: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/y1-assessment.json
+    - assets/linked-assessment.json
+    - assets/landscape-historical.json
+    - assets/y1-landing-observation.json
+    - assets/cockpit-2026-11-03.json
