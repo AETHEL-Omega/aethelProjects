@@ -775,6 +775,22 @@ class _LandscapePanelState extends State<LandscapePanel> {
             'Quelle: ${_show(a['case_source'])} · Identität und Quelle nicht verifiziert.',
           ),
           Text(comparison, key: const Key('candidate-comparison')),
+          if (hasExample) ...[
+            const SizedBox(height: 8),
+            const Text(
+              'Drei Sichten auf Y-1',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const Text(
+              'Firma: Produktentscheidung und zuständiger Owner für diesen Kandidaten sind nicht belegt. Nächste Entscheidung: Ziel und Verantwortung in der bestehenden Akte klären.',
+            ),
+            const Text(
+              'Fabrik: Ein qualifizierter Arbeitsauftrag und die zugehörige mBOM sind für diesen Fall nicht zugeordnet. Nächster Schritt: bestehenden AIX-Auftrag und Produktbindung prüfen.',
+            ),
+            const Text(
+              'Produkt: Historischer Codekandidat bekannt; installierte Version und erfolgreiche Anmeldung sind nicht belegt. Nächster Schritt: Review, Gate und Feldnachweis am jeweiligen Stand zuordnen.',
+            ),
+          ],
           if (hasExample)
             TextButton.icon(
               onPressed: widget.onOpenY1,

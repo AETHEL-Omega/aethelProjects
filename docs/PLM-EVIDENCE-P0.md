@@ -569,3 +569,36 @@ menschlicher Zuständigkeit vorzusehen. Diese Oberfläche erzeugt daraus weder
 eine Rechtsbewertung noch ein Konformitätslabel. Versionsgebundene
 Anforderung–Test–Release-Baselines und eine Verdachtsmarkierung nach Änderung
 sind als nächster Fachvertrag zu prüfen; dieser Schnitt implementiert sie nicht.
+
+## Firma, Fabrik und Produkt: Ist und nächste Schnitte
+
+Der AIX-Stand `2ad5fb1c73a2ac921d5a873dd74bc6d750714cbc` enthält bereits
+`config/aix-bom-chain.v1.json` mit eBOM, mBOM, pBOM und weiteren Sichten sowie
+`config/aix-production-operations-model.v2.json` mit Produkt- und
+Substratbindung. `_aix_sbom.py` erzeugt SPDX für begrenzte Eingaben;
+`_aix_pbom.py` führt ein Herkunftsbelegbuch. Weder dessen Name noch ein
+SPDX-Dokument beweist vollständige Fertigungs- oder Lizenzabdeckung.
+`aix-firma-data-model.json`, `_aix_firma_workorder.py` und `_aix_feed.py`
+enthalten Firmen-/Auftrags- und Engineering-Eingänge. Diese Verträge sind vor
+Erweiterungen zu nutzen; Firma entscheidet Portfolio und Mittel, die Fabrik
+führt qualifizierte Arbeit aus, Produkt und Betrieb belegen die Wirkung.
+
+Gezielte Prüfhypothesen für den vorhandenen AIX-Owner: Feed prüft weiterhin
+POM v1; ein v2-Compiler ist in den gelesenen Quellen nicht nachgewiesen. Ein
+isolierter Ausfallfall meldete `job_ready=true` ohne einzelne Bind-/Digest-
+Module; produktive Erreichbarkeit wurde nicht geprüft. Lifecycle-Demoweg enthält
+Mock-Digest und Gate-Defaults; Caller und Identität vor einem Sicherheitsurteil
+prüfen. HUD-Konstanten sind keine Telemetrie. Quellenkopie und Reproduktion:
+`~/.codex/visualizations/2026/11/04/01a1a66e-4642-7242-8540-d5790ee619fd/aix-quellen/`.
+Kein Eingriff in fremde AIX-Schnitte aus diesem Arbeitsraum.
+
+Priorität 1: Y-1 über Firma, Fabrik und Produkt lesend verbinden; konkrete
+Aufträge, mBOM, Installation und Feldwirkung bleiben ungeprüft, bis die
+zuständigen Quellen sie binden. Priorität 2: bestehende Engineering-Eingabe um
+quellengebundene Produktentscheidung, Anforderungen, Produktstruktur, mBOM,
+Arbeits- und Prüfplan ergänzen; offene Entscheidungen nicht automatisch füllen.
+Priorität 3: Firmen-/Investorenansicht mit Berechtigungen, getrenntem Cap Table
+und nachvollziehbaren, datierten Bewertungsannahmen; keine Bewertung aus
+Commitzahlen. Priorität 4: Release und Markt an Anleitungen, Warnungen und
+rechtliche Prüfung durch zuständige Menschen binden. Diese Prioritäten sind
+Vorschläge, keine implementierten oder freigegebenen Prozesse.

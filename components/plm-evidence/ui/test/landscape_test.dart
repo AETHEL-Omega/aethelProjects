@@ -142,6 +142,16 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('node-repo:ed4da66dacb79098')));
     await tester.pumpAndSettle();
     expect(find.textContaining('Fall Y-1'), findsOneWidget);
+    expect(find.text('Drei Sichten auf Y-1'), findsOneWidget);
+    expect(find.textContaining('Firma: Produktentscheidung'), findsOneWidget);
+    expect(
+      find.textContaining('Fabrik: Ein qualifizierter Arbeitsauftrag'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('Produkt: Historischer Codekandidat'),
+      findsOneWidget,
+    );
     expect(find.textContaining('Von aethelBrowser'), findsWidgets);
     expect(find.textContaining('Zu memoristorCursor'), findsWidgets);
     expect(find.textContaining('Bereiche sind Suchhilfen'), findsOneWidget);
