@@ -33,6 +33,26 @@ Aufträge und der laufende Dashboard-Dienst gehören zum separaten Quellenweg.
   Standardlader sucht sonst auch relativ zu `rust/target/release/`; das ist
   kein tragfähiger Installationsvertrag. Keine absolute Worktree-Abhängigkeit
   in die App oder ihren Release aufnehmen.
+- Für einen expliziten Apple-Silicon-Release-Build ist das Rust-Target
+  `aarch64-apple-darwin` mit dem vorhandenen Cargo-Lockfile zu bauen. Erwarteter
+  Buildpfad relativ zu diesem Paket ist
+  `rust/target/aarch64-apple-darwin/release/libaethel_evidence_bridge.dylib`.
+  Das Xcode-Integrationsziel ist
+  `$(TARGET_BUILD_DIR)/$(FRAMEWORKS_FOLDER_PATH)/libaethel_evidence_bridge.dylib`,
+  passend zur Architektur und zusammen mit der App signiert. Vor dem Signieren muss
+  die Install-ID auf `@rpath/libaethel_evidence_bridge.dylib` gesetzt werden:
+  der hier gemessene Debug-Build trägt ansonsten einen absoluten Buildpfad.
+  Weder der arm64-Release-Build noch dessen Bundle/Signatur wurden bisher
+  ausgeführt oder geprüft; kein Debug-Artefakt als Release ausgeben.
+- Initialisierung: Die App ermittelt den Bundlepfad aus ihrem eigenen
+  ausführbaren Programm, öffnet genau diese eingebettete Bibliothek mit
+  `ExternalLibrary.open(...)` und übergibt sie an
+  `await RustLib.init(externalLibrary: ...)`. `ExternalLibrary` stammt aus
+  `flutter_rust_bridge_for_generated.dart` derselben Version. Fehler beim
+  Öffnen oder Initialisieren müssen die Evidence-Funktion sichtbar als nicht
+  verfügbar ausweisen; die Projektübersicht und andere Quellen bleiben
+  bedienbar. `EvidencePanel` zeigt bei fehlgeschlagener Auswertung bereits
+  „Auswertung nicht verfügbar.“ und behauptet kein Ergebnis.
 - Es gibt hier keine Änderungen an `ui/lib/main.dart`, `ui/pubspec.yaml` oder
   dem Xcode-Projekt. Deren Anschluss und das Lebenszyklus-/Fehlerverhalten
   gehören in den parallel geführten UI-Schnitt. Die Live-Auftragsquelle bleibt
