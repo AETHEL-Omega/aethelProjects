@@ -5,10 +5,14 @@ class ProductHome extends StatelessWidget {
   const ProductHome({
     super.key,
     required this.cockpit,
+    this.aixDashboard,
+    this.factoryInput,
     required this.onOpenY1,
     required this.onLandscape,
   });
   final Map<String, dynamic>? cockpit;
+  final Map<String, dynamic>? aixDashboard;
+  final Map<String, dynamic>? factoryInput;
   final VoidCallback onOpenY1;
   final VoidCallback onLandscape;
 
@@ -125,6 +129,50 @@ class ProductHome extends StatelessWidget {
           },
         ),
         const SizedBox(height: 18),
+        if (aixDashboard != null) ...[
+          Text(
+            'AIX-Fabrikstand · ausgewählte Quelle',
+            style: theme.textTheme.titleLarge,
+          ),
+          Text(
+            'Quelle: ${aixDashboard!['source']} · Zeitpunkt laut AIX: ${aixDashboard!['timestamp']}',
+          ),
+          Text(
+            'Letztes Goal: ${aixDashboard!['goal_id'] ?? 'nicht angegeben'} · Zustand: ${aixDashboard!['state'] ?? 'unbekannt'} · Belegstatus: ${aixDashboard!['proof'] ?? 'unbekannt'}',
+          ),
+          const Text(
+            'Nicht automatisch dem Pilot Y-1 zugeordnet; Quelle und Aktualität nicht unabhängig geprüft.',
+          ),
+          const SizedBox(height: 16),
+        ],
+        if (factoryInput != null) ...[
+          Text(
+            'Ausgewählter Fertigungsvertrag',
+            style: theme.textTheme.titleLarge,
+          ),
+          Text(
+            'Quelle: ${factoryInput!['source']} · Eingabe: ${factoryInput!['id']} · Revision: ${factoryInput!['revision'] ?? 'unbekannt'}',
+          ),
+          Text(
+            'POM: ${factoryInput!['pom']} · Auftrag: ${factoryInput!['work_order_id'] ?? 'nicht angegeben'} · Aktivierung laut Quelle: ${factoryInput!['enabled'] ?? 'unbekannt'}',
+          ),
+          Text(
+            'Linie: ${factoryInput!['line'] ?? 'nicht angegeben'} · Station: ${factoryInput!['station'] ?? 'nicht angegeben'}',
+          ),
+          Text(
+            'Produktbindung: ${factoryInput!['product_binding'] ?? 'nicht angegeben'}',
+          ),
+          Text(
+            'Hostbindung: ${factoryInput!['substrate_binding'] ?? 'nicht angegeben'}',
+          ),
+          Text(
+            'Outputvertrag: ${factoryInput!['output_contract'] ?? 'nicht angegeben'}',
+          ),
+          const Text(
+            'Quellangaben; keine Validierung, Freigabe oder Zuordnung zu Y-1. Ein POM v1 ist keine produktgebundene mBOM v2.',
+          ),
+          const SizedBox(height: 16),
+        ],
         Text('Projects-Leitstand', style: theme.textTheme.titleLarge),
         Text(
           cockpit == null

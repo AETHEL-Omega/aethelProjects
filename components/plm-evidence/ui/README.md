@@ -82,6 +82,33 @@ versionierten Ausgaben von `project-observation`, `copilot-observation` und
 einzeln öffnen. Die Kommandos und deren Grenzen stehen in
 [`docs/PLM-EVIDENCE-P0.md`](../../../docs/PLM-EVIDENCE-P0.md).
 
+## Aktuelle Quellen ausdrücklich öffnen
+
+**Auswertung öffnen** akzeptiert auch unmittelbar die JSON-Ausgaben von
+`aethel.projects.cockpit/v1`, `aix.dashboard.v2` und einen
+`aix.engineering_input.v1` mit `factory`-Abschnitt. Die Auswahl ersetzt keine
+Quellen- oder Rechteprüfung. Der AIX-Dashboard-Adapter übernimmt nur Zeitpunkt,
+Goal-Kennung, Zustand und Belegstatus; der Dashboard-Export selbst kann weitere
+private Angaben enthalten. Dateien geschützt ablegen und nach Gebrauch löschen.
+Die Quellen müssen bewusst exportiert und ausgewählt werden; die App startet
+keine externen Prozesse und aktualisiert sie nicht automatisch.
+
+Beispiel mit vorhandenen Werkzeugen und einem Projects-Checkout, der `cockpit`
+bereitstellt (derzeit PR #2):
+
+```sh
+umask 077
+PYTHONPATH=/pfad/zu/aethelProjects/src python3 -m aethel_projects.cli \
+  cockpit --base /pfad/zu/aethelProjects/analysen --format json > /tmp/projects-cockpit.json
+/pfad/zu/aethelScripts/bin/aix-dashboard state --json > /tmp/aix-dashboard.json
+```
+
+Ein Engineering-Input wird direkt aus der bestehenden AIX-Akte ausgewählt;
+POM v1 und v2 werden als Quellenangaben unterschieden. Diese Ansicht prüft weder
+POM-Konformität noch Freigabe oder Produktidentität. Ein konkreter Y-1-Auftrag
+oder eine wirksame Produktbindung ist nicht belegt; v2 ist hier nur ein
+lesender Vertragspfad, kein nachgewiesener v2-Compiler.
+
 ## Grenzen
 
 - Ein Dateidialog öffnet explizit ausgewählte Dateien. Quelle, Autorität und

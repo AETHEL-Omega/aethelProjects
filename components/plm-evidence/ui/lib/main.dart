@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'landscape.dart';
 import 'product_home.dart';
+import 'source_adapters.dart';
 
 void main() => runApp(const AethelPlm());
 
@@ -52,6 +53,8 @@ class _WorkspaceState extends State<Workspace> {
   Map<String, dynamic>? document;
   Map<String, dynamic>? landscape;
   Map<String, dynamic>? cockpit;
+  Map<String, dynamic>? aixDashboard;
+  Map<String, dynamic>? factoryInput;
   String landscapeOrigin = 'Historische Recherche · Pfade pseudonymisiert';
   String? selectedLandscapeId;
   int landscapeGeneration = 0;
@@ -205,8 +208,43 @@ class _WorkspaceState extends State<Workspace> {
   void _setDocument(String content, String title, {bool navigate = true}) {
     try {
       final value = jsonDecode(content);
-      if (value is! Map<String, dynamic> ||
-          !supported.contains(value['schema'])) {
+      if (value is! Map<String, dynamic>) {
+        throw const FormatException();
+      }
+      if (value['schema'] == 'aethel.projects.cockpit/v1') {
+        final adapted = readCockpit(value, title);
+        if (mounted) {
+          setState(() {
+            cockpit = adapted;
+            section = 0;
+            error = null;
+          });
+        }
+        return;
+      }
+      if (value['schema'] == 'aix.dashboard.v2') {
+        final adapted = readAixDashboard(value, title);
+        if (mounted) {
+          setState(() {
+            aixDashboard = adapted;
+            section = 0;
+            error = null;
+          });
+        }
+        return;
+      }
+      if (value['schema'] == 'aix.engineering_input.v1') {
+        final adapted = readFactoryInput(value, title);
+        if (mounted) {
+          setState(() {
+            factoryInput = adapted;
+            section = 0;
+            error = null;
+          });
+        }
+        return;
+      }
+      if (!supported.contains(value['schema'])) {
         throw const FormatException();
       }
       validateShape(value);
@@ -375,6 +413,8 @@ class _WorkspaceState extends State<Workspace> {
                                     child: switch (section) {
                                       0 => ProductHome(
                                         cockpit: cockpit,
+                                        aixDashboard: aixDashboard,
+                                        factoryInput: factoryInput,
                                         onOpenY1: () => _example(
                                           'assets/y1-assessment.json',
                                           'Historischer Pilot Y-1',

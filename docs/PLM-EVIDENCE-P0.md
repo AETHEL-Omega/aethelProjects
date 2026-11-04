@@ -635,3 +635,22 @@ Zukünftige Gesamt- und Rollenansichten müssen auf denselben berechtigten
 Quellen beruhen. Rollenfilter allein sind keine Datenzugriffskontrolle; Finanz-
 und Investorendaten brauchen Rechte an der Quelle. Dieser Schnitt implementiert
 keine Rollenautorisierung und keine finanzielle Bewertung.
+
+## Lesende AIX-/Projects-Quellenauswahl (04.11.2026)
+
+Die Flutter-Dateiauswahl akzeptiert die Originalformate `aethel.projects.cockpit/v1`,
+`aix.dashboard.v2` und `aix.engineering_input.v1` mit Fabrikteil. Projects
+`cockpit --format json` und AIX `aix-dashboard state --json` bleiben die
+Erzeuger; der Arbeitsraum speichert keine neuen Aufträge und führt keine
+Fabrikprozesse aus. Die Adapter wurden mit aktuellen Kommandoausgaben geprüft;
+keine automatisierte Live-Synchronisation. Dashboard-Prompt und Telemetrie
+werden nicht in den angezeigten AIX-Ausschnitt übernommen.
+
+Der auswählbare AIX-Engineering-Input zeigt POM-Version, Auftrags-, Linien-,
+Stations-, Produkt-, Host- und Outputangaben mit Quelle. Das ist eine lesende
+Anzeige, kein Validator. Die Quelle `aix.engineering_input.v1` bindet in ihrem
+bestehenden Schema POM v1; POM v2 ist dokumentierter Zielvertrag. Es wurde kein
+konkreter Y-1-Auftrag mit v2-Produktbindung gefunden. Weder Name noch manuelle
+Auswahl belegen eine Y-1-Zuordnung, einen Lauf, eine Freigabe oder Installation.
+Nächster Schnitt: autoritative Auftragsreferenz und ausgeführte v2-Quelle mit
+dem AIX-Owner klären und die bestehende AIX-Prüfung integrieren.
