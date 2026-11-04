@@ -164,3 +164,18 @@ Die App selbst startet keine Inventur, erstellt keine Chatprojektion und liest
 die vollständige SQLite-Historie nicht. Die getroffenen Angaben ersetzen keine
 Prüfung der Dateiherkunft, Integrität, Rechte oder Aktualität des Inhalts.
 Die Ordnerauswahl ist nach Neustart erneut erforderlich.
+
+### Aktuelle Projektinventur
+
+Der Bereich **Projekte aktuell** liest einen ausdrücklich ausgewählten Export
+`aethel.projects.inventory-live/v1`. Die Datei wird in der Sitzung alle 30
+Sekunden neu gelesen; Scanstatus, Zeitstempel, neu gefundene Git-Gruppen,
+Nicht-Git-Kandidaten und geänderte Arbeitskopien bleiben unterscheidbar.
+Beziehungen und Produktidentitäten werden aus der Inventur nicht erfunden.
+
+Der Export wird von `aethelProjects inventory --watch` erzeugt. Die App startet
+oder überwacht diesen Prozess noch nicht; nach einem Neustart muss die Datei
+wieder ausgewählt und der Beobachtungslauf erneut gestartet werden. Bei einem
+fehlerhaften Export bleibt der letzte lesbare Stand mit Warnung sichtbar. Die
+Inventur erfasst nur konfigurierte lokale Quellen; Remote-Änderungen, manche
+Dateiinhalte und ausgeschlossene Pfade können fehlen.

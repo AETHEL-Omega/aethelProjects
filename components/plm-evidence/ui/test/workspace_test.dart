@@ -26,6 +26,21 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('inventory workspace opens without inventing a scan', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1400, 1100);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(const AethelPlm());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Projekte aktuell'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.textContaining('Inventurdatei'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('historical Rust output shows login evidence gaps', (
     tester,
   ) async {

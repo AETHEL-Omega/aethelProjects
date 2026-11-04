@@ -10,6 +10,7 @@ import 'aix_live.dart';
 import 'projects_file.dart';
 import 'private_history.dart';
 import 'private_bundle.dart';
+import 'inventory_panel.dart';
 
 void main() => runApp(const AethelPlm());
 
@@ -59,6 +60,12 @@ class _WorkspaceState extends State<Workspace> {
   Map<String, dynamic>? landscape;
   Map<String, dynamic>? cockpit;
   Map<String, dynamic>? privateHistory;
+  Map<String, dynamic>? liveInventory;
+  XFile? inventoryFile;
+  Timer? inventoryTimer;
+  int inventoryGeneration = 0;
+  bool inventoryLoading = false;
+  String inventoryStatus = 'Keine Inventurdatei ausgewählt';
   XFile? privateFile;
   Timer? privateTimer;
   int privateGeneration = 0;
@@ -127,6 +134,7 @@ class _WorkspaceState extends State<Workspace> {
     aixTimer?.cancel();
     projectsTimer?.cancel();
     privateTimer?.cancel();
+    inventoryTimer?.cancel();
     super.dispose();
   }
 
@@ -324,7 +332,10 @@ class _WorkspaceState extends State<Workspace> {
         throw const FormatException('Datei überschreitet 8 MiB.');
       }
       final value = jsonDecode(content);
-      if (value is Map<String, dynamic> && isPrivateHistory(value)) {
+      if (value is Map<String, dynamic> &&
+          value['schema'] == 'aethel.projects.inventory-live/v1') {
+        _watchInventory(file, value);
+      } else if (value is Map<String, dynamic> && isPrivateHistory(value)) {
         _watchPrivate(file, value);
       } else if (value is Map<String, dynamic> &&
           value['schema'] == 'aethel.projects.cockpit/v1') {
@@ -340,6 +351,52 @@ class _WorkspaceState extends State<Workspace> {
         );
       }
     }
+  }
+
+  void _watchInventory(XFile file, Map<String, dynamic> initial) {
+    validateInventory(initial);
+    inventoryTimer?.cancel();
+    inventoryFile = file;
+    final generation = ++inventoryGeneration;
+    inventoryLoading = false;
+    setState(() {
+      liveInventory = initial;
+      section = 7;
+      inventoryStatus = 'Inventurdatei ausgewählt · Neulesen alle 30 Sekunden';
+      error = null;
+    });
+    inventoryTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
+      if (inventoryLoading) return;
+      inventoryLoading = true;
+      try {
+        if (await file.length() > 8 * 1024 * 1024) {
+          throw const FormatException();
+        }
+        final raw = await file.readAsString();
+        if (utf8.encode(raw).length > 8 * 1024 * 1024) {
+          throw const FormatException();
+        }
+        final value = jsonDecode(raw);
+        if (value is! Map<String, dynamic>) throw const FormatException();
+        validateInventory(value);
+        if (mounted && generation == inventoryGeneration) {
+          setState(() {
+            liveInventory = value;
+            inventoryStatus =
+                'Datei erneut gelesen · Scannerstand und Fehler beachten';
+          });
+        }
+      } catch (_) {
+        if (mounted && generation == inventoryGeneration) {
+          setState(
+            () => inventoryStatus =
+                'Datei nicht lesbar · letzter Stand möglicherweise veraltet',
+          );
+        }
+      } finally {
+        if (generation == inventoryGeneration) inventoryLoading = false;
+      }
+    });
   }
 
   void _watchPrivate(XFile file, Map<String, dynamic> value) {
@@ -596,6 +653,10 @@ class _WorkspaceState extends State<Workspace> {
                                       value: 6,
                                       label: Text('Privat'),
                                     ),
+                                    ButtonSegment(
+                                      value: 7,
+                                      label: Text('Projekte aktuell'),
+                                    ),
                                   ],
                                   selected: {section},
                                   onSelectionChanged: (v) =>
@@ -604,7 +665,9 @@ class _WorkspaceState extends State<Workspace> {
                               ),
                             Expanded(
                               child: IndexedStack(
-                                index: section == 6 ? 1 : 0,
+                                index: section == 6
+                                    ? 1
+                                    : (section == 7 ? 2 : 0),
                                 children: [
                                   SingleChildScrollView(
                                     padding: const EdgeInsets.all(24),
@@ -692,6 +755,10 @@ class _WorkspaceState extends State<Workspace> {
                                     single: privateHistory,
                                     singleStatus: privateStatus,
                                   ),
+                                  InventoryPanel(
+                                    data: liveInventory,
+                                    status: inventoryStatus,
+                                  ),
                                 ],
                               ),
                             ),
@@ -737,6 +804,10 @@ const destinations = [
   NavigationRailDestination(
     icon: Icon(Icons.lock_outline),
     label: Text('Privat'),
+  ),
+  NavigationRailDestination(
+    icon: Icon(Icons.folder_special_outlined),
+    label: Text('Projekte aktuell'),
   ),
 ];
 const supported = {
