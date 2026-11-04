@@ -847,6 +847,32 @@ dies nicht suggerieren. Das separate Opus-Review ist ausstehend.
 
 ## Arbeitsplan: autoritative Y-1-Kette schließen (04.11.2026)
 
+### Root-Zugriff auf AIX Copilot: Principal-Grenze
+
+Gezielte MCP-Probe am 04.11.2026: Der allgemeine Aufruf `lies` wurde mit
+`B02_PRINCIPAL_REQUIRED` verweigert. Das separat freigegebene
+`aix_inspect_ast` lieferte dagegen für `bin/_aix_memory.py` erfolgreich eine
+begrenzte AST-Sicht. Eine verfügbare Werkzeugliste erteilt keine Aufrufrechte;
+der Erfolg des AST-Werkzeugs belegt weder einen allgemeinen Dateizugriff noch
+einen authentifizierten Copilot-Auftrag.
+
+Der bestehende MCP-Dispatcher (`bin/mcp_aix.py`, `_NUR_LESEND` und
+`_lesend_dispatchen`) lässt gezielt begrenzte Werkzeuge zu und verweigert
+bekannte Werkzeuge außerhalb dieser Liste ohne Principal. Die vorhandene
+Identitäts- und Sessionlogik in `bin/_aix_copilot_access.py` enthält einen
+nativen Credentialstore, Challenge und Clientbindung. Der Legacy-MCP-Port
+verwendet diese Bindung jedoch noch nicht; B12 ist der vorgesehene Anschluss.
+Keine Agenten-ID, Umgebungsvariable oder bloßer lokaler Tokenwert ersetzt
+einen vom Host verifizierten Principal mit passendem Session-Grant.
+
+Praktischer Stand: Für eine begrenzte Strukturfrage ist das tatsächlich
+geprüfte AST-Werkzeug nutzbar. Ein vollständiger Root→Copilot-Auftrag über MCP
+ist so noch nicht nachgewiesen. Der bestehende lokale Copilot-/Auftragsweg ist
+eine getrennte Oberfläche mit eigenen Besitz-, Modus- und Ausführungstoren;
+seine Existenz belegt keinen delegierten MCP-Zugriff. Der lesende
+`/api/orders`-Endpunkt liefert zudem nur eine Auftragsprojektion und ist kein
+autorisierter Auftrags- oder Werkzeugport.
+
 Die Produktansicht schlüsselt einen ausgewählten AIX-Engineering-Input nach
 Spezifikationsdigest, Modellreferenzen, Produktionsmodus, Hostprofil, Compute-
 Modus und erwartetem Output auf. Die Felder bleiben Angaben der gewählten
