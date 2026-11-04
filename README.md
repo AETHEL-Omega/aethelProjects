@@ -242,3 +242,8 @@ Die Erfassung ist keine automatische Abnahme historischer Arbeiten.
 `inventory --watch` aktualisiert optional eine lokale Inventurbeobachtung und
 zeigt neue oder veränderte Kandidaten; Rechte, Kosten und Grenzen stehen in
 [docs/WORK-HISTORY.md](docs/WORK-HISTORY.md). Der Beobachtungslauf ist kein Dauerbetrieb ohne laufenden Prozess.
+
+Eine einzelne Arbeitskopie lässt sich mit `aethel-projects code --repo-path <absoluter-checkout-pfad> --format json` über den installierten CodeAnalyzer
+prüfen. Der Aufruf unterscheidet gleichnamige Repositories anhand des Pfads.
+Die Ausgabe führt gemeldete Abdeckungsgrenzen mit; sie belegt weder einen
+vollständigen Scan noch Produktfreigabe oder Installation.

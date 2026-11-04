@@ -8,9 +8,9 @@ Diese Module verbindet beides: sie ruft den Analyzer auf und führt seine
 Findings in das Portfolio-Modell ein. Der Aufruf ist **lesend** — der Analyzer
 schreibt nur nach stdout, es werden keine Dateien verändert.
 
-Der Analyzer analysiert Rust und Dart. Für andere Sprachen liefert er nur
-Marker-Regeln; aethelProjects markiert solche Repos deshalb als
-``nicht vollstaendig analysiert`` — keine stillschweigende Lücke.
+Die unterstützten Sprachen und Regeln stammen aus dem Analyzer-Scanbericht.
+Ein vorhandenes Verzeichnis wird nicht aufgrund seines Dateityps ausgeschlossen;
+fehlende oder unvollständige Abdeckung bleibt ausdrücklich sichtbar.
 
 Umgesetzt wird der AIX-Vertrag ``aethel.code_analyzer.aix_findings.v1``.
 """
@@ -76,11 +76,8 @@ def find_analyzer() -> Path | None:
 
 
 def is_analysable(repo: RepoReport) -> bool:
-    """Der Analyzer hat volle Tiefe nur für Rust und Dart."""
-    root = Path(repo.path)
-    return ((root / "Cargo.toml").is_file() or (root / "pubspec.yaml").is_file()
-            or any((root / name).is_file() for name in ("pyproject.toml", "setup.py", "requirements.txt"))
-            or any(root.glob("*.py")))
+    """A directory may be submitted; the analyzer reports its actual language coverage."""
+    return Path(repo.path).is_dir()
 
 
 def _analyzer_version(binary: Path) -> str:
@@ -122,7 +119,7 @@ def analyse_repo(
             schema=AIX_SCHEMA,
             findings=(),
             rule_counts={},
-            note="Keine unterstützte Projektstruktur erkannt; nicht analysiert.",
+            note="Projektverzeichnis nicht lesbar; nicht analysiert.",
         )
 
     command = ["nice", "-n", "10", str(binary)] + ["--path", repo.path, "--format", "aix"]
@@ -178,6 +175,12 @@ def analyse_repo(
             note=f"Unerwartetes Schema {schema!r} — erwartet {AIX_SCHEMA}.",
         )
 
+    reported_scope = document.get("scope")
+    if reported_scope is not None and (not isinstance(reported_scope, str)
+            or Path(reported_scope).resolve() != Path(repo.path).resolve()):
+        return CodeAnalysis(available=True, analyzed=False, schema=schema, findings=(),
+                            rule_counts={}, note="Analyzer-Scope passt nicht zur gewählten Arbeitskopie.")
+
     findings: list[Finding] = []
     rule_counts: dict[str, int] = {}
     for raw in document.get("findings", []):
@@ -199,11 +202,13 @@ def analyse_repo(
         )
 
     coverage = document.get("scan") if isinstance(document.get("scan"), dict) else {}
-    note = ""
+    note = "" if "incomplete_reasons" in coverage else "Analyzer-Abdeckung nicht angegeben."
     if coverage.get("incomplete_reasons"):
         note = "Analyzer meldet unvollstaendige Abdeckung: " + ", ".join(map(str, coverage["incomplete_reasons"]))
     if document.get("truncated"):
-        note = "Analyzer meldet: Ergebnis abgeschnitten — nicht vollstaendig."
+        note = (note + " " if note else "") + "Analyzer meldet: Ergebnis abgeschnitten — nicht vollstaendig."
+    if reported_scope is None:
+        note = (note + " " if note else "") + "Analyzer-Scope nicht angegeben."
 
     return CodeAnalysis(
         available=True,

@@ -65,11 +65,11 @@ def _fake_analyzer(tmp_path: Path, payload: str, *, returncode: int = 0) -> Path
     return script
 
 
-def test_tc046_analysable_only_for_rust_and_dart(tmp_path: Path) -> None:
-    """TC-046: nur Rust- und Dart-Projekte sind voll analysierbar."""
+def test_tc046_directories_can_be_sent_to_existing_analyzer(tmp_path: Path) -> None:
+    """Language coverage is reported by the analyzer, not guessed from manifests."""
     assert codeanalysis.is_analysable(_report(tmp_path, "rust", cargo=True))
     assert codeanalysis.is_analysable(_report(tmp_path, "dart", pubspec=True))
-    assert not codeanalysis.is_analysable(_report(tmp_path, "python"))
+    assert codeanalysis.is_analysable(_report(tmp_path, "python"))
 
 
 def test_tc047_findings_are_translated(tmp_path: Path) -> None:
@@ -78,7 +78,6 @@ def test_tc047_findings_are_translated(tmp_path: Path) -> None:
         {
             "schema": codeanalysis.AIX_SCHEMA,
             "tool": "aethel",
-            "scope": "x",
             "truncated": False,
             "findings": [
                 {
@@ -156,9 +155,10 @@ def test_find_analyzer_prefers_environment(monkeypatch: pytest.MonkeyPatch, tmp_
 
 
 def test_non_analysable_repo_is_skipped_with_note(tmp_path: Path) -> None:
-    """Ein Python-Repo wird uebersprungen — mit ausdruecklichem Hinweis."""
+    """Ein fehlendes Projektverzeichnis wird ausdrücklich gemeldet."""
     binary = _fake_analyzer(tmp_path, "{}")
     report = _report(tmp_path, "python")
+    Path(report.path).rmdir()
 
     analysis = codeanalysis.analyse_repo(report, binary=binary)
 
@@ -198,3 +198,11 @@ def test_cli_exact_path_selects_only_matching_checkout(tmp_path, monkeypatch, ca
     assert result['analysen'][0]['coverage']['incomplete_reasons'] == ['limit']
     args.repo_path = tmp_path / 'missing'
     assert cli._cmd_code(args) == cli.EXIT_ERROR
+
+
+def test_mismatched_analyzer_scope_is_rejected(tmp_path: Path) -> None:
+    repo = _report(tmp_path, "one", cargo=True)
+    binary = _fake_analyzer(tmp_path, json.dumps({"schema": codeanalysis.AIX_SCHEMA, "scope": str(tmp_path / 'two'), "findings": []}))
+    result = codeanalysis.analyse_repo(repo, binary=binary)
+    assert not result.analyzed
+    assert 'Scope' in result.note
