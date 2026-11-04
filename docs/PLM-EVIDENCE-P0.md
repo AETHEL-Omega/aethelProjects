@@ -675,9 +675,10 @@ Kandidatenbindung oder mBOM. Die gefundenen Browser-Aufträge sind andere
 Korpusfälle und werden nicht zu Y-1 zusammengeführt. Er nennt das Ledger als
 read-only SQLite-Quelle für `aix.auftrag.v2`; `aix-kernel auftrag` sei wegen
 Sperre und Migration kein rein lesender Weg. Dies ist eine Owner-Auskunft mit
-dem genannten Prüfumfang, kein Beweis weltweiter Nichtexistenz. Die frühere
-POM-v2-Dokumentation wurde aus einem anderen lokalen AIX-Stand gelesen; die
-beiden Stände nicht gleichsetzen. Y-1-Bindung und ihre autoritative Quelle
+dem genannten Prüfumfang, kein Beweis weltweiter Nichtexistenz. Die frühere POM-v2-Dokumentation ist im AIX-Commit
+`2ad5fb1c73a2ac921d5a873dd74bc6d750714cbc` tatsächlich enthalten; die
+abweichende Aussage zur POM-Suche ist nicht auf einen von Claude genannten
+Commit zurückgeführt. Die Differenz bleibt ungeklärt. Y-1-Bindung und ihre autoritative Quelle
 bleiben offen. Die Dashboard-Verbindung zeigt einen generischen Betriebsstand,
 nicht den Y-1-Auftrag.
 
