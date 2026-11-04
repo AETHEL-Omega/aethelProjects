@@ -357,16 +357,24 @@ class AnalyzerSummary extends StatelessWidget {
     final incomplete = data['incomplete_reasons'] is List
         ? data['incomplete_reasons'] as List
         : const [];
+    final stubCoverage = data['stub_coverage'];
+    final limited = incomplete.isNotEmpty || data['truncated'] == true;
     return ExpansionTile(
       title: Text(
         'Codeanalyse · ${data['reported_finding_count'] ?? '?'} Hinweise',
       ),
       subtitle: Text(
-        'Stand: ${data['observed_at'] ?? 'unbekannt'} · Quellen: ${data['source_state'] ?? 'unbekannt'} · Abdeckung ${incomplete.isEmpty ? 'nicht unabhängig bestätigt' : 'unvollständig'}',
+        'Stand: ${data['observed_at'] ?? 'unbekannt'} · Quellen: ${data['source_state'] ?? 'unbekannt'} · Abdeckung ${limited ? 'unvollständig' : 'nicht unabhängig bestätigt'}',
       ),
       children: [
         if (incomplete.isNotEmpty)
           SelectableText('Grenzen: ${incomplete.join(', ')}'),
+        if (data['truncated'] == true)
+          const Text('Ergebnis ist abgeschnitten.'),
+        if (stubCoverage is Map)
+          SelectableText('Stub-Abdeckung laut Analyzer: $stubCoverage')
+        else
+          const Text('Stub-Abdeckung vom Analyzer nicht angegeben.'),
         ...findings.whereType<Map>().map(
           (item) => ListTile(
             title: Text(

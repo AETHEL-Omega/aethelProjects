@@ -125,6 +125,7 @@ void main() {
               'observed_at': '2026-11-04',
               'source_state': 'matched_scanned_files',
               'incomplete_reasons': ['walk-limit'],
+              'stub_coverage': {'lexical_rule_omissions': ['dart']},
               'findings': [
                 <String, dynamic>{
                   'file': 'lib/main.dart',
@@ -157,6 +158,7 @@ void main() {
     await tester.tap(find.text('Codeanalyse · 1 Hinweise'));
     await tester.pumpAndSettle();
     expect(find.textContaining('walk-limit'), findsOneWidget);
+    expect(find.textContaining('lexical_rule_omissions'), findsOneWidget);
     expect(find.textContaining('heuristic'), findsOneWidget);
   });
 }
