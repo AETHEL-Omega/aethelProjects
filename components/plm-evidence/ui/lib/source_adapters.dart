@@ -96,3 +96,30 @@ Map<String, dynamic> readFactoryInput(
     'output_contract': factory['output_contract'],
   };
 }
+
+/// Read a Copilot preview as reported data, never as a verified order or approval.
+Map<String, dynamic> readAixInputPreview(
+  Map<String, dynamic> data,
+  String source,
+) {
+  final compiled = data['compiled_input'];
+  final admission = data['assm_admission'];
+  if (data['state'] != 'INPUT_REVIEW' ||
+      compiled is! Map ||
+      admission is! Map ||
+      admission['schema'] != 'aix.assm.work_package_admission.v1' ||
+      compiled['canonical_input'] is! Map) {
+    throw const FormatException('Ungültige AIX-Auftragsvorschau');
+  }
+  final canonical = Map<String, dynamic>.from(
+    compiled['canonical_input'] as Map,
+  );
+  final result = readFactoryInput(canonical, source);
+  final check = admission['vorpruefung'];
+  final spec = check is Map ? check['spec_inhaltspruefung'] : null;
+  result['spec_content_matches'] =
+      spec is Map && spec['content_matches'] is bool
+      ? spec['content_matches']
+      : null;
+  return result;
+}

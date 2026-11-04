@@ -852,8 +852,10 @@ Spezifikationsdigest, Modellreferenzen, Produktionsmodus, Hostprofil, Compute-
 Modus und erwartetem Output auf. Die Felder bleiben Angaben der gewählten
 Quelle; sie sind weder eine automatische Y-1-Zuordnung noch eine geprüfte
 Auftrags-, Lease- oder Outputbindung.
-Ein angegebener Spec-Session-Pfad wird ebenfalls gezeigt. Die Oberfläche zeigt
-damit den Quellwert, nicht das Ergebnis der AIX-Admission-Inhaltsprüfung.
+Ein angegebener Spec-Session-Pfad wird ebenfalls gezeigt. Ein lesender Adapter
+für eine AIX-Copilot-Input-Vorschau liegt für die spätere UI-Integration vor;
+er ist noch nicht an den Dateieingang angeschlossen. Die Datei ist eine
+Quellenbehauptung, keine verifizierte Auftragsbindung oder automatische Quelle.
 
 Bei aktivierter lokaler AIX-Dashboardverbindung zeigt die Produktansicht auch
 die dort bereits vorhandene letzte Kernel-Transaktionsprojektion mit Kennung,

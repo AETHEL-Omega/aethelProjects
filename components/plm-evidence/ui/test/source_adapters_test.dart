@@ -100,6 +100,35 @@ void main() {
     );
   });
   test(
+    'AIX preview carries reported spec comparison without assigning Y-1',
+    () {
+      final preview = {
+        'state': 'INPUT_REVIEW',
+        'compiled_input': {
+          'canonical_input': {
+            'schema': 'aix.engineering_input.v1',
+            'metadata': {'id': 'E-1'},
+            'project': {'id': 'other'},
+            'factory': {'pom': 'aix.production_operations_model.v2'},
+          },
+        },
+        'assm_admission': {
+          'schema': 'aix.assm.work_package_admission.v1',
+          'vorpruefung': {
+            'spec_inhaltspruefung': {'content_matches': true},
+          },
+        },
+      };
+      final result = readAixInputPreview(preview, 'preview.json');
+      expect(result['spec_content_matches'], true);
+      expect(result.containsKey('y1_binding'), isFalse);
+      expect(
+        () => readAixInputPreview({...preview, 'assm_admission': {}}, 'x'),
+        throwsFormatException,
+      );
+    },
+  );
+  test(
     'AIX dashboard is projection only and excludes prompt and telemetry',
     () {
       final source = {
