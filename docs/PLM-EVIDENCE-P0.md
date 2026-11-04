@@ -825,3 +825,11 @@ AIX-Autorität abgebildete `CLOUD_ALLOWED`. Der tatsächlich wirksame Modus,
 Ressourcen- und Datenfreigaben bleiben beim bestehenden AIX-Pfad; diese
 Vorprüfung ändert keine Prefs und genehmigt keine Cloud-Nutzung. AIX-PR #1387
 stand nach dieser Ergänzung auf `9e8910392e43a6321770bdb81336ea18e8be9b80`.
+
+Ergänzende isolierte Kernelprobe: Derselbe Release-Kernel hat im eigenen
+`AIX_HOME=/private/tmp/aix-y1-kernel-probe` unter der ausdrücklich als Probe
+benannten Kennung `probe-y1-only` Besitzgeneration und Auftragskontext für den
+historischen Checkout erzeugt (`revision=0`, `modus=LOCAL_AI_ONLY`,
+Kontextdigest vorhanden). Das sind ausschließlich Testdaten. Es wurde kein
+Modelllauf und keine `binde`-Aktion durchgeführt; die Probe belegt weder
+produktive Besitzerrechte noch einen echten Y-1-Auftrag oder eine mBOM.
