@@ -33,4 +33,4 @@ Der ergänzte Inventarkatalog bewahrt alle Originalfelder und fügt _concept_rev
 
 ## Reviewzusammenführung
 
-Fables Rückmeldung ist noch ausstehend. Neue Befunde erhalten Quellenstand und eigene ID. Übereinstimmung zweier Modelle aus derselben Quelle ist keine unabhängige Bestätigung. Priorität, Erreichbarkeit und Belegsicherheit getrennt behandeln. Historische AIX-Admission-/Owner-Befunde verlangen eine aktuelle Callerprüfung vor einer produktiven Sicherheitsbehauptung.
+Fables Zusammenfassung liegt inzwischen vor; der ergänzende [Fable-Abgleich](FABLE-ABGLEICH.md) hält PR-Metadaten, Diffprüfung, zugeschriebene Testergebnisse und weiterhin offene Betriebsnachweise getrennt fest. Neue Befunde erhalten Quellenstand und eigene ID. Übereinstimmung zweier Modelle aus derselben Quelle ist keine unabhängige Bestätigung. Priorität, Erreichbarkeit und Belegsicherheit getrennt behandeln. Historische AIX-Admission-/Owner-Befunde verlangen eine aktuelle Callerprüfung vor einer produktiven Sicherheitsbehauptung.

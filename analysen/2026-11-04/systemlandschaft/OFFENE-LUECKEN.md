@@ -8,8 +8,8 @@
 | Dauerhafte private Ablage | Zuständigkeit, Zugriff, Retention, Backup und Restore-Test | Offen |
 | Vollständiges aktuelles Codeaudit | Branch-/Commitmatrix und Callerprüfung pro kritischer Grenze | Nur gezielte statische Prüfung |
 | Abweichender factory.py-SHA-256 | Originalbytes des externen Prüfers gegen Git-Blob vergleichen | Offen |
-| Fable-Feedback | Bericht mit Quelle/Revision und Abgleich zu ChatGPT | Ausstehend |
-| Projects-Strukturheuristiken | Produktprofile, stabile IDs, keine unbelegte E2E-Beschriftung | Befunde bestätigt; Codekorrektur nicht in dieser Dokuübergabe |
+| Fable-Feedback | Vollständiges Abschlussdokument und zusätzliche Belege | Zusammenfassung und drei PRs abgeglichen; siehe [Fable-Abgleich](FABLE-ABGLEICH.md) |
+| Projects-Strukturheuristiken | Produktprofile, Identität und Consumer nach Integration prüfen | Korrekturen in offenem PR #7; nicht auf main übernommen |
 | Y-1 installiert und nutzbar | Kandidat, Prüfung, autorisierte Installation, Login und Nutzeraufgabe | Hier nicht neu nachgewiesen |
 | Vollständige PLM/Quality-Fähigkeiten | Source-backed Fähigkeitsmatrix und echte Consumer-Belege | Vergleich begonnen |
 | Übernahme laufender Claude-Arbeit | Bestehender Auftrag, Owner, Schreibsperre/Prozessstand, gültiger Handoff | Kein automatischer Rollenwechsel |

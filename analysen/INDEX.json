@@ -44,10 +44,24 @@
     },
     {
       "date": "2026-11-04",
+      "id": "systemlandschaft-20261104-fable-abgleich",
+      "path": "2026-11-04/systemlandschaft/FABLE-ABGLEICH.md",
+      "scope": "workspace",
+      "sha256": "4b770ba342d290d2abd371f61bbb5dffa896e38b7b0ec6d913d19d98863303b5",
+      "summary": "Fable Feedback und abgeglichener Umsetzungsstand",
+      "tags": [
+        "systemlandschaft",
+        "reviewentwurf",
+        "bereinigt"
+      ],
+      "title": "Fable Feedback und abgeglichener Umsetzungsstand"
+    },
+    {
+      "date": "2026-11-04",
       "id": "systemlandschaft-20261104-konzeptreview",
       "path": "2026-11-04/systemlandschaft/KONZEPTREVIEW.md",
       "scope": "workspace",
-      "sha256": "b16dcb02c1c28cf5a1fc191746702a0884db87858e310557ef3f9b53a9015ad7",
+      "sha256": "6bcb8307357c4b2254de060803f2d0b41e0cd09efb086031b1131422cbb425c5",
       "summary": "Konzeptabgleich und Gegenprüfung",
       "tags": [
         "systemlandschaft",
@@ -61,7 +75,7 @@
       "id": "systemlandschaft-20261104-offene-luecken",
       "path": "2026-11-04/systemlandschaft/OFFENE-LUECKEN.md",
       "scope": "workspace",
-      "sha256": "20a867c7c91cf02818effa76075a05ab1ee084522f5c92f3baeaac90532f9fed",
+      "sha256": "d84ac7df1b0c114c78b3f4a36f0e3bbf2450d4ad162a4573aca9ef7b5e8d6cfd",
       "summary": "Offene Lücken und nächste Nachweise",
       "tags": [
         "systemlandschaft",
@@ -131,7 +145,7 @@
       "id": "systemlandschaft-20261104-readme",
       "path": "2026-11-04/systemlandschaft/README.md",
       "scope": "workspace",
-      "sha256": "ddb76e53ad3617fa35c37634c040a833826aaf1e6e79b9afa060377c87f1e965",
+      "sha256": "975a9f913b69639cc482157795ad4e79a9b81ed2c821306555bd4413f06702eb",
       "summary": "AETHEL Systemlandschaft und Arbeitsnachweise",
       "tags": [
         "systemlandschaft",

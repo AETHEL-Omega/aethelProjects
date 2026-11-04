@@ -18,6 +18,7 @@ Stand: 4. November 2026. Öffentliche, bereinigte Übergabe; Architektur und Ste
 | [Architektur](ARCHITEKTUR.md) | Eigenständige Produkte und kontrollierte Integration | Reviewentwurf |
 | [Datenhaltung](DATENHALTUNG.md) | Zuständige Quellen, Datenschutz, Historie | Teilweise umgesetzt durch diese Ablage |
 | [Chatübergreifende Arbeit](ARBEITSNACHWEISE.md) | Alle Sessions, Aufträge, Ergebnisse, Provider | Inventar begonnen; Inhaltsabgleich offen |
+| [Fable-Abgleich](FABLE-ABGLEICH.md) | Drei PRs, Beleggrenzen und Entscheidungsvorschläge | PR-Metadaten/Diffs geprüft; nicht gelandet |
 | [Konzeptreview](KONZEPTREVIEW.md) | K-01 bis K-08 und eigene Gegenprüfung | Quellengebunden |
 | [Werkzeugvergleich](WERKZEUGVERGLEICH.md) | Cursor/Origin, PLM, Polarion, Quality | Begrenzter Primärquellenabgleich |
 | [Prüfauftrag](PRUEFAUFTRAG.md) | Unabhängige Prüfung einschließlich Codex | Kopierbarer Auftrag |
