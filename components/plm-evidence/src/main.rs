@@ -14,10 +14,10 @@ fn run() -> Result<(), (u8, String)> {
         .map_err(|_| (2, "arguments must be valid UTF-8".into()))?
         .into_iter();
     let command = args.next().unwrap_or_default();
-    if command != "assess" && command != "assess-quality" {
+    if command != "assess" && command != "assess-quality" && command != "assess-linked" {
         return Err((
             2,
-            "usage: plm-evidence assess|assess-quality --input FILE --format json|text".into(),
+            "usage: plm-evidence assess|assess-quality|assess-linked --input FILE --format json|text".into(),
         ));
     }
     let (mut input, mut format) = (None, None);
@@ -51,7 +51,16 @@ fn run() -> Result<(), (u8, String)> {
     if bytes.len() as u64 > MAX_INPUT_BYTES {
         return Err((2, "input exceeds 8 MiB limit".into()));
     }
-    let output = if command == "assess-quality" {
+    let output = if command == "assess-linked" {
+        let input =
+            serde_json::from_slice(&bytes).map_err(|e| (2, format!("invalid linked JSON: {e}")))?;
+        let assessment = plm_evidence::link::assess_linked(input).map_err(|e| (2, e))?;
+        if format == "json" {
+            serde_json::to_string_pretty(&assessment).map_err(|e| (2, e.to_string()))? + "\n"
+        } else {
+            plm_evidence::link::render_linked_text(&assessment)
+        }
+    } else if command == "assess-quality" {
         let case = serde_json::from_slice(&bytes)
             .map_err(|e| (2, format!("invalid quality JSON: {e}")))?;
         let assessment = plm_evidence::quality::assess_quality(case).map_err(|e| (2, e))?;

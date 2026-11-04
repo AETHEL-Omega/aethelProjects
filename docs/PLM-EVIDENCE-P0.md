@@ -233,3 +233,37 @@ Autorenprüfung dieses Vertragsschnitts: 31 Integrationstests bestanden
 --all-targets -- -D warnings` und `git diff --check` bestanden. Die synthetische
 CLI-Auswertung in Text und JSON meldet fehlende Wirksamkeit bei Exitcode 0.
 Keine unabhängige Prüfung, kein Gate und kein Merge durchgeführt.
+
+## Verbindung Änderung ↔ Issue ↔ Maßnahme ↔ Aussage
+
+Die versionierten Vorschläge `aethel.plm.linked-case/v1` und
+`aethel.plm.linked-assessment/v1` verbinden je einen vollständigen
+`aethel.plm.case/v1` und `aethel.plm.quality-case/v1` über explizite Links.
+Jeder Link nennt Issue-ID, Action-ID, Claim-ID und Quellenangabe. Der
+Qualitätsfall und der Änderungsfall behalten ihre getrennten Identitätsräume;
+ein Link darf nur eine Maßnahme verwenden, deren Scope das Issue nennt.
+Doppelte Links, kaputte Referenzen, falsche Versionen und leere Angaben sind
+Strukturfehler. Unterschiedliche oder unbekannte Kandidatenbindung und fehlende
+Zuordnungen werden als eigene Lücken ausgewiesen. Die Eingaben und Ergebnisse
+beider Prüfungen bleiben erhalten. Ein Link ist eine Quellenbehauptung, kein
+Beweis, dass die Maßnahme die Aussage erfüllt, und keine Freigabe.
+
+```sh
+cargo run --offline --manifest-path components/plm-evidence/Cargo.toml -- \
+  assess-linked --input components/plm-evidence/fixtures/linked-synthetic.json \
+  --format json
+```
+
+Das Beispiel ist synthetisch und enthält bewusst keine Wirksamkeitsprüfung.
+`assess-linked` prüft beide bestehenden Verträge mit denselben Funktionen wie
+die Einzelkommandos, sortiert unabhängig von der Eingabereihenfolge und öffnet
+keine Quellenreferenzen. `text` zeigt auch die jeweiligen ursprünglichen Lücken.
+Der äußere Vertrag ergänzt weder Produktidentitäten noch Auftragsrechte.
+
+Übergabe dieses Schnitts: Codex `gpt-6.1-terra` (Sitzungsmodell),
+kein weiterer Modellauftrag; Token/Kosten nicht gemessen. Opus-Review für den
+neuen Gesamtkopf steht aus. Für Flutter ist die bestehende `flutter_rust_bridge`
+2.13.0 in aethelema vorhanden, aber ein P1-Schnitt betrifft ein anderes Repo
+mit eigenem Owner, vorhandenen Änderungen und mehreren Worktrees. P2 benötigt
+separat validierte Source-/Rechte-/Aktualitätsverträge. Beide sind nicht als
+implementiert oder freigegeben aus dem vorliegenden P0-Kern abzuleiten.
