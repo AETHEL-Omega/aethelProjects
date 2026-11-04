@@ -104,3 +104,132 @@ Review bleibt bei Opus: vorgeschlagene Wire-Semantik, Quellen-/Kandidatenbindung
 Nichtanwendbarkeit, vollständige Referenzprojektion und CLI-Fehlervertrag prüfen.
 Der neue Kopf ersetzt den früheren Reviewkandidaten; Urteil und Gate müssen an
 den finalen Stand gebunden werden.
+
+## Issue–Action–Wirksamkeitsvertrag (Erweiterung vom 04.11.2026)
+
+Implementiert in `components/plm-evidence/src/quality.rs`, ausschließlich lesend.
+Neuer Vorschlag: `aethel.plm.quality-case/v1` →
+`aethel.plm.quality-assessment/v1`. Kein Teamcenter-kompatibles Austauschformat,
+keine S1000D-Konformität, kein Workflow-Executor und kein neues Rollenregister.
+
+```sh
+cargo run --offline --manifest-path components/plm-evidence/Cargo.toml -- \
+  assess-quality --input components/plm-evidence/fixtures/quality-synthetic.json \
+  --format json
+```
+
+`--format text` ist ebenfalls verfügbar. Dieselben Exitcodes und I/O-Grenzen
+wie bei `assess`: 0 = strukturell gültig, auch mit Übergangssperren;
+2 = Struktur-/Bedienfehler; 3 = I/O-Fehler. Das synthetische Beispiel liefert
+`effectiveness_missing`: Umsetzung allein trägt keinen Maßnahmenabschluss.
+
+### Objekte und Bindungen
+
+- `issues`: ID, Zustandsrevision, Problem, beobachtete Konfiguration, Schweregrad,
+  Triagebegründung und optional eine externe Abschlussentscheidungsreferenz.
+- `actions`: ID, Zustandsrevision, **Planrevision**, Art (`containment`,
+  `corrective`, `preventive`), Ziel, Verantwortungsreferenz, Termin, optionale
+  Ursachenreferenz, Geltungsbereiche, Umsetzungsbelege und Dispositionsangaben.
+- Jeder Geltungsbereich bindet Issue, Zielkandidat, Umgebung, Prüfkriterium und
+  vereinbartes Beobachtungsfenster/Prüfprotokoll. Die beobachtete Fehlerkonfiguration
+  darf vom Zielkandidaten abweichen. Mehrere Issues/Konfigurationen sind möglich.
+- `checks` sind eigene Wirksamkeitsberichte: Maßnahme, Planrevision, konkreter
+  Geltungsbereich, Prüferreferenz und Belegreferenzen. Alle passenden aktuellen
+  Berichte werden ausgewertet; ein neuer Pass verdeckt keinen aktuellen Fail.
+- `evidence` nutzt den bestehenden Referenzvertrag. Die benötigten Belegarten
+  sind hier `implementation` und `effectiveness`. Ergebnisse bleiben berichtet;
+  `verified`, Digest, Quellenname oder verschiedene Prüfer-Strings erzeugen
+  keine nachgewiesene Prüferautorität.
+- `transitions` enthalten Antrags-ID, Objektart/ID, erwartete Zustandsrevision,
+  Zielzustand, Begründung und ggf. externe Entscheidungsreferenz. Jeder Antrag
+  wird unabhängig gegen denselben Snapshot geprüft: keine simulierte Ausführung,
+  kein automatischer Maßnahmen- oder Issue-Abschluss durch einen anderen Antrag.
+
+Zustandsrevision und Planrevision sind bewusst getrennt. Eine zuständige
+schreibende Instanz muss bei einer fachlichen Planänderung (insbesondere Scope,
+Kriterium, Verantwortlicher oder Ziel) die Planrevision erhöhen; bei einem
+Zustandswechsel die Zustandsrevision. Der reine Snapshot-Prüfer kann nicht
+beweisen, dass diese Disziplin in der Quelle eingehalten wurde. Ein späterer
+Adapter muss Historie und Berechtigungen validieren und konkurrierende Writes
+an der erwarteten Revision abweisen. P0 schreibt keinen solchen Zustand.
+
+### Übergangsregeln
+
+Maßnahmen-Hauptweg:
+`proposed → assigned → in_progress → implemented → awaiting_effectiveness → closed`.
+
+Weitere explizite Kanten:
+
+| Ausgang | Zusätzliche Ziele |
+|---|---|
+| proposed | cancelled, not_required |
+| assigned | cancelled, superseded, not_required |
+| in_progress | cancelled, superseded |
+| implemented | in_progress, superseded |
+| awaiting_effectiveness | in_progress, superseded |
+| closed | in_progress (Wiedereröffnung) |
+
+`cancelled`, `superseded`, `not_required` haben keine ausgehenden Kanten.
+Selbstübergänge und das Überspringen von Stufen sind ungültig. Ab Beauftragung
+sind Verantwortlicher und Termin erforderlich; Korrekturmaßnahmen brauchen eine
+Ursachenreferenz. Ab `implemented` müssen für jeden Zielkandidaten passende
+berichtete Umsetzungsbelege vorliegen. Terminüberschreitung wird hier nicht
+berechnet: kein versteckter Uhrzugriff und kein Scheduler.
+
+`closed` braucht zusätzlich für jeden Geltungsbereich einen aktuellen,
+passenden Wirksamkeitsbericht mit berichteten Pass-Belegen, getrenntem
+Prüfer-Identifier und einer Entscheidungsreferenz im Übergangsantrag.
+Eigenprüfung, wiederverwendete Umsetzungsreferenzen, falsche Art/Stand,
+Fail/Unknown/NotApplicable und widersprüchliche Berichte blockieren die
+Voraussetzungen. Ein anderer Prüfer-Identifier ist nur eine notwendige
+Konsistenzbedingung; Identität, Unabhängigkeit und Befugnis bleiben ungeprüft.
+
+Dispositionszustände verlangen Begründung und externe Entscheidungsreferenz.
+`superseded` verlangt einen vorhandenen, zyklusfrei erreichbaren Nachfolger.
+Er muss die bisherigen Issue-/Umgebungs-/Kriteriums-/Beobachtungsbereiche decken;
+der Zielkandidat darf sich ändern. Ein Nachfolger braucht eigene passende
+Wirksamkeitsberichte. `cancelled` und `not_required` gelten nicht als erfolgreiche
+Problemlösung. Administrative Abschlüsse/Risikoakzeptanz sind in diesem ersten
+Vertrag nicht implementiert; solche Maßnahmen halten den Issue-Abschluss offen.
+
+Issue-Hauptweg:
+`registered → triaged → investigating → monitoring → closed`.
+`monitoring` und `closed` können nach `investigating` zurückkehren. Ab Triage
+sind Konfiguration, Schweregrad und Begründung nötig. Monitoring verlangt
+umgesetzte Maßnahmen; Abschluss verlangt abgeschlossene Maßnahmen einschließlich
+ihrer erneut geprüften Belegvoraussetzungen und externe Entscheidungsreferenzen.
+Ersetzte Maßnahmen werden über die explizite Nachfolgerkette geprüft.
+Wiedereröffnung benötigt eine Entscheidungsreferenz; ein widersprüchlicher alter
+Abschluss bleibt im Snapshot sichtbar, verhindert aber nicht den Rückweg.
+Rückgabe von `awaiting_effectiveness` nach `in_progress` benötigt ebenfalls eine
+Entscheidungsreferenz. Die bisherige Historie muss die zuständige Akte bewahren.
+
+### Ausgabe, Grenzen und Reviewübergabe
+
+Die Ausgabe bewahrt den vollständig sortierten Quellsnapshot, separate
+`snapshot_findings` und Befunde pro Antrag mit `code`, `object_id` und
+`reference_ids`. Veraltete oder außerhalb des Plans liegende Checks bleiben
+sichtbar. Strukturfehler (u. a. unbekannte Version/Felder, IDs, Referenzen,
+zyklische Nachfolger und kaputte Daten) werden abgelehnt. Eine leere Befundliste
+bedeutet ausschließlich vollständige **deklarierte** Voraussetzungen.
+`authority` bleibt immer `external_authority_not_verified; requirements_only;
+no_transition_applied`. Keine Boolesche Freigabe und kein Green-Gate-Ersatz.
+
+Ausführung im bestehenden Chat mit gpt-6-astra, ohne Unteragenten; Kosten/Token
+nicht gemessen. Orakel: Zustandsmatrizen, Scope-/Revisionsbindung, unvollständige
+und widersprüchliche Belege, Eigenprüfung, Wiedereröffnung, Nachfolger und
+CLI-Exitcodes. Abbruchgrenze bleibt dieser isolierte Vertrag ohne fremde
+Architekturänderungen oder schreibende Integration. Keine neue Autorität.
+
+Für Opus: besonders die Trennung von Snapshot-Konsistenz und externer Autorität,
+Planrevision versus Zustandsrevision, Mehrfach-Scope, Nachfolgerketten und den
+konservativen Umgang mit administrativen Abschlüssen prüfen. Root-Cause-Urteil,
+Rollenprüfung, Signatur-/Receiptprüfung, echte Workflow-Historie, Fristeskalation
+und CSDB-Anbindung bleiben bei späteren bestehenden Integrationswegen.
+
+Autorenprüfung dieses Vertragsschnitts: 31 Integrationstests bestanden
+(16 vorhandene + 15 Qualitätsvertragstests, einschließlich 81 Maßnahmen- und
+25 Issue-Zustandspaaren), `cargo fmt --check`, `cargo clippy --offline
+--all-targets -- -D warnings` und `git diff --check` bestanden. Die synthetische
+CLI-Auswertung in Text und JSON meldet fehlende Wirksamkeit bei Exitcode 0.
+Keine unabhängige Prüfung, kein Gate und kein Merge durchgeführt.

@@ -13,10 +13,11 @@ fn run() -> Result<(), (u8, String)> {
     let mut args = args
         .map_err(|_| (2, "arguments must be valid UTF-8".into()))?
         .into_iter();
-    if args.next().as_deref() != Some("assess") {
+    let command = args.next().unwrap_or_default();
+    if command != "assess" && command != "assess-quality" {
         return Err((
             2,
-            "usage: plm-evidence assess --input FILE --format json|text".into(),
+            "usage: plm-evidence assess|assess-quality --input FILE --format json|text".into(),
         ));
     }
     let (mut input, mut format) = (None, None);
@@ -50,13 +51,24 @@ fn run() -> Result<(), (u8, String)> {
     if bytes.len() as u64 > MAX_INPUT_BYTES {
         return Err((2, "input exceeds 8 MiB limit".into()));
     }
-    let case = serde_json::from_slice(&bytes)
-        .map_err(|e| (2, format!("invalid JSON or case structure: {e}")))?;
-    let assessment = plm_evidence::assess(case).map_err(|e| (2, e))?;
-    let output = if format == "json" {
-        serde_json::to_string_pretty(&assessment).map_err(|e| (2, e.to_string()))? + "\n"
+    let output = if command == "assess-quality" {
+        let case = serde_json::from_slice(&bytes)
+            .map_err(|e| (2, format!("invalid quality JSON: {e}")))?;
+        let assessment = plm_evidence::quality::assess_quality(case).map_err(|e| (2, e))?;
+        if format == "json" {
+            serde_json::to_string_pretty(&assessment).map_err(|e| (2, e.to_string()))? + "\n"
+        } else {
+            plm_evidence::quality::render_quality_text(&assessment)
+        }
     } else {
-        plm_evidence::render_text(&assessment)
+        let case = serde_json::from_slice(&bytes)
+            .map_err(|e| (2, format!("invalid JSON or case structure: {e}")))?;
+        let assessment = plm_evidence::assess(case).map_err(|e| (2, e))?;
+        if format == "json" {
+            serde_json::to_string_pretty(&assessment).map_err(|e| (2, e.to_string()))? + "\n"
+        } else {
+            plm_evidence::render_text(&assessment)
+        }
     };
     io::stdout()
         .lock()
