@@ -170,13 +170,18 @@ class _WorkspaceState extends State<Workspace> {
       analysisStatus = 'Analyse läuft';
     });
     try {
-      final raw = await inventoryChannel.invokeMethod<String>(
+      final response = await inventoryChannel.invokeMapMethod<String, dynamic>(
         'analyzeProject',
         {'path': path},
       );
-      if (raw == null) {
+      if (response == null) {
         if (mounted) setState(() => analysisStatus = 'Analyse abgebrochen');
         return;
+      }
+      final raw = response['report'];
+      final release = response['release'];
+      if (raw is! String || release is! String || release.isEmpty) {
+        throw const FormatException('Analyzer-Identität fehlt');
       }
       final value = jsonDecode(raw);
       if (value is! Map<String, dynamic> ||
@@ -212,6 +217,7 @@ class _WorkspaceState extends State<Workspace> {
           sessionAnalyses[identity] = {
             'observed_at': DateTime.now().toUtc().toIso8601String(),
             'checkout': path,
+          'release_reported': release,
             'source_state':
                 'Sitzungsergebnis · Quellenänderung nicht automatisch geprüft',
             'reported_finding_count': (value['findings'] as List).length,
@@ -533,11 +539,26 @@ class _WorkspaceState extends State<Workspace> {
         final value = jsonDecode(raw);
         if (value is! Map<String, dynamic>) throw const FormatException();
         validateInventory(value);
+        String service = 'Automatisierung nicht nachgewiesen';
+        try {
+          final serviceFile = File('${File(file.path).parent.path}/inventory-service-status.json');
+          if (await serviceFile.length() <= 65536) {
+            final state = jsonDecode(await serviceFile.readAsString());
+            if (state is Map && state['state'] is String && state['at'] is String) {
+              service = 'Letzter automatischer Versuch: ${state['state']} · ${state['at']}';
+              if (state['reason'] is String) service += ' · ${state['reason']}';
+              if (state['lease_release'] == 'unconfirmed' || state['gate_release'] == 'unconfirmed') {
+                service += ' · Sperrenfreigabe ungeklärt';
+              }
+            }
+          }
+        } catch (_) {
+          // Absence or invalid data is unknown, not a successful automated run.
+        }
         if (mounted && generation == inventoryGeneration) {
           setState(() {
             liveInventory = value;
-            inventoryStatus =
-                'Quelle verbunden · Scannerstand und Fehler beachten';
+            inventoryStatus = 'Quelle verbunden · $service';
           });
         }
       } catch (_) {
@@ -754,9 +775,11 @@ class _WorkspaceState extends State<Workspace> {
             color: Theme.of(context).colorScheme.secondaryContainer,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
             child: Text(
-              section == 0 || section == 1
-                  ? '$landscapeOrigin · Lesende Ansicht · Angaben nicht live geprüft'
-                  : '$origin · Lesende Ansicht · Quelle und Autorität nicht geprüft',
+              section == 7
+                  ? 'Lokale Projektinventur · Aktualität und Grenzen im Überblick'
+                  : section == 0 || section == 1
+                      ? '$landscapeOrigin · Lesende Ansicht · Angaben nicht live geprüft'
+                      : '$origin · Lesende Ansicht · Quelle und Autorität nicht geprüft',
             ),
           ),
           if (error != null)
@@ -786,12 +809,16 @@ class _WorkspaceState extends State<Workspace> {
                   return Row(
                     children: [
                       if (!compact)
-                        NavigationRail(
-                          selectedIndex: section,
-                          labelType: NavigationRailLabelType.all,
-                          onDestinationSelected: (v) =>
-                              setState(() => section = v),
-                          destinations: destinations,
+                        SingleChildScrollView(
+                          child: SizedBox(
+                            height: constraints.maxHeight < 720 ? 720 : constraints.maxHeight,
+                            child: NavigationRail(
+                              selectedIndex: section,
+                              labelType: NavigationRailLabelType.all,
+                              onDestinationSelected: (v) => setState(() => section = v),
+                              destinations: destinations,
+                            ),
+                          ),
                         ),
                       Expanded(
                         child: Column(

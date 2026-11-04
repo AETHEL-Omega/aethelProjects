@@ -59,6 +59,9 @@ class MainFlutterWindow: NSWindow {
         guard let executable = Bundle.main.url(forAuxiliaryExecutable: "aethel_code_analyzer"),
               let bytes = try? Data(contentsOf: executable, options: [.mappedIfSafe]),
               let manifest = Bundle.main.url(forResource: "analyzer", withExtension: "sha256"),
+              let releaseURL = Bundle.main.url(forResource: "analyzer", withExtension: "release"),
+              let release = try? String(contentsOf: releaseURL, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines),
+              !release.isEmpty,
               let expectedDigest = try? String(contentsOf: manifest, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines),
               expectedDigest.count == 64,
               SHA256.hash(data: bytes).map({ String(format: "%02x", $0) }).joined() == expectedDigest else {
@@ -99,7 +102,7 @@ class MainFlutterWindow: NSWindow {
               DispatchQueue.main.async {
                 if exceeded || process.terminationStatus != 0 || data == nil {
                   result(FlutterError(code: "analysis_failed", message: "Analyse fehlgeschlagen oder begrenzt; kein Ergebnis übernommen.", details: nil))
-                } else { result(data) }
+                } else { result(["report": data!, "release": release]) }
               }
             } catch {
               deadline.cancel()

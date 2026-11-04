@@ -162,9 +162,19 @@ class _InventoryPanelState extends State<InventoryPanel> {
               .contains(query.toLowerCase()),
         )
         .toList();
-    filtered.sort(
-      (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
-    );
+    filtered.sort((a, b) {
+      final needle = query.toLowerCase();
+      int rank(String name) {
+        final value = name.toLowerCase();
+        if (needle.isEmpty) return 0;
+        if (value == needle) return 0;
+        if (value.startsWith(needle)) return 1;
+        if (value.contains(needle)) return 2;
+        return 3;
+      }
+      final byRank = rank(a.name).compareTo(rank(b.name));
+      return byRank != 0 ? byRank : a.name.toLowerCase().compareTo(b.name.toLowerCase());
+    });
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -421,6 +431,8 @@ class AnalyzerSummary extends StatelessWidget {
         'Stand: ${data['observed_at'] ?? 'unbekannt'} · Quellen: ${data['source_state'] ?? 'unbekannt'} · Abdeckung ${limited ? 'unvollständig' : 'nicht unabhängig bestätigt'}',
       ),
       children: [
+        if (data['release_reported'] is String)
+          SelectableText('Analyzer-Version: ${data['release_reported']}'),
         if (data['checkout'] is String)
           SelectableText('Analysierte Arbeitskopie: ${data['checkout']}'),
         if (incomplete.isNotEmpty)

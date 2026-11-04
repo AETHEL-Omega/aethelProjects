@@ -71,6 +71,23 @@ void main() {
     );
     expect(find.text('a'), findsNothing);
   });
+  testWidgets('matching project name ranks before nested path-only matches', (tester) async {
+    final data = <String, dynamic>{
+      'schema': 'aethel.projects.inventory-live/v1', 'status': 'ok',
+      'attempted_at': DateTime.now().toUtc().toIso8601String(),
+      'scan': <String, dynamic>{
+        'repositories': [
+          <String, dynamic>{'git_common_dir': '/nuru/vendor/byztxt/.git', 'paths': ['/nuru/vendor/byztxt']},
+          <String, dynamic>{'git_common_dir': '/heritage_nuru/.git', 'paths': ['/heritage_nuru']},
+        ],
+        'checkouts': <dynamic>[], 'projects_without_git': <dynamic>[],
+      },
+    };
+    await tester.pumpWidget(MaterialApp(home: Scaffold(body: InventoryPanel(data: data, status: 'Test'))));
+    await tester.enterText(find.byType(TextField), 'nuru');
+    await tester.pump();
+    expect(tester.getTopLeft(find.text('heritage_nuru')).dy, lessThan(tester.getTopLeft(find.text('byztxt')).dy));
+  });
   testWidgets('analysis action binds the exact checkout identity', (
     tester,
   ) async {
@@ -198,6 +215,7 @@ void main() {
             },
             'analyzer_observation': <String, dynamic>{
               'reported_finding_count': 1,
+              'release_reported': 'test-release',
               'observed_at': '2026-11-04',
               'source_state': 'matched_scanned_files',
               'incomplete_reasons': ['walk-limit'],
@@ -235,6 +253,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Codeanalyse · 1 Hinweise'));
     await tester.pumpAndSettle();
+    expect(find.textContaining('Analyzer-Version: test-release'), findsOneWidget);
     expect(find.textContaining('walk-limit'), findsOneWidget);
     expect(find.textContaining('lexical_rule_omissions'), findsOneWidget);
     expect(find.textContaining('heuristic'), findsOneWidget);

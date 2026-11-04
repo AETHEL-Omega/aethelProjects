@@ -26,6 +26,22 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('desktop navigation remains usable at a short window height', (tester) async {
+    tester.view.physicalSize = const Size(1000, 550);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(AethelPlm(
+      initialJson: File('assets/y1-assessment.json').readAsStringSync(),
+      initialLandscapeJson: File('assets/landscape-historical.json').readAsStringSync(),
+    ));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.textContaining('Lokale Projektinventur'), findsOneWidget);
+    await tester.ensureVisible(find.text('Projekte aktuell'));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('inventory workspace opens without inventing a scan', (
     tester,
   ) async {
