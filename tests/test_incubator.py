@@ -1,4 +1,4 @@
-"""Inkubator-Reifeleiter — Stufen R0–R11, RF, RI mit Belegen.
+"""TC-067 — Inkubator-Reifeleiter — Stufen R0–R11, RF, RI mit Belegen (REQ-026).
 
 Die Tests laufen vollständig in ``tmp_path``: kein Netz, kein echter Workspace.
 """

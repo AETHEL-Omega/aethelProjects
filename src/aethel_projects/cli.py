@@ -176,8 +176,12 @@ def _write(text: str, destination: str | None) -> None:
         sys.stdout.write(text + "\n")
         return
     path = Path(destination)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text + "\n", encoding="utf-8")
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text + "\n", encoding="utf-8")
+    except OSError as exc:
+        print(f"Ausgabe nicht schreibbar: {path}: {exc}", file=sys.stderr)
+        raise SystemExit(1) from exc
 
 
 def _cmd_aix_input(args: argparse.Namespace) -> int:

@@ -164,3 +164,32 @@ def test_tc030_suite_does_not_touch_the_real_workspace() -> None:
     for path in Path(__file__).resolve().parent.rglob("*.py"):
         text = path.read_text(encoding="utf-8")
         assert real_workspace not in text, f"{path.name} verweist auf den echten Workspace"
+
+
+def test_gitio_rejects_writing_options_without_invocation(tmp_path: Path, monkeypatch) -> None:
+    """Schreiboptionen erreichen Git nicht und erzeugen keine Ausgabedatei."""
+    from aethel_projects import gitio
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("Git darf nicht aufgerufen werden")
+
+    monkeypatch.setattr(gitio.subprocess, "run", forbidden)
+    output = tmp_path / "ausgabe"
+    commands = [
+        ("log", f"--output={output}"), ("log", "-o", str(output)),
+        ("config", "--unset", "user.name"),
+        ("worktree", "add", str(output)), ("worktree", "remove", str(output)),
+        ("worktree", "prune"), ("remote", "add", "origin", "example"),
+        ("log", "--exec=touch datei"), ("log", "--upload-pack=x"),
+        ("log", "--receive-pack=x"),
+    ]
+    for command in commands:
+        assert gitio.run_git(tmp_path, *command) is None
+    assert not output.exists()
+
+
+def test_gitio_rejects_remote_show_because_it_uses_the_network(tmp_path) -> None:
+    """TC-014: `remote show` kontaktiert den Remote und wird nicht ausgeführt."""
+    from aethel_projects import gitio
+
+    assert gitio.run_git(tmp_path, "remote", "show", "origin") is None

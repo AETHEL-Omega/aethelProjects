@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from conftest import make_repo
 
 from aethel_projects.cli import main
@@ -145,3 +146,13 @@ def test_tc065_cockpit_out_sperre_gegen_symlink_und_endung(tmp_path: Path, capsy
     assert main(["--root", str(tmp_path), "cockpit", "--base", str(base), "--out", str(base / "leitstand.py")]) == 2
     assert main(["--root", str(tmp_path), "cockpit", "--base", str(base), "--out", str(base / "LEITSTAND-x.md")]) == 0
     assert json.loads((base / "INDEX.json").read_text(encoding="utf-8"))["schema"] == "aethel.projects.analysen/v1"
+
+
+def test_out_directory_reports_write_error(tmp_path: Path, capsys) -> None:
+    """Ein Verzeichnis als Ausgabeziel liefert eine verständliche Fehlermeldung."""
+    base = _ablage(tmp_path)
+    with pytest.raises(SystemExit) as exc:
+        main(["--root", str(tmp_path), "analyses", "--base", str(base), "--list",
+              "--out", str(tmp_path)])
+    assert exc.value.code == 1
+    assert f"Ausgabe nicht schreibbar: {tmp_path}:" in capsys.readouterr().err
