@@ -1,5 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:aethel_evidence_bridge/aethel_evidence_bridge.dart';
+import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
+    show ExternalLibrary;
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -57,6 +61,8 @@ class Workspace extends StatefulWidget {
 
 class _WorkspaceState extends State<Workspace> {
   Map<String, dynamic>? document;
+  String? rawCase;
+  Future<void>? nativeEvidenceInitialization;
   Map<String, dynamic>? landscape;
   Map<String, dynamic>? cockpit;
   Map<String, dynamic>? privateHistory;
@@ -67,6 +73,9 @@ class _WorkspaceState extends State<Workspace> {
   bool inventoryLoading = false;
   String inventoryStatus = 'Inventurquelle noch nicht verbunden';
   static const inventoryChannel = MethodChannel('aethel.projects.inventory/v1');
+  final Map<String, Map<String, dynamic>> sessionAnalyses = {};
+  bool analysisRunning = false;
+  String analysisStatus = '';
   XFile? privateFile;
   Timer? privateTimer;
   int privateGeneration = 0;
@@ -140,6 +149,93 @@ class _WorkspaceState extends State<Workspace> {
     privateTimer?.cancel();
     inventoryTimer?.cancel();
     super.dispose();
+  }
+
+  Future<void> _initializeNativeEvidence() async {
+    if (!Platform.isMacOS) {
+      throw UnsupportedError('Native Bibliothek nicht verfügbar');
+    }
+    final executable = File(Platform.resolvedExecutable).parent.parent.path;
+    await RustLib.init(
+      externalLibrary: ExternalLibrary.open(
+        '$executable/Frameworks/libaethel_evidence_bridge.dylib',
+      ),
+    );
+  }
+
+  Future<void> _analyzeProject(String identity, String path) async {
+    if (analysisRunning) return;
+    setState(() {
+      analysisRunning = true;
+      analysisStatus = 'Analyse läuft';
+    });
+    try {
+      final raw = await inventoryChannel.invokeMethod<String>(
+        'analyzeProject',
+        {'path': path},
+      );
+      if (raw == null) {
+        if (mounted) setState(() => analysisStatus = 'Analyse abgebrochen');
+        return;
+      }
+      final value = jsonDecode(raw);
+      if (value is! Map<String, dynamic> ||
+          value['schema'] != 'aethel.code_analyzer.aix_findings.v1' ||
+          value['scope'] != path ||
+          value['findings'] is! List ||
+          value['scan'] is! Map) {
+        throw const FormatException(
+          'Ungültiger Analysebericht oder abweichender Projektpfad',
+        );
+      }
+      final scan = value['scan'] as Map;
+      final findings = (value['findings'] as List)
+          .whereType<Map>()
+          .take(100)
+          .map(
+            (row) => {
+              for (final key in [
+                'file',
+                'line',
+                'rule',
+                'severity',
+                'message',
+                'evidence_tier',
+                'kind',
+              ])
+                key: row[key],
+            },
+          )
+          .toList();
+      if (mounted) {
+        setState(() {
+          sessionAnalyses[identity] = {
+            'observed_at': DateTime.now().toUtc().toIso8601String(),
+            'checkout': path,
+            'source_state':
+                'Sitzungsergebnis · Quellenänderung nicht automatisch geprüft',
+            'reported_finding_count': (value['findings'] as List).length,
+            'incomplete_reasons': scan['incomplete_reasons'],
+            'stub_coverage': scan['stub_coverage'],
+            'truncated': value['truncated'],
+            'findings': findings,
+          };
+          analysisStatus = 'Analyse beendet · nur für diese Sitzung';
+        });
+      }
+    } on PlatformException catch (e) {
+      if (mounted) {
+        setState(() => analysisStatus = e.message ?? 'Analyse nicht verfügbar');
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => analysisStatus = 'Analysebericht ungültig oder nicht verfügbar',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => analysisRunning = false);
+    }
   }
 
   void _startAix() {
@@ -554,6 +650,21 @@ class _WorkspaceState extends State<Workspace> {
         }
         return;
       }
+      if (value['schema'] == 'aethel.plm.case/v1') {
+        if (utf8.encode(content).length > 8 * 1024 * 1024) {
+          throw const FormatException();
+        }
+        if (mounted) {
+          setState(() {
+            rawCase = content;
+            document = null;
+            origin = title;
+            if (navigate) section = 2;
+            error = null;
+          });
+        }
+        return;
+      }
       if (!supported.contains(value['schema'])) {
         throw const FormatException();
       }
@@ -585,6 +696,7 @@ class _WorkspaceState extends State<Workspace> {
             if (navigate) section = 5;
           } else {
             document = value;
+            rawCase = null;
             origin = title;
             if (navigate) section = 2;
           }
@@ -603,7 +715,7 @@ class _WorkspaceState extends State<Workspace> {
 
   @override
   Widget build(BuildContext context) {
-    final data = document;
+    final data = document ?? <String, dynamic>{};
     return Scaffold(
       appBar: AppBar(
         title: const Text('AETHEL  /  Arbeitsraum'),
@@ -658,7 +770,7 @@ class _WorkspaceState extends State<Workspace> {
                 ),
               ),
             ),
-          if (data == null)
+          if (document == null && rawCase == null)
             Expanded(
               child: Center(
                 child: error == null
@@ -804,7 +916,31 @@ class _WorkspaceState extends State<Workspace> {
                                                       'Historischer Pilot Y-1',
                                                     ),
                                                   ),
-                                          2 => ChangePanel(data: data),
+                                          2 =>
+                                            rawCase == null
+                                                ? ChangePanel(data: data)
+                                                : FutureBuilder<void>(
+                                                    future: nativeEvidenceInitialization ??=
+                                                        _initializeNativeEvidence(),
+                                                    builder: (context, snapshot) {
+                                                      if (snapshot
+                                                              .connectionState !=
+                                                          ConnectionState.done) {
+                                                        return const Center(
+                                                          child:
+                                                              CircularProgressIndicator(),
+                                                        );
+                                                      }
+                                                      if (snapshot.hasError) {
+                                                        return const EmptyPanel(
+                                                          'Native Rust-Auswertung nicht verfügbar.',
+                                                        );
+                                                      }
+                                                      return EvidencePanel(
+                                                        caseJson: rawCase!,
+                                                      );
+                                                    },
+                                                  ),
                                           3 => QualityPanel(data: data),
                                           4 => TracePanel(data: data),
                                           _ => SourcePanel(
@@ -824,6 +960,10 @@ class _WorkspaceState extends State<Workspace> {
                                     status: inventoryStatus,
                                     orders: aixOrders,
                                     orderStatus: aixOrdersStatus,
+                                    analyses: sessionAnalyses,
+                                    analysisStatus: analysisStatus,
+                                    analysisRunning: analysisRunning,
+                                    onAnalyze: _analyzeProject,
                                     onConnectOrders: _startAix,
                                     onChooseSource: _chooseInventoryDirectory,
                                   ),

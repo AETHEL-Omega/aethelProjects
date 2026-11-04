@@ -10,6 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
   file_selector: ^1.1.0
+  aethel_evidence_bridge:
+    path: ../flutter_bridge
+  flutter_rust_bridge: 2.13.0
 
 dev_dependencies:
   flutter_test:

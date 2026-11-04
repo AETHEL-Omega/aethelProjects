@@ -1,0 +1,13 @@
+[package]
+name = "aethel-evidence-bridge"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[dependencies]
+flutter_rust_bridge = "=2.13.0"
+plm-evidence = { path = "../.." }
+serde = "1"
+serde_json = "1"

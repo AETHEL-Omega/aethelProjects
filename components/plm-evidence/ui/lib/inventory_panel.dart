@@ -23,6 +23,10 @@ class InventoryPanel extends StatefulWidget {
     this.orders,
     this.orderStatus = 'AIX-Auftragsquelle nicht verbunden',
     this.onConnectOrders,
+    this.analyses = const {},
+    this.analysisStatus = '',
+    this.analysisRunning = false,
+    this.onAnalyze,
   });
   final Map<String, dynamic>? data;
   final String status;
@@ -30,6 +34,10 @@ class InventoryPanel extends StatefulWidget {
   final Map<String, dynamic>? orders;
   final String orderStatus;
   final VoidCallback? onConnectOrders;
+  final Map<String, Map<String, dynamic>> analyses;
+  final String analysisStatus;
+  final bool analysisRunning;
+  final void Function(String, String)? onAnalyze;
   @override
   State<InventoryPanel> createState() => _InventoryPanelState();
 }
@@ -124,9 +132,11 @@ class _InventoryPanelState extends State<InventoryPanel> {
         readme: repo['readme_purpose'] is Map<String, dynamic>
             ? repo['readme_purpose'] as Map<String, dynamic>
             : null,
-        analyzer: repo['analyzer_observation'] is Map<String, dynamic>
-            ? repo['analyzer_observation'] as Map<String, dynamic>
-            : null,
+        analyzer:
+            widget.analyses[identity] ??
+            (repo['analyzer_observation'] is Map<String, dynamic>
+                ? repo['analyzer_observation'] as Map<String, dynamic>
+                : null),
       ));
     }
     for (final item in nonGit) {
@@ -227,7 +237,8 @@ class _InventoryPanelState extends State<InventoryPanel> {
                       .whereType<Map>()
                       .where((order) {
                         final project = order['projekt'];
-                        if (row.candidate || project is! String ||
+                        if (row.candidate ||
+                            project is! String ||
                             order['lesestatus'] != 'gebunden') {
                           return false;
                         }
@@ -283,6 +294,49 @@ class _InventoryPanelState extends State<InventoryPanel> {
                       title: const Text('Letzter Commit der Arbeitskopie'),
                       subtitle: Text(row.recent),
                     ),
+                  if (!row.candidate &&
+                      row.paths.isNotEmpty &&
+                      widget.onAnalyze != null)
+                    if (row.paths.length == 1)
+                      ListTile(
+                        title: const Text('CodeAnalyzer'),
+                        subtitle: Text(
+                          widget.analysisStatus.isEmpty
+                              ? 'Diese Arbeitskopie begrenzt analysieren.'
+                              : widget.analysisStatus,
+                        ),
+                        trailing: FilledButton.tonal(
+                          onPressed: widget.analysisRunning
+                              ? null
+                              : () => widget.onAnalyze!(
+                                  row.identity,
+                                  row.paths.first,
+                                ),
+                          child: const Text('Projekt analysieren'),
+                        ),
+                      )
+                    else
+                      ExpansionTile(
+                        title: const Text('Arbeitskopie für Analyse auswählen'),
+                        subtitle: Text(
+                          widget.analysisStatus.isEmpty
+                              ? 'Mehrere Arbeitskopien; bitte eine auswählen.'
+                              : widget.analysisStatus,
+                        ),
+                        children: [
+                          for (final path in row.paths)
+                            ListTile(
+                              title: Text(path),
+                              trailing: TextButton(
+                                onPressed: widget.analysisRunning
+                                    ? null
+                                    : () =>
+                                          widget.onAnalyze!(row.identity, path),
+                                child: const Text('Analysieren'),
+                              ),
+                            ),
+                        ],
+                      ),
                   if (row.analyzer != null)
                     AnalyzerSummary(data: row.analyzer!)
                   else
@@ -367,6 +421,8 @@ class AnalyzerSummary extends StatelessWidget {
         'Stand: ${data['observed_at'] ?? 'unbekannt'} · Quellen: ${data['source_state'] ?? 'unbekannt'} · Abdeckung ${limited ? 'unvollständig' : 'nicht unabhängig bestätigt'}',
       ),
       children: [
+        if (data['checkout'] is String)
+          SelectableText('Analysierte Arbeitskopie: ${data['checkout']}'),
         if (incomplete.isNotEmpty)
           SelectableText('Grenzen: ${incomplete.join(', ')}'),
         if (data['truncated'] == true)
