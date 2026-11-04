@@ -355,3 +355,14 @@ Quellreferenz, aber der PLM-PR ist noch ungeprüft/unveröffentlicht; eine
 freigegebene Distribution und Cross-Repo-Verifikation sind nicht nachgewiesen.
 Kein bewegliches lokales Workspace-Verzeichnis als Abhängigkeit eintragen.
 Flutter-Anbindung bleibt offen. Keine fremde Rolle oder Worktree übernommen.
+
+Paketprobe 04.11.: Ein isolierter temporärer Cargo-Verbraucher band den lokal
+geklonten Git-Stand `434f2a42f9449a16076f72fe2f8968fcf5295392` über eine
+explizite `rev` und baute beide Projektionsfunktionen erfolgreich. Das belegt
+das Cargo-Paketlayout und den Commit-Pin, nicht den GitHub-Download, eine
+veröffentlichte Version oder Flutter-/Plattformkompatibilität. Der Test nutzte
+nur als Probe eine lokale file-URL; die Produktabhängigkeit darf keinen
+veränderlichen Workspace-Pfad nutzen. Ein gemeinsamer, reviewter und
+veröffentlichter bzw. fest commitgebundener Stand samt Lockfile ist als
+P1-Vertrag festzulegen. Der aktuelle Owner ist wegen alter Lease/TODO-Stand und
+nicht zugeordneten laufenden Prozessen weiter nicht sicher bestimmbar.
