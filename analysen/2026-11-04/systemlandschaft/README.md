@@ -10,6 +10,20 @@ Stand: 4. November 2026. Öffentliche, bereinigte Übergabe; Architektur und Ste
 - Fable- und ChatGPT-Feedback aufnehmen, Unterschiede erhalten und am Code prüfen.
 - Nur bereinigte öffentliche Dokumentation veröffentlichen. Private Quellkopien, Chattexte, lokale Pfade und Betriebsdaten nicht in dieses öffentliche Repository übernehmen.
 
+## Bestätigter Integrationsauftrag vom 4. November 2026
+
+Der Nutzer hat die Umsetzung und die Gesamtkoordination beauftragt. Der erste
+Lieferfall lautet: **aethelProjects zeigt tatsächliche Projekte und laufende
+AIX-Arbeiten automatisch, aktuell und mit belegtem Lieferstatus; Copilot nutzt
+dieselben Quellen.** Y-1 ist ein historischer Browser-Prüffall und keine
+Voraussetzung dieses Auftrags. Vollständige Chatrekonstruktion bleibt eine
+separate Arbeit und blockiert die Projektübersicht nicht.
+
+Die Zieldefinition und Verantwortungsgrenzen stehen in [Architektur](ARCHITEKTUR.md),
+die konkrete Abnahme und Aufteilung in [Offene Lücken](OFFENE-LUECKEN.md).
+Dieser Dokumentationszweig ist ein überprüfbarer Arbeitsstand, noch kein auf
+main geltender Architekturkanon und kein Implementierungsnachweis.
+
 ## Einstieg
 
 | Dokument | Zweck | Stand |

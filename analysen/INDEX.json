@@ -19,7 +19,7 @@
       "id": "systemlandschaft-20261104-architektur",
       "path": "2026-11-04/systemlandschaft/ARCHITEKTUR.md",
       "scope": "workspace",
-      "sha256": "0ba8534d3d6a01c6708b2d088ed4c7d0cc044dd77db3812f4d1bdd40fb64071b",
+      "sha256": "12dab4b6c2d82ac50893eb71eaafe4b5a6bba8569dba8e35134df9cd1240af63",
       "summary": "Architektur eigenständiger Produkte und gemeinsamer Nachweise",
       "tags": [
         "systemlandschaft",
@@ -75,7 +75,7 @@
       "id": "systemlandschaft-20261104-offene-luecken",
       "path": "2026-11-04/systemlandschaft/OFFENE-LUECKEN.md",
       "scope": "workspace",
-      "sha256": "d84ac7df1b0c114c78b3f4a36f0e3bbf2450d4ad162a4573aca9ef7b5e8d6cfd",
+      "sha256": "aab0d2234efba66d390ac495e53437c763da3f9c67426942ae52bc8dd41fa147",
       "summary": "Offene Lücken und nächste Nachweise",
       "tags": [
         "systemlandschaft",
@@ -145,7 +145,7 @@
       "id": "systemlandschaft-20261104-readme",
       "path": "2026-11-04/systemlandschaft/README.md",
       "scope": "workspace",
-      "sha256": "975a9f913b69639cc482157795ad4e79a9b81ed2c821306555bd4413f06702eb",
+      "sha256": "50c32271ed4b5a0165ee77caf4207fbbbdf8a264e15963fb7de5224957fcf6c3",
       "summary": "AETHEL Systemlandschaft und Arbeitsnachweise",
       "tags": [
         "systemlandschaft",
