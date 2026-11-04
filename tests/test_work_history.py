@@ -135,6 +135,28 @@ class HistoryTests(unittest.TestCase):
         self.assertEqual(json.loads(out.getvalue())['events'],0)
         self.assertTrue((self.out/'history.sqlite').is_file())
 
+    def test_additional_export_closes_only_matching_catalog_gap(self):
+        export=self.root/'export';export.mkdir()
+        (export/'recovered.jsonl').write_text(json.dumps({'type':'user','sessionId':'recovered','message':{'content':'old request'}})+'\n')
+        catalog=self.home/'Library/Application Support/Claude/claude-code-sessions'
+        catalog.mkdir(parents=True)
+        for sid in ['recovered','still-missing']:
+            (catalog/(sid+'.json')).write_text(json.dumps({'sessionId':sid}))
+        stats=build_history(self.home,self.out,False,claude_roots=[export,export])
+        self.assertEqual(stats['events'],1)
+        self.assertEqual(stats['catalog_without_transcript'],1)
+        self.assertEqual(stats['catalog_with_extracted_events'],[['claude-code',1]])
+        self.assertEqual(stats['semantic_review']['state'],'not_performed')
+
+    def test_unavailable_additional_export_is_an_explicit_gap(self):
+        stats=build_history(self.home,self.out,False,claude_roots=[self.root/'missing-export'])
+        self.assertIn({'provider':'claude-code','reason':'root_unavailable'},stats['discovery_errors'])
+
+    def test_additional_export_does_not_follow_root_symlink(self):
+        link=self.root/'linked-export';link.symlink_to(self.home/'.claude/projects',target_is_directory=True)
+        stats=build_history(self.home,self.out,False,claude_roots=[link])
+        self.assertIn({'provider':'claude-code','reason':'root_symlink_skipped'},stats['discovery_errors'])
+
     def test_changed_source_is_not_reported_as_stable(self):
         p=self.write('.claude/projects/a.jsonl',[{'type':'user','sessionId':'x','message':{'content':'one'}}])
         from aethel_projects.work_history import source_stream

@@ -14,6 +14,18 @@ PYTHONPATH=src python3 -m aethel_projects.work_history \
   --codex-catalog /path/to/private-codex-catalog.json
 ```
 
+Mit wiederholbarem `--claude-root /path/to/private-export` können zusätzlich
+vorhandene lokale Claude-Exportordner eingelesen werden, auch kopierte Ablagen
+anderer Rechner. Es werden ausschließlich JSONL und JSONL.zst gelesen; Archive
+werden nicht automatisch entpackt. Ein Export ist kein Livezugriff auf den
+Ursprungsrechner und sein Ordnername kein geprüfter Herkunftsnachweis.
+Identische Dateipfade werden nur einmal gelesen; separate Kopien bleiben mit
+ihrer Herkunft getrennt. Dateizahlen sind daher keine Zahl erledigter Arbeiten.
+Die Session-Gruppierung verwendet derzeit die letzte strukturierte ID pro Datei.
+Gemischte Exportlogs können mehrere IDs enthalten: Ihre Record-Fundstellen bleiben
+erhalten, die vollständige Zuordnung jeder Nachricht zu einer Session ist noch
+offen. Die Gruppenzahl darf deshalb nicht als vollständige Chatanzahl gelten.
+
 Alternativ: `bin/aethel-projects work-history` mit denselben Argumenten.
 Python mit `compression.zstd` ist für komprimierte Archive erforderlich
 (Python 3.14 oder neuer). Ohne Decoder werden diese Dateien als nicht lesbar
@@ -47,7 +59,8 @@ Der private Codex-Katalog hat dieses Format; Beispielwerte sind synthetisch:
 
 Die Codex-App liefert den Katalog separat. Dieser Adapter ruft ihre API nicht
 auf. Aktive und archivierte Seiten müssen bis zum Ende abgerufen werden.
-Andere Hosts, Claude-Webchats und nicht lokal verfügbare Transkripte fehlen.
+Nicht bereitgestellte Dateien anderer Hosts, Claude-Webchats und nicht lokal
+verfügbare Transkripte fehlen.
 Ein gefundener Katalogeintrag, eine gelesene Datei und ein Chat mit extrahierten
 Nachrichten werden getrennt gezählt. Unterläufe sind keine zusätzlichen Produkte.
 

@@ -115,6 +115,9 @@ def schema(db):
 def discover(roots):
     files, errors = [], []
     for provider, root in roots:
+        if root.is_symlink():
+            errors.append({'provider': provider, 'reason': 'root_symlink_skipped'})
+            continue
         if not root.is_dir():
             errors.append({'provider': provider, 'reason': 'root_unavailable'})
             continue
@@ -275,7 +278,7 @@ def summary(db, discovery_errors, catalog):
         'catalog_without_transcript': db.execute('SELECT count(DISTINCT c.session_id) FROM session_catalog c WHERE NOT EXISTS (SELECT 1 FROM sources s WHERE s.provider=c.provider AND s.session_id=c.session_id)').fetchone()[0],
         'catalog_coverage': q('SELECT c.provider,count(DISTINCT c.session_id),count(DISTINCT CASE WHEN EXISTS (SELECT 1 FROM sources s WHERE s.provider=c.provider AND s.session_id=c.session_id) THEN c.session_id END) FROM session_catalog c GROUP BY c.provider'),
         'discovery_errors': discovery_errors, 'claude_desktop_catalog': catalog,
-        'limits': ['Local sources only; other hosts and Claude web exports not included.',
+        'limits': ['Only explicitly selected local sources; no live access to other hosts or Claude web accounts.',
             'Parsed does not mean semantically reviewed, verified, approved or delivered.',
             'Previews are truncated; source line/offset/hash locates original record.',
             'Git checks only local commit existence, not authorship, tests, push or installation.',
@@ -283,6 +286,7 @@ def summary(db, discovery_errors, catalog):
             'Tool output is recorded evidence, not an independent re-execution.',
             'Not an atomic snapshot across applications; messages added after each file boundary are excluded.',
             'Source cwd is a grouping hint, not an authoritative project or work-item identity; many-to-many binding remains open.',
+            'Source session_id is the last structured identity seen in that file; mixed-session exports require record-level identity attribution.',
             'A source with no extracted events may be metadata, an unsupported log or compacted history; it is not a reviewed chat.',
             'Quoted text inside user or assistant messages is not separately attributed and cannot authorize actions.',
             'Hash of compressed sources refers to decompressed bytes; running files have a snapshot boundary.']}
@@ -326,10 +330,12 @@ def write_report(db, directory, stats):
     _write_private(directory/'coverage.json',json.dumps(stats,ensure_ascii=False,indent=2))
 
 
-def build_history(home: Path, output: Path, check_git: bool = True, codex_catalog: Path | None = None):
+def build_history(home: Path, output: Path, check_git: bool = True,
+                  codex_catalog: Path | None = None, claude_roots: list[Path] | None = None):
     directory=private_directory(output)
     roots=[('codex',home/'.codex/sessions'),('codex',home/'.codex/archived_sessions'),('claude-code',home/'.claude/projects'),
            ('claude-code',home/'Library/Application Support/Claude/local-agent-mode-sessions')]
+    roots.extend(('claude-code', path.expanduser().absolute()) for path in (claude_roots or []))
     files, errors=discover(roots)
     fd, tmp=tempfile.mkstemp(prefix='history-',suffix='.sqlite',dir=directory)
     os.close(fd)
@@ -349,6 +355,7 @@ def build_history(home: Path, output: Path, check_git: bool = True, codex_catalo
         stats=summary(db,errors,catalog)
         stats['git_check_requested']=check_git
         stats['codex_app_catalog']=codex_catalog_status
+        stats['additional_claude_roots_count']=len(claude_roots or [])
         stats['observed_at']=observed
         db.execute('INSERT INTO run VALUES(?,?)',('coverage',json.dumps(stats)))
         db.execute('INSERT INTO run VALUES(?,?)',('observed_at',observed))
@@ -371,8 +378,10 @@ def main(argv=None):
     parser.add_argument('--out',type=Path,required=True)
     parser.add_argument('--no-git',action='store_true')
     parser.add_argument('--codex-catalog',type=Path)
+    parser.add_argument('--claude-root',type=Path,action='append',default=[],
+                        help='Additional local Claude export directory; repeatable')
     args=parser.parse_args(argv)
-    print(json.dumps(build_history(args.home,args.out,not args.no_git,args.codex_catalog),ensure_ascii=False))
+    print(json.dumps(build_history(args.home,args.out,not args.no_git,args.codex_catalog,args.claude_root),ensure_ascii=False))
 
 
 if __name__=='__main__':

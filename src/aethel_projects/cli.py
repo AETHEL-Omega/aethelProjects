@@ -70,6 +70,7 @@ def _build_parser() -> argparse.ArgumentParser:
     history_cmd.add_argument("--out", type=Path, required=True, help="Privates Ziel außerhalb aller Git-Arbeitsbäume")
     history_cmd.add_argument("--no-git", action="store_true", help="Git-Objektprüfung ausdrücklich auslassen")
     history_cmd.add_argument("--codex-catalog", type=Path, help="Privater Metadatenexport der Codex-App zum Vollständigkeitsabgleich")
+    history_cmd.add_argument("--claude-root", type=Path, action="append", default=[], help="Zusätzlicher lokaler Claude-Exportordner; mehrfach möglich")
 
     aix_cmd = add("aix-input", "Projektdossier an bestehenden AIX-Eingang binden (nur Kontext)")
     aix_cmd.add_argument("--input", required=True, help="Unfreigegebener aix.engineering_input.v1")
@@ -903,7 +904,7 @@ def _cmd_incubator(args: argparse.Namespace) -> int:
 
 def _cmd_work_history(args: argparse.Namespace) -> int:
     from .work_history import build_history
-    result = build_history(args.home, args.out, not args.no_git, args.codex_catalog)
+    result = build_history(args.home, args.out, not args.no_git, args.codex_catalog, args.claude_root)
     print(json.dumps(result, ensure_ascii=False))
     return EXIT_OK
 
