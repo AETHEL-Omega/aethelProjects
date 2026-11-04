@@ -1,0 +1,2952 @@
+{
+  "schema": "aethel.projects.stack/v1",
+  "layer_names": {
+    "S0": "Rechenmodell/Silizium-Simulation",
+    "S1": "Firmware",
+    "S2": "Kernel/OS",
+    "S3": "Isolation/Hypervisor",
+    "S4": "Systemdienste/Zustand/Rechte",
+    "S5": "Komponentenlaufzeit/Agenten",
+    "S6": "Sprache/Compiler/Toolchain",
+    "S7": "Build/Release",
+    "S8": "Daten/Wissen",
+    "S9": "Kommunikation/Verbund",
+    "S10": "Plattform-SDK/Bibliothek",
+    "S11": "Anwendung",
+    "S12": "Oberfläche/Cockpit",
+    "S13": "Sicherheit/Identität",
+    "S14": "Beobachtbarkeit",
+    "S15": "Qualität/Test/Eval",
+    "S16": "Distribution",
+    "S17": "Entscheidung/Doku/Wissen-Text",
+    "SX": "unbestimmt"
+  },
+  "per_layer": {
+    "S0": 7,
+    "S1": 0,
+    "S2": 2,
+    "S3": 2,
+    "S4": 2,
+    "S5": 21,
+    "S6": 0,
+    "S7": 20,
+    "S8": 15,
+    "S9": 3,
+    "S10": 52,
+    "S11": 101,
+    "S12": 6,
+    "S13": 0,
+    "S14": 2,
+    "S15": 12,
+    "S16": 0,
+    "S17": 0,
+    "SX": 77
+  },
+  "empty_layers": [
+    "S1",
+    "S6",
+    "S13",
+    "S16",
+    "S17"
+  ],
+  "assignments": [
+    {
+      "repo": "aethelHelix",
+      "layer": "S0",
+      "layer_name": "Rechenmodell/Silizium-Simulation",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „helix“ → S0; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aiderDesktop_memristor_v1",
+      "layer": "S0",
+      "layer_name": "Rechenmodell/Silizium-Simulation",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „memristor“ → S0; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "bit_encodings",
+      "layer": "S0",
+      "layer_name": "Rechenmodell/Silizium-Simulation",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „bit_encodings“ → S0; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "osxQ",
+      "layer": "S0",
+      "layer_name": "Rechenmodell/Silizium-Simulation",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „osxq“ → S0; abweichender Marker S11: quantumstudio/flutter_app/pubspec.yaml ohne Rust-Crate; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "osxq-pennylane",
+      "layer": "S0",
+      "layer_name": "Rechenmodell/Silizium-Simulation",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „osxq“ → S0; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "photon-defense",
+      "layer": "S0",
+      "layer_name": "Rechenmodell/Silizium-Simulation",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „photon“ → S0; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "photon-plm",
+      "layer": "S0",
+      "layer_name": "Rechenmodell/Silizium-Simulation",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „photon“ → S0; abweichender Marker S11: pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_os",
+      "layer": "S2",
+      "layer_name": "Kernel/OS",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Name „os“ → S2; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "lector_os",
+      "layer": "S2",
+      "layer_name": "Kernel/OS",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „os“ → S2; abweichender Marker S10: native/rust/Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_sandbox",
+      "layer": "S3",
+      "layer_name": "Isolation/Hypervisor",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „sandbox“ → S3; abweichender Marker S11: pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelContainer",
+      "layer": "S3",
+      "layer_name": "Isolation/Hypervisor",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Name „container“ → S3; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelLanding",
+      "layer": "S4",
+      "layer_name": "Systemdienste/Zustand/Rechte",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „landing“ → S4; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "workspace-manifest",
+      "layer": "S4",
+      "layer_name": "Systemdienste/Zustand/Rechte",
+      "origin": "eigen",
+      "maturity_grade": "Professional",
+      "evidence": "Name „manifest“ → S4; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel-forge",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Name „forge“ → S5; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelAgent",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Name „agent“ → S5; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelAgent",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „agent“ → S5; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelAgentFactory",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „agent“ → S5; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelAgentFactory",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Name „agent“ → S5; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelAgentRuntime",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Name „agent-runtime“ → S5; bestätigt durch skills/aethel-terminal-cockpit-user-agent/SKILL.md; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "high"
+    },
+    {
+      "repo": "aethelBot",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „bot“ → S5; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelFactory",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Name „factory“ → S5; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelLocalCoder",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „coder“ → S5; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelScripts",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Name „scripts“ → S5; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelScripts-clean",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „scripts“ → S5; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "bitplay_agents",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Name „agent“ → S5; abweichender Marker S11: pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "deepseek-coder",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „coder“ → S5; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "digitalSoftwareFactory",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Name „factory“ → S5; abweichender Marker S11: apps/digital_factory_app/pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "hydra_forge",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „forge“ → S5; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "mini-swe-agent",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „agent“ → S5; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-cli-task-aethel_coder-aider-mlx",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „coder“ → S5; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-task-challenge-quick-001-aethel_coder-aider-mlx",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „coder“ → S5; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-task-challenge-quick-001-aethel_coder-aider-mlx",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „coder“ → S5; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-task-rust-substrate-001-aethel_coder-aider-mlx",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „coder“ → S5; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "swe-agent",
+      "layer": "S5",
+      "layer_name": "Komponentenlaufzeit/Agenten",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „agent“ → S5; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel-build-orchestrator",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Name „build“ → S7; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aider",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker benchmark/Dockerfile → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "bsc",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Dockerfile → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "claude-code-proxy",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Dockerfile → S7; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "cn",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker manual-testing-sandbox/Dockerfile → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "cognee",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Dockerfile → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "crush",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker flake.nix → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "gptme",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker scripts/Dockerfile → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "instructor",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Solide",
+      "evidence": "Marker examples/citation_with_extraction/Dockerfile → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "letta-code",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker flake.nix → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "nius-linux",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker flake.nix → S7; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "opencode",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker flake.nix → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "openhands",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Solide",
+      "evidence": "Marker docker/Dockerfile → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "outlines",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker flake.nix → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "promptfoo",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Dockerfile → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "rasa",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Dockerfile → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "semgrep",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Dockerfile → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "sgpt",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Dockerfile → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "spacy",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker website/Dockerfile → S7; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "youtubereader_flutter",
+      "layer": "S7",
+      "layer_name": "Build/Release",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Dockerfile → S7; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel-omega",
+      "layer": "S8",
+      "layer_name": "Daten/Wissen",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Marke „omega“ → S8; abweichender Marker S7: Dockerfile; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel-v6-omega",
+      "layer": "S8",
+      "layer_name": "Daten/Wissen",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „omega“ → S8; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_memoria",
+      "layer": "S8",
+      "layer_name": "Daten/Wissen",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „memoria“ → S8; abweichender Marker S11: pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelOmegaLM",
+      "layer": "S8",
+      "layer_name": "Daten/Wissen",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marke „omega“ → S8; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelOmegaM0",
+      "layer": "S8",
+      "layer_name": "Daten/Wissen",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marke „omega“ → S8; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "omega-system",
+      "layer": "S8",
+      "layer_name": "Daten/Wissen",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marke „omega“ → S8; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "omega_domain",
+      "layer": "S8",
+      "layer_name": "Daten/Wissen",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marke „omega“ → S8; abweichender Marker S11: pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-cli-task-aider_omega-aider-mlx",
+      "layer": "S8",
+      "layer_name": "Daten/Wissen",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „omega“ → S8; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-cli-task-claude_code_omega-aider-mlx",
+      "layer": "S8",
+      "layer_name": "Daten/Wissen",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „omega“ → S8; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-task-challenge-quick-001-aider_omega-aider-mlx",
+      "layer": "S8",
+      "layer_name": "Daten/Wissen",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „omega“ → S8; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-task-challenge-quick-001-aider_omega-aider-mlx",
+      "layer": "S8",
+      "layer_name": "Daten/Wissen",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „omega“ → S8; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-task-challenge-quick-001-claude_code_omega-aider-mlx",
+      "layer": "S8",
+      "layer_name": "Daten/Wissen",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „omega“ → S8; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-task-challenge-quick-001-claude_code_omega-aider-mlx",
+      "layer": "S8",
+      "layer_name": "Daten/Wissen",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „omega“ → S8; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-task-rust-substrate-001-aider_omega-aider-mlx",
+      "layer": "S8",
+      "layer_name": "Daten/Wissen",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „omega“ → S8; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-task-rust-substrate-001-claude_code_omega-aider-mlx",
+      "layer": "S8",
+      "layer_name": "Daten/Wissen",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „omega“ → S8; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelema",
+      "layer": "S9",
+      "layer_name": "Kommunikation/Verbund",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „ema“ → S9; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelema",
+      "layer": "S9",
+      "layer_name": "Kommunikation/Verbund",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „ema“ → S9; abweichender Marker S10: rust-core/fuzz/Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "omega_bridge",
+      "layer": "S9",
+      "layer_name": "Kommunikation/Verbund",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „bridge“ → S9; abweichender Marker S11: pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "AETHEL",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel-evolution",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel-evolutionCascade",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel-forensics",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel-foundation",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel-supervisor",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel-v6",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel1",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel1",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel1",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel1",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel1",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel1",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel1",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel1",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel1",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel1",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel2",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel2",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel2",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel2",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel2",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_core",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „core“ → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_design",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Name „design“ → S10; abweichender Marker S11: pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_product_shells",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Name „shells“ → S10; abweichender Marker S11: pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelDeepLearning",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelDesktopLean1",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelDesktopResearch",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelGemini-project",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker native/rust/Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelIntegrationProvisorisch",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethellm",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker rust/Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelMistral",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelPromtEngineerung",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelPromtEngineerung",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelSGML",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aiderDesktop",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aiderDesktopLogos",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "Athelix",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Marker athelix_engine/Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "BIblePublishProject",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker crates/Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "bitplay_core",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „core“ → S10; abweichender Marker S11: pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "fimas",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "goose",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "interpreter",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker codex-rs/Cargo.toml ([workspace]) → S10; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "logos",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "memoristorCursor",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "pragmaticAethelDesktop",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "ragFileSystemChatGpt5",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-cli-task-aethel_aider-aider-mlx",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-task-challenge-quick-001-aethel_aider-aider-mlx",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-task-challenge-quick-001-aethel_aider-aider-mlx",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "run-task-rust-substrate-001-aethel_aider-aider-mlx",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "tree-sitter",
+      "layer": "S10",
+      "layer_name": "Plattform-SDK/Bibliothek",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker Cargo.toml ([workspace]) → S10; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_architect",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_architect",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_ausbildung",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_ausbildung",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_bitplay",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_buerger",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_buerger",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_campus",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_campus",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_daktari",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_daktari",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_didact",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_didact",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_grundgesetz",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_grundgesetz",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_handwerk",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_handwerk",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_harmonia",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_harmonia",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_heimat",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_heimat",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_justitia",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_justitia",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_konformitaet",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_konformitaet",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_lexikon",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_lexikon",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_lichthaus",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_lichthaus",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_logopaedie",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_logopaedie",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_music_studio",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_music_studio",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_mwalimu",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_mwalimu",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_neno",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_newsroom",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker app/pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_observatory",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_openclaw",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_orion",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_pharma",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_polis",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_quantor",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_rag_workbench",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_reader",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „reader“ → S11; bestätigt durch pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "high"
+    },
+    {
+      "repo": "aethel_secure_messenger",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_sermon_archive",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_shamba",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_shield",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_stammbaum",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_studio",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_uhuru",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_unified",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_vintage_radio",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „radio“ → S11; bestätigt durch pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "high"
+    },
+    {
+      "repo": "aethel_voice",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_wachturm",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_webbrowser_complex",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_worship",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_xray",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_zertifikat",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelappstore",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „appstore“ → S11; bestätigt durch pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "high"
+    },
+    {
+      "repo": "aethelBrowser",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Name „browser“ → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelBrowser-build",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Name „browser“ → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelCoWork",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Marker aethel_cowork_flutter/pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelCoWork",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Marker aethel_cowork_flutter/pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelFamilyAppStore",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „app“ → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelGemini",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker worktrees/perichoresis-gutenberg-extract/pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelHealthLab",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „lab“ → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelreasoningcomputer",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelTerminal",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Name „terminal“ → S11; bestätigt durch pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "high"
+    },
+    {
+      "repo": "bitplay_cli",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "bitplay_lab_flutter",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „lab“ → S11; abweichender Marker S10: rust/bitplay_fast/Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "bitplay_lab_flutter-orginal",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „lab“ → S11; bestätigt durch pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "high"
+    },
+    {
+      "repo": "bitplay_lab_original",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „lab“ → S11; bestätigt durch pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "high"
+    },
+    {
+      "repo": "bitplay_labs",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Name „lab“ → S11; bestätigt durch pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "high"
+    },
+    {
+      "repo": "bitplay_sip",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "bitplay_visualizers",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "bitplay_widgets",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "blocks_3d",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "cash_pilot",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "heritage_bible",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Name „heritage“ → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "heritage_bible_aethel",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „heritage“ → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "heritage_bible_aethelNuru",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Name „heritage“ → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "heritage_bible_engine",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „heritage“ → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "heritage_bible_flutter",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „heritage“ → S11; bestätigt durch pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "high"
+    },
+    {
+      "repo": "heritage_bible_flutter_perichoresis_refactor",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Name „heritage“ → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "impact_lens",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "kinder_guard",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "metropolitan_developer_impeller",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "metropolitan_impeller",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "mymessanger",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "photon_radio",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „radio“ → S11; bestätigt durch pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "high"
+    },
+    {
+      "repo": "space_radio",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „radio“ → S11; bestätigt durch pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "high"
+    },
+    {
+      "repo": "universitas",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "vintage_language_lab",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „lab“ → S11; bestätigt durch pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "high"
+    },
+    {
+      "repo": "vintage_media_center",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "vintage_radio",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Name „radio“ → S11; abweichender Marker S10: aethellm/rust/Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "vintage_radio_aethel",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „radio“ → S11; bestätigt durch pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "high"
+    },
+    {
+      "repo": "vintage_radio_harness",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „radio“ → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "weltformel",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Marker pubspec.yaml ohne Rust-Crate → S11; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "youtube_reader",
+      "layer": "S11",
+      "layer_name": "Anwendung",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „reader“ → S11; abweichender Marker S7: Dockerfile; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel_cockpit",
+      "layer": "S12",
+      "layer_name": "Oberfläche/Cockpit",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „cockpit“ → S12; abweichender Marker S11: pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelMacUIAgent",
+      "layer": "S12",
+      "layer_name": "Oberfläche/Cockpit",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "Name „ui“ → S12; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "ComfyUI",
+      "layer": "S12",
+      "layer_name": "Oberfläche/Cockpit",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „ui“ → S12; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "flutter_ui_showcase",
+      "layer": "S12",
+      "layer_name": "Oberfläche/Cockpit",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „ui“ → S12; abweichender Marker S11: pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "omega_ui",
+      "layer": "S12",
+      "layer_name": "Oberfläche/Cockpit",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „ui“ → S12; abweichender Marker S11: pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "vintage_Radio_newUI",
+      "layer": "S12",
+      "layer_name": "Oberfläche/Cockpit",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „ui“ → S12; abweichender Marker S11: pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelAnalytics",
+      "layer": "S14",
+      "layer_name": "Beobachtbarkeit",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „analytics“ → S14; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "faith_metrics",
+      "layer": "S14",
+      "layer_name": "Beobachtbarkeit",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „metrics“ → S14; abweichender Marker S11: pubspec.yaml ohne Rust-Crate; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethel-test-orchestrator",
+      "layer": "S15",
+      "layer_name": "Qualität/Test/Eval",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „test“ → S15; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelCodeAnalyzer",
+      "layer": "S15",
+      "layer_name": "Qualität/Test/Eval",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „analyzer“ → S15; abweichender Marker S10: Cargo.toml ([workspace]); Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "aethelProjects",
+      "layer": "S15",
+      "layer_name": "Qualität/Test/Eval",
+      "origin": "eigen",
+      "maturity_grade": "Professional",
+      "evidence": "Name „projects“ → S15; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "click_test_project",
+      "layer": "S15",
+      "layer_name": "Qualität/Test/Eval",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „test“ → S15; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "GrokAethelBench",
+      "layer": "S15",
+      "layer_name": "Qualität/Test/Eval",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „bench“ → S15; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "swe-bench",
+      "layer": "S15",
+      "layer_name": "Qualität/Test/Eval",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "Name „bench“ → S15; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "swt-test",
+      "layer": "S15",
+      "layer_name": "Qualität/Test/Eval",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Name „test“ → S15; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "testProject1",
+      "layer": "S15",
+      "layer_name": "Qualität/Test/Eval",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Name „test“ → S15; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "TestSWT",
+      "layer": "S15",
+      "layer_name": "Qualität/Test/Eval",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Name „test“ → S15; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "TestSWT",
+      "layer": "S15",
+      "layer_name": "Qualität/Test/Eval",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Name „test“ → S15; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "TestXCode",
+      "layer": "S15",
+      "layer_name": "Qualität/Test/Eval",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Name „test“ → S15; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "TestXCode",
+      "layer": "S15",
+      "layer_name": "Qualität/Test/Eval",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "Name „test“ → S15; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "medium"
+    },
+    {
+      "repo": "adg_testbench",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethel-apple",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethel-codegraph",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethel-launcher",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethel-macos-work-surface",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethel-systems",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethel-workspace",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethel_cowork_flutter",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethel_cowork_flutter",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethel_muehle",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethel_python",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethel_pythonclone",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethelCLIGames",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Namenspräfix „aethel“",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethelCodeAlphaClean",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethelEditor",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Namenspräfix „aethel“",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethelHall",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethelMessanger",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethelSystemObservation",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethelVoiceControl",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aethelZLAMA",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "ai-fastlane-governance",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aider_desktop_grok",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "aiderDesktopCursor",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "unklar",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft unklar: kein Remote, kein Namenspräfix",
+      "confidence": "low"
+    },
+    {
+      "repo": "aiderDesktopGrok",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "amrlib",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "autogen",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "bitplay",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "byztxt",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "cline",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "crewai",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "dotfiles",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "ds4",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "dspy",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "fjord_race",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "flutter",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "guidance",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "helloscout",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "helloscout",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "intelizign_consulting",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "kgu-sgml-pipeline",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "kgu-sgml-pipeline",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "kss-tools",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "kss-tools",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "langgraph",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "letta",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "llm",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "macos_study_plattform",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "manuel-jsx-snippets",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "manuel-jsx-snippets",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "ManuelCrypto",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "ManuelCrypto",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "manuelcrypto-maven",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "manuelcrypto-maven",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "metropolitan_developer",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "mods",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "neon-pulse-survivors",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "newsfeed_engine",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "pydantic-ai",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "python_backend",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "r2e-gym",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "rllm",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "SafeNest",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "scrollmapper",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "smolagents",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "snips-nlu",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "stanza",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "StartUp",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "SuperDuperMarkt",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "SuperDuperMarktBrockhaus",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "swarm",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "syrnt",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "tau",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "fremd",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft fremd: Remote nicht bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "testprojekt1",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "unklar",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft unklar: kein Remote, kein Namenspräfix",
+      "confidence": "low"
+    },
+    {
+      "repo": "vintage_tv",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "website_aethel_systems",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Prototyp",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    },
+    {
+      "repo": "werkstatt",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "unklar",
+      "maturity_grade": "Skizze",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft unklar: kein Remote, kein Namenspräfix",
+      "confidence": "low"
+    },
+    {
+      "repo": "youtubereader-python",
+      "layer": "SX",
+      "layer_name": "unbestimmt",
+      "origin": "eigen",
+      "maturity_grade": "Solide",
+      "evidence": "weder Namens- noch Dateiregel getroffen; Herkunft eigen: Remote bei AETHEL-Omega/ManuelWilde",
+      "confidence": "low"
+    }
+  ]
+}

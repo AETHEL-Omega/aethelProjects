@@ -104,7 +104,7 @@ Git-Aufruf-String auftaucht.
 def discover(root: Path) -> list[RepoIdentity]
 ```
 
-Findet `.git` (Datei **oder** Ordner) bis Tiefe 2, normalisiert den Common-Dir-Pfad
+Findet `.git` (Datei **oder** Ordner) rekursiv innerhalb offengelegter Suchregeln sowie Git-Verzeichnisse ohne Checkout, normalisiert den Common-Dir-Pfad
 und gruppiert danach. Rückgabe: ein `RepoIdentity` pro Historie, mit Liste aller
 Verzeichnisse.
 
@@ -212,3 +212,30 @@ Lieferkettenabhängigkeiten — passend zum Sicherheitsprofil der AETHEL-Repos.
 | Reproduzierbarkeit | gleiche Eingabe → gleiches Ergebnis | Sortierung, `generated_at` als einzige Variable |
 | Sicherheit | read-only | TC-007 prüft Quelltext auf Schreiboperationen |
 | Ehrlichkeit | keine erfundenen Fakten | ADR-004, `None` statt Rate, `scope: internal` |
+
+## Ergänzung 23.10.2026: Inventar, Dossier, AIX-Kontext
+
+`inventory` trennt Checkout-Pfade, gemeinsame Git-Identität, bekannte
+Projektmarker und externe Worktree-Registrierungen. `dossier` verbindet den
+Scan mit begrenzten, gehashten Dokumentquellen. `aix_input.attach` bindet ein
+eindeutiges aktuelles Dossier ausschließlich an den Kontext eines vorhandenen
+unfreigegebenen Engineering-Eingangs. Die Kernlogik berührt dabei keine
+AIX-Auftragsakte, Rollen-Lease oder Merge-Referenz.
+
+Ein Weg: aethelema/Bot → bestehender AIX-Engineering-Eingang mit Projektbelegen
+→ bestehendes Arbeitspaket/Rollenprüfung → vorhandener Harness → Forge/Landing.
+Dieses Repo liefert das Material, nicht eine zweite Zustandsmaschine.
+
+
+## Ergänzung 03./04.11.2026: Ablage, Register, Schichten, Inkubator, Apple-first, Leitstand
+
+Sechs neue Bausteine, alle lesend gegenüber dem Workspace:
+
+- `analyses.py`: versionierte Ablage `analysen/` mit `INDEX.json` (SHA-256), `vorschlaege.json`, `kreislaeufe.json`; einzige Schreiboperation `register()` auf `INDEX.json` (mkstemp, atomar).
+- `registers.py`: Abgleich von Manifest, Scan (inkl. `worktree_paths`), `.aix/project-profile.json`, `auftraege.jsonl`.
+- `stack.py`: Schichtenkarte S0–S17 per Namensregeln (Markenpräfixe, Wortgrenzen) und Dateimarkern.
+- `incubator.py`: Reifeleiter R0–R11, RF, RI mit Signalen je Stufe und nächster Lücke.
+- `applefirst.py`: Sprachanteile, Apple-Frameworks, Unified-Memory-Bewusstsein, Anti-Muster, Score.
+- `cockpit.py`: Leitstand aus Ablage und jüngsten Lauf-JSONs, md/json/html; rechnet nichts neu.
+
+Entscheidung: Läufe legen ihre JSON-Ausgabe unter `analysen/<Datum>/` ab, der Leitstand liest die jüngste je Schema. So bleibt die Ablage die einzige Quelle für eine menschenlesbare Gesamtsicht.

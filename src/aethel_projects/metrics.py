@@ -21,7 +21,11 @@ def _detect_default_branch(repo: Path) -> str | None:
     """Der Default-Branch: origin/HEAD, sonst main, sonst master, sonst None."""
     head = gitio.run_git(repo, "symbolic-ref", "--quiet", "--short", "refs/remotes/origin/HEAD")
     if head:
-        return head.rsplit("/", 1)[-1]
+        branch = head.removeprefix("origin/")
+        if gitio.ref_exists(repo, f"refs/heads/{branch}"):
+            return branch
+        if gitio.ref_exists(repo, f"refs/remotes/{head}"):
+            return head
     for candidate in MAIN_CANDIDATES:
         if gitio.ref_exists(repo, f"refs/heads/{candidate}"):
             return candidate
@@ -81,7 +85,7 @@ def collect(identity: RepoIdentity, timeout: int = gitio.DEFAULT_TIMEOUT) -> Rep
             gitio.run_git_lines(repo, "for-each-ref", "--format=%(refname:short)", "refs/heads")
         )
         unmerged = _unmerged_branches(repo, default)
-        origin_ref = f"origin/{default}"
+        origin_ref = default if default.startswith("origin/") else f"origin/{default}"
         has_origin = gitio.ref_exists(repo, f"refs/remotes/{origin_ref}")
         if has_origin:
             ahead = gitio.count(repo, "rev-list", "--count", f"{origin_ref}..{default}", timeout=timeout)

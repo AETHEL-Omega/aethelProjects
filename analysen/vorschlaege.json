@@ -1,0 +1,498 @@
+{
+  "projects": [
+    {
+      "bestand": "RFC 0002 im workspace-manifest, sonst nichts",
+      "ebene": "E5",
+      "hebt": [
+        "C2",
+        "C3",
+        "B1"
+      ],
+      "id": "C1",
+      "komponente": "aethelCompany",
+      "name": "aethelCompany",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.company/v1",
+      "zweck": "Firmensteuerung als nicht-technische Daten: Produkt, Geschäftsfall, Portfolio-Entscheidung, Budget, Rollen, Marke, Recht"
+    },
+    {
+      "bestand": "Rat verstreut in 289 CLAUDE.md, 478 Akten, vier Berichten",
+      "ebene": "E5",
+      "hebt": [
+        "C1",
+        "C3",
+        "B7",
+        "B9"
+      ],
+      "id": "C2",
+      "komponente": "aethelConsultant",
+      "name": "aethelConsultant",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.consultant/v1",
+      "zweck": "Ort allen grundsätzlichen Rats: Disziplinen × Ebenen, Grundsätze, Muster, Checklisten, Entscheidungsvorlagen mit Version, Beleg, Rückkopplung"
+    },
+    {
+      "bestand": "Repos entstehen ohne Tor",
+      "ebene": "E3",
+      "hebt": [
+        "B1",
+        "C1"
+      ],
+      "id": "C3",
+      "komponente": "aethelIncubator",
+      "name": "aethelIncubator",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.incubator/v1",
+      "zweck": "Tore Idee→Konzept→Prototyp→Produkt→Betrieb→Archiv für vier Portfolio-Klassen; Zustand in der Registry"
+    },
+    {
+      "bestand": "vier Berichte von Hand",
+      "ebene": "E6",
+      "hebt": [
+        "C1",
+        "C2"
+      ],
+      "id": "C4",
+      "komponente": "aethelRadar",
+      "name": "aethelRadar",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.radar/v1",
+      "zweck": "S4-Dienst: Plattform-Releases, Changelogs, arXiv, Markt, Register-Drift als Ereignisse"
+    },
+    {
+      "bestand": "nichts; Gate-Stau 14.10. als Anlass",
+      "ebene": "META",
+      "hebt": [
+        "K-E4-wip",
+        "K-E4-kapazitaet"
+      ],
+      "id": "C5",
+      "komponente": "aethelTwin",
+      "name": "aethelTwin",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 2,
+      "vertrag": "aethel.twin/v1",
+      "zweck": "Digitaler Zwilling der Fabrik: Simulation der Kreise (WIP, Kapazität, Kosten, Totzeit) aus dem Ledger vor jeder Stellglied-Änderung"
+    },
+    {
+      "bestand": "aethelAgentRuntime 0.1.0 (55 Werkzeuge), aix-Typen",
+      "ebene": "E4",
+      "hebt": [
+        "B6",
+        "B7",
+        "B8",
+        "B9",
+        "B10",
+        "B11",
+        "B12",
+        "B15"
+      ],
+      "id": "B5",
+      "komponente": "aixd",
+      "name": "aixd",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "existiert",
+      "stufe": 1,
+      "vertrag": "aethel.aixd/v1",
+      "zweck": "Verfassungskern: Zustandsmaschine, Ledger, Lease, Freigabe, Policy, Loop-Registry, Modellkatalog, Agentenidentität"
+    },
+    {
+      "bestand": "fünf Register, projects.yaml vom 29.08.",
+      "ebene": "E4",
+      "hebt": [
+        "B2",
+        "B3",
+        "B4",
+        "B6",
+        "B8",
+        "C4",
+        "B17"
+      ],
+      "id": "B1",
+      "komponente": "aethelRegistry",
+      "name": "aethelRegistry",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.registry/v1",
+      "zweck": "Produkt-ID und eine Wahrheit; erzeugt projects.yaml, CLAUDE.md, AGENTS.md, Cursor-Regeln, MCP-Registries, Plists"
+    },
+    {
+      "bestand": "ein Vertrag (aethelCodeAnalyzer)",
+      "ebene": "E4",
+      "hebt": [
+        "B5",
+        "B9",
+        "B10",
+        "B11",
+        "B14",
+        "B18"
+      ],
+      "id": "B2",
+      "komponente": "aethelContracts",
+      "name": "aethelContracts",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.contract/v1",
+      "zweck": "Vertragsgenerator (capability.json → Schema, Konsumententests, Stubs) und IDL-Compiler (WIT → Rust, Swift, Dart)"
+    },
+    {
+      "bestand": "mcp-hub-Registry als Vorbild",
+      "ebene": "E4",
+      "hebt": [
+        "B9",
+        "B12"
+      ],
+      "id": "B3",
+      "komponente": "aethelRegistry",
+      "name": "aethelRegistry.config",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.config/v1",
+      "zweck": "Konfigurations-Compiler: aus der Registry entstehen alle Regel- und Clientdateien"
+    },
+    {
+      "bestand": "aethelLocalCoder-Releases, _aix_sbom.py, cosign/syft installiert",
+      "ebene": "E4",
+      "hebt": [
+        "B5",
+        "B16"
+      ],
+      "id": "B4",
+      "komponente": "aethelRelease",
+      "name": "aethelRelease",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.release/v1",
+      "zweck": "Signierte Releases mit SBOM, SLSA-Provenance, Digest; Parität als Kreis mit Stellglied"
+    },
+    {
+      "bestand": "157 Spezifikationen, omega_validate_dag",
+      "ebene": "E3",
+      "hebt": [
+        "B7",
+        "B9",
+        "B18"
+      ],
+      "id": "B6",
+      "komponente": "aethelProjects",
+      "name": "aethelProjects.spec-graph",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.spec-graph/v1",
+      "zweck": "Spec-Compiler: SPEC/DESIGN/TEST-CASES → Aufgabengraph, Wellen, Testgerüste"
+    },
+    {
+      "bestand": "aethelLanding-Code ohne Betrieb",
+      "ebene": "E2",
+      "hebt": [
+        "B9",
+        "B10",
+        "B16"
+      ],
+      "id": "B7",
+      "komponente": "aethelLanding",
+      "name": "aethelLanding.verdict",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.verdict/v1",
+      "zweck": "Verdict mit drei Sensoren (zurückgehaltene Tests, Testdatei-Wächter, Richter), Landung als Verb, Receipt-Verifier"
+    },
+    {
+      "bestand": "aethelContainer, aethelcontainerd; container-CLI fehlt",
+      "ebene": "E0",
+      "hebt": [
+        "B9",
+        "B10",
+        "B14",
+        "B19"
+      ],
+      "id": "B8",
+      "komponente": "aethelContainer",
+      "name": "aethelContainer.sandbox",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.sandbox/v1",
+      "zweck": "Isolationshülle über Apple Containerization; Gate-Image mit Digest; WASI-Komponenten"
+    },
+    {
+      "bestand": "aix Gated-Solve, digitalSoftwareFactory als Referenz",
+      "ebene": "E1",
+      "hebt": [
+        "B10",
+        "B11",
+        "C4",
+        "B18"
+      ],
+      "id": "B9",
+      "komponente": "aethelAppleRuntime",
+      "name": "aethelAppleRuntime",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.harness/v1",
+      "zweck": "Swift-Harness mit sieben Teilsystemen; ACP- und MCP-Server; Skills; Hooks; Subagenten"
+    },
+    {
+      "bestand": "Hard-9, evals.score, bench/",
+      "ebene": "META",
+      "hebt": [
+        "B9",
+        "B11",
+        "B15"
+      ],
+      "id": "B10",
+      "komponente": "aethelEval",
+      "name": "aethelEval",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.eval/v1",
+      "zweck": "Zyklusmessung je Harness-Version, Stufe-0-Kette, Modell; Reward-Hacking-Fälle; Apple Evaluations"
+    },
+    {
+      "bestand": "litellm, coders/*.json, fm",
+      "ebene": "E4",
+      "hebt": [
+        "B9",
+        "B12",
+        "B18"
+      ],
+      "id": "B11",
+      "komponente": "aixd",
+      "name": "aixd.model-catalog",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.model-catalog/v1",
+      "zweck": "Ein Modellkatalog mit Kostenklasse, Inferenzort, Beleg hinter dem LanguageModel-Protokoll; Stufe 0 fm"
+    },
+    {
+      "bestand": "aethel-omega, Runtime-Graph, Wissensschleife, 478 Akten",
+      "ebene": "E3",
+      "hebt": [
+        "B9",
+        "C4",
+        "B15"
+      ],
+      "id": "B12",
+      "komponente": "aethelOmega",
+      "name": "aethelOmega.memory",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.memory/v1",
+      "zweck": "Gedächtnis mit Provenienz aus Commits, Receipts, Freigaben; Abruf je Projekt und Schnitt"
+    },
+    {
+      "bestand": "0 WIT, 32 proto in Fremdcode",
+      "ebene": "E5",
+      "hebt": [
+        "B17",
+        "B19",
+        "B20"
+      ],
+      "id": "B14",
+      "komponente": "aethelContracts",
+      "name": "aethelContracts.idl",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 2,
+      "vertrag": "aethel.idl/v1",
+      "zweck": "IDL-Compiler: WIT/Schema → Bindings für XPC, MCP, A2A, aethelema"
+    },
+    {
+      "bestand": "CLAUDE.md an 289 Orten",
+      "ebene": "E5",
+      "hebt": [
+        "B9",
+        "B4"
+      ],
+      "id": "B15",
+      "komponente": "aixd",
+      "name": "aethelPolicy",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.policy/v1",
+      "zweck": "Kanon als Daten mit Version → Hooks, Rechte, Kostenklassen, Alarmschwellen"
+    },
+    {
+      "bestand": "FamilyAppStore privat",
+      "ebene": "E5",
+      "hebt": [],
+      "id": "B16",
+      "komponente": "aethelDistribution",
+      "name": "aethelDistribution",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 2,
+      "vertrag": "aethel.dist/v1",
+      "zweck": "Signatur, Notarisierung, Update-Kanal, Rücknahme, CRA-Meldeprozess, SBOM je Release"
+    },
+    {
+      "bestand": "direkte Kopplungen",
+      "ebene": "E3",
+      "hebt": [
+        "B18",
+        "B20"
+      ],
+      "id": "B17",
+      "komponente": "aethelSDK",
+      "name": "aethelSDK",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 2,
+      "vertrag": "aethel.sdk/v1",
+      "zweck": "Eine Bibliothek je Sprache (Rust, Swift, Dart) für Identität, Auftrag, Wissen, Receipt, Modellzugang"
+    },
+    {
+      "bestand": "aethel_core/design, Athelix, Skill aethel-module-scaffold",
+      "ebene": "E3",
+      "hebt": [],
+      "id": "B18",
+      "komponente": "aethelVariants",
+      "name": "aethelVariants",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.variant/v1",
+      "zweck": "Komponenten- und Variantengenerator; 34 Varianten als Konfiguration"
+    },
+    {
+      "bestand": "aethelContainer, Virtualization",
+      "ebene": "E4",
+      "hebt": [
+        "B20"
+      ],
+      "id": "B19",
+      "komponente": "aethelSystem",
+      "name": "aethelSystem",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 2,
+      "vertrag": "aethel.system/v1",
+      "zweck": "Systemschicht auf macOS 27: XPC-Dienste, Capabilities, Keychain, Containerization; Linux-Gast als zweites Ziel"
+    },
+    {
+      "bestand": "vier Simulator-Ansätze",
+      "ebene": "E6",
+      "hebt": [],
+      "id": "B20",
+      "komponente": "aethelCompute",
+      "name": "aethelCompute",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 2,
+      "vertrag": "aethel.isa/v1",
+      "zweck": "Simulator-Rahmen für Rechenmodelle (Memristor, vChip, Helix, Quanten) mit Verilator/QEMU und Eval-Konsument"
+    },
+    {
+      "bestand": "aethelProjects-Dossiers ohne Konsument",
+      "ebene": "E3",
+      "hebt": [],
+      "id": "P1",
+      "komponente": "aethelProjectManagement",
+      "name": "aethelProjectManagement",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 2,
+      "vertrag": "aethel.pm/v1",
+      "zweck": "Software-PLM: Revision, Komponentenstückliste, Änderungsobjekt mit Betroffenheit, Digital Thread"
+    },
+    {
+      "bestand": "coder.resume in Runtime, Shell-Aufrufe ohne Identität",
+      "ebene": "E4",
+      "hebt": [
+        "B11"
+      ],
+      "id": "P2",
+      "komponente": "aixd",
+      "name": "aethelSupplier",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.supplier/v1",
+      "zweck": "Lieferantenkonten für Fremdagenten (Codex, Copilot, Cursor, Cloud): Identität, Rolle, Kostenklasse, Budget, Bewertung"
+    },
+    {
+      "bestand": "evals.score advisory",
+      "ebene": "META",
+      "hebt": [
+        "B7",
+        "B4"
+      ],
+      "id": "P3",
+      "komponente": "aethelAudit",
+      "name": "aethelAudit",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.audit/v1",
+      "zweck": "S3*: unangekündigte Stichproben über Receipts, Digests, Testdateien, Parität"
+    },
+    {
+      "bestand": "Helix, Omega, v6, DeepLearning ohne Verwertungspfad",
+      "ebene": "E3",
+      "hebt": [
+        "B20"
+      ],
+      "id": "P4",
+      "komponente": "aethelProjects",
+      "name": "aethelResearchGate",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 1,
+      "vertrag": "aethel.research-gate/v1",
+      "zweck": "Forschung wird nur über Spec, Test, Konsument zur Komponente; Forschungsregister"
+    },
+    {
+      "bestand": "aethel-projects stack (dieser Schnitt)",
+      "ebene": "E5",
+      "hebt": [
+        "B19",
+        "B20"
+      ],
+      "id": "P5",
+      "komponente": "aethelProjects",
+      "name": "aethelStackMap",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "in-arbeit",
+      "stufe": 1,
+      "vertrag": "aethel.stack/v1",
+      "zweck": "Schichtenkarte als Datenmodell in der Registry; Sicht in aethelema"
+    },
+    {
+      "bestand": "QEMU, Verilator, Yosys installiert; Ziele fehlen",
+      "ebene": "E4",
+      "hebt": [
+        "B19",
+        "B20"
+      ],
+      "id": "P6",
+      "komponente": "aethelRelease",
+      "name": "aethelToolchain",
+      "quelle": "neue-projekte-kreislaeufe-rat",
+      "status": "vorgeschlagen",
+      "stufe": 2,
+      "vertrag": "aethel.target/v1",
+      "zweck": "Toolchain-Ziele als Vertrag: Rust Bare-Metal, WASI 0.3, Static Linux, Embedded Swift"
+    }
+  ],
+  "schema": "aethel.projects.vorschlaege/v1"
+}

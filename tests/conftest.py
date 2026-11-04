@@ -19,7 +19,7 @@ from aethel_projects.models import RepoReport  # noqa: E402
 def git(repo: Path, *args: str) -> str:
     """Führt einen Git-Befehl aus und gibt stdout zurück."""
     result = subprocess.run(
-        ["git", "-C", str(repo), *args],
+        ["git", "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null", "-C", str(repo), *args],
         capture_output=True,
         text=True,
         check=True,

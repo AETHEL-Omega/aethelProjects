@@ -127,3 +127,26 @@ Ein Test prüft die Vollständigkeit der Zuordnung (TC-031 in `test_coverage.py`
 | TC | REQ | Given | When | Then |
 |----|-----|-------|------|------|
 | TC-031 | alle | `docs/SPEC.md` + `docs/TEST-CASES.md` | Abgleich REQ-Liste ↔ TC-Liste | Jede REQ-NNN hat ≥1 TC; jeder TC verweist auf eine existierende REQ |
+
+### Erfassung und Projektdossiers (23.10.2026)
+
+| TC | REQ | Given | When | Then |
+|----|-----|-------|------|------|
+| TC-056 | REQ-017 | Tiefer versteckter Worktree, Bare-Repo, kaputter Git-Verweis und Nicht-Git-Paket | `tests/test_inventory.py` | Identitäten/Checkouts korrekt getrennt; ungültige Verweise, externe Registrierungen und Ausschlüsse explizit |
+| TC-057 | REQ-018 | Architekturdokument, Cargo-Pfadabhängigkeit und externe Dokumentverknüpfung | `tests/test_dossier.py` | Quelle gehasht; fehlende Abhängigkeit sichtbar; fremdes Dokument nicht gelesen; Verhalten nicht als geprüft behauptet |
+
+| TC-058 | REQ-019 | Eingangsvertrag und Projektbefund; Varianten mit Drift, fremdem Pfad oder Freigabe | `tests/test_aix_input.py` | Nur context wird ergänzt; keine Freigabe oder Wirkung; alle negativen Bindungsfälle blockieren |
+
+### Analysen-Ablage, Register-Abgleich, Schichtenkarte (03.11.2026)
+
+| TC | REQ | Given | When | Then |
+|----|-----|-------|------|------|
+| TC-059 | REQ-020 | Leere Ablage, Markdown unter `analysen/<Datum>/`, Datei außerhalb, veränderte Datei nach Registrierung | `tests/test_analyses.py` (Index, register, show) | Eintrag mit Titel/SHA/Datum aus Ordnername; Pfadflucht per `..` und Symlink → ValueError; `show` warnt bei Prüfsummenabweichung; nur `INDEX.json` wird geschrieben, atomar und deterministisch |
+| TC-060 | REQ-021 | Gültige und ungültige `vorschlaege.json`/`kreislaeufe.json` | `tests/test_analyses.py` (load_proposals, load_loops, render, summary) | Gültige Register werden geladen und gerendert; unbekannte Felder, falsche Enums, doppelte IDs → ValueError; Zähler stimmen |
+| TC-061 | REQ-020, REQ-021 | Ablage mit einer registrierten Analyse | `tests/test_cli_analyses.py` | `analyses --list/--show/--proposals/--loops/--stats/--register` liefern Exit 0 und erwartete Ausgabe; unbekannte ID → Exit 2; `--out` auf `INDEX.json` → Exit 2 |
+| TC-062 | REQ-022 | Scan mit 3 Repos (eines Worktree), Manifest mit totem Eintrag, Profile mit und ohne Repo, `auftraege.jsonl` mit kaputter Zeile, Pfad und unbekanntem Repo | `tests/test_registers.py` | Alle sechs Drift-Kategorien exakt; Zähler; Manifest-Alter ≥ 0; Markdown mit Schlusssatz nur bei Drift; Eingaben unverändert |
+| TC-063 | REQ-022 | Echter `scan_workspace`-Snapshot aus tmp-Repos | `tests/test_registers.py::test_reconcile_works_on_a_real_scan_snapshot`, `tests/test_cli_analyses.py` | `registers --snapshot` läuft auf dem Vertrag `aethel.projects/v1`; `--fail-on-drift` → Exit 1 bei Drift |
+| TC-064 | REQ-023 | RepoReports mit Namen je Schicht, Marker-Dateien (`no_std`, `.v`, `capability.json`), ein Worktree | `tests/test_stack.py` | Zuordnung je Regel; Herkunft eigen/fremd/unklar; Worktree übersprungen; `empty_layers` korrekt; Markdown nennt „Leer:“; JSON gültig |
+| TC-065 | REQ-024 | Ablage mit Index, Vorschlägen, Kreisläufen, mit und ohne Lauf-JSON, kaputte und fremde JSON | `tests/test_cockpit.py` | Kennzahlen, Lücken, Dominosteine, offene Kreise; Läufe werden gelesen; md/json/html; Störer ignoriert |
+| TC-066 | REQ-025 | Swift-Repo mit Metal/MLX/XPC/Unified Memory; Python-Repo mit Dockerfile, torch ohne mps, subprocess; Repo ohne Code; Worktree | `tests/test_applefirst.py` | Score ≥ 80 bzw. niedrig mit Findings; Score None ohne Code; Sprachanteile; Scan-Grenzen (Tiefe, 256 KiB, Symlinks); md/json; summary |
+| TC-067 | REQ-026 | Repos je Stufe (leer, README+SPEC, 200 LOC, REQ-Zeilen, Tests, CI mit pytest), Lücke blockiert höhere Stufe, Klassen forschung/infrastruktur, Stub-Mehrheit, Worktree | `tests/test_incubator.py` | Höchste erreichte Stufe und nächste Lücken korrekt; Klassenpfade RF/RI; md mit Verteilung; json mit Schema |

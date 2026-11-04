@@ -1,0 +1,168 @@
+{
+  "entries": [
+    {
+      "date": "2026-11-03",
+      "id": "applefirst-audit-2026-11-03",
+      "path": "2026-11-03/APPLEFIRST-AUDIT-2026-11-03.md",
+      "scope": "workspace",
+      "sha256": "e7f881bad3fee8100e62757d6746a6350e5bec4cce2467d18b98d2ba405bcd41",
+      "summary": "Apple-first-Audit über 322 Repos: Durchschnitt 49; 10 Apple-first, 70 teilweise, 170 vernachlässigt, 50 fremdgeführt; 99 Repos mit Python-Anteil ab 60 %, 86 nutzen MLX, Metal, Core ML oder Foundation Models; aethelScripts 25 (Python 90 %, 440 Dateien mit subprocess).",
+      "tags": [
+        "apple-first",
+        "unified-memory",
+        "python"
+      ],
+      "title": "Apple-first-Audit"
+    },
+    {
+      "date": "2026-11-03",
+      "id": "chat-protokoll-arbeitsweise-2026-11-03",
+      "path": "2026-11-03/CHAT-PROTOKOLL-ARBEITSWEISE-2026-11-03.md",
+      "scope": "aethelProjects",
+      "sha256": "0869d4af82b87d3c0e05c897d2411b8dd2d9c954ab6bfc2db0fe8cb4f949ce45",
+      "summary": "Protokoll des Analyse-Chats vom 03.11.2026: vier Phasen, Arbeitsweise (Messung, günstige Subagenten, getrennte Prüfung, Spec vor Code), Rechercheliste mit Quellen, Verluste und offene Punkte.",
+      "tags": [
+        "protokoll",
+        "arbeitsweise",
+        "recherche"
+      ],
+      "title": "Protokoll dieses Chats: Arbeitsweise, Recherche, Verluste"
+    },
+    {
+      "date": "2026-11-03",
+      "id": "inkubator-reifeleiter-2026-11-03",
+      "path": "2026-11-03/INKUBATOR-REIFELEITER-2026-11-03.md",
+      "scope": "workspace",
+      "sha256": "79b7ad27676a9f6986a3b296e682bfb8279dae59feeb4e46f416a91bef644d1e",
+      "summary": "Inkubator-Reifeleiter über 322 Repos: höchste erreichte Stufe je Repo von R0 Idee bis R11 Betrieb, Verteilung und nächste Lücken; Grundlage für Inkubator-Tore.",
+      "tags": [
+        "inkubator",
+        "reife",
+        "app-store"
+      ],
+      "title": "Inkubator-Reifeleiter"
+    },
+    {
+      "date": "2026-11-03",
+      "id": "neue-projekte-kreislaeufe-rat",
+      "path": "2026-11-03/NEUE-PROJEKTE-KREISLAEUFE-RAT.md",
+      "scope": "firma",
+      "sha256": "03f0b583805d63b381d283060bf5437e40a8e4dd0270c1d0ff61e74787e10e45",
+      "summary": "Antworten: Rolle von aethelProjects, Zusammenhang mit Company/Factory/Analyzer/Consultant, 30 neue Projekte, 22 Kreisläufe, Rat-Matrix je Disziplin und Ebene, Inkubator, zwölf Schritte zur Kybernetik.",
+      "tags": [
+        "projekte",
+        "kreislaeufe",
+        "rat",
+        "inkubator",
+        "company",
+        "consultant"
+      ],
+      "title": "Neue Projekte, Kreisläufe und der Ort des Rats"
+    },
+    {
+      "date": "2026-11-03",
+      "id": "register-abgleich-2026-11-03",
+      "path": "2026-11-03/REGISTER-ABGLEICH-2026-11-03.md",
+      "scope": "workspace",
+      "sha256": "75dbeebad6277ac4e2f5dcf274c81d18dbb6e6f47c3bed8e3951f5e36f2182c4",
+      "summary": "Echter Register-Abgleich vom 03.11.2026 (korrigierte Worktree-Logik): Scan, Manifest (66 Tage alt), Projektprofile, Aufträge; Repos ohne Manifest-Eintrag, Worktrees ohne Eintrag, Profile ohne Repo, Aufträge ohne Repo-Bezug.",
+      "tags": [
+        "register",
+        "drift",
+        "manifest",
+        "worktrees"
+      ],
+      "title": "Register-Abgleich"
+    },
+    {
+      "date": "2026-11-03",
+      "id": "schichtenkarte-2026-11-03",
+      "path": "2026-11-03/SCHICHTENKARTE-2026-11-03.md",
+      "scope": "stack",
+      "sha256": "f499ba179cbc93b3fab44e518efed503323e721d1adecb68999986ca7e3738e2",
+      "summary": "Schichtenkarte (korrigierte Regeln) über 322 Repos: 13 von 18 Schichten belegt; leer sind Firmware, Sprache/Toolchain, Sicherheit/Identität, Distribution, Entscheidung/Doku.",
+      "tags": [
+        "stack",
+        "schichten"
+      ],
+      "title": "Schichtenkarte"
+    },
+    {
+      "date": "2026-11-03",
+      "id": "werkzeuge-die-werkzeuge-bauen",
+      "path": "2026-11-03/WERKZEUGE-DIE-WERKZEUGE-BAUEN.md",
+      "scope": "fabrik",
+      "sha256": "1f3e6b20230c8f25b70fec48215452801467bf5e77bee974e99cb6a8cf29e7ca",
+      "summary": "Rekursives Bootstrapping: drei Vorbilder (Compiler-Bootstrap, Sprachwerkbank, Produktlinie), Forschung 2026 zu selbstentwickelnden Werkzeugen, Skills aus Spuren, Harness-Evolution und Darwin-Gödel-Maschine, fünf Werkzeugmacher W1–W5 für AETHEL, Prinzipien heute statt gestern je Aspekt.",
+      "tags": [
+        "bootstrapping",
+        "werkzeugmacher",
+        "harness",
+        "skills",
+        "forschung"
+      ],
+      "title": "Werkzeuge, die Werkzeuge bauen: rekursives Bootstrapping für AETHEL"
+    },
+    {
+      "date": "2026-11-03",
+      "id": "workspace-analyse-2026-11-03",
+      "path": "2026-11-03/WORKSPACE-ANALYSE-2026-11-03.md",
+      "scope": "workspace",
+      "sha256": "be0e97cd94d35769659b123fb364be7adf08ef9332eb09c58ab2bf31c2605d8e",
+      "summary": "Hauptanalyse: Inventar aller Repos, fünf Register, aethelProjects↔CodeAnalyzer, Fabrik/Firma-Organe, Lücken je Achse, Kreisläufe K1–K4, fehlende Projekte P1–P15, Gesamtstack S1–S7.",
+      "tags": [
+        "inventar",
+        "register",
+        "luecken",
+        "stack"
+      ],
+      "title": "Gesamtanalyse des Workspace ~/workspace – Projekte, Erfassung, Fabrik, Lücken, Stand der Technik"
+    },
+    {
+      "date": "2026-11-03",
+      "id": "workspace-analyse-2026-11-03-ergaenzung-technologie-architektur",
+      "path": "2026-11-03/WORKSPACE-ANALYSE-2026-11-03-ERGAENZUNG-TECHNOLOGIE-ARCHITEKTUR.md",
+      "scope": "fabrik",
+      "sha256": "99b43ed846442efb50940faa811a29d63f6c2f855e741487b7bd28f734a44038",
+      "summary": "Ergänzung: Plattformstand macOS 27, Apple-Angebot, eigener Laufzeitbestand, Feature-Matrix gegen Cursor/Claude Code/Codex/LangGraph/Kiro/Xcode 27, Forschung 2026, Siemens/Mendix/Kiraa/Kiro, Kybernetik-Mehrebenenmodell, Soll-Architektur, 23 Lücken, 13 Schnitte.",
+      "tags": [
+        "technologie",
+        "architektur",
+        "kybernetik",
+        "forschung"
+      ],
+      "title": "Ergänzungsbericht: Technologie, Architektur, Kybernetik auf macOS 27"
+    },
+    {
+      "date": "2026-11-03",
+      "id": "workspace-analyse-2026-11-03-gesamtstack-bauteile",
+      "path": "2026-11-03/WORKSPACE-ANALYSE-2026-11-03-GESAMTSTACK-BAUTEILE.md",
+      "scope": "stack",
+      "sha256": "8b29e20148029edc1b364eb60b8a4dcea52d17ea7ecf96c33062606cba042b6f",
+      "summary": "Gesamtstack: installierte Toolchains, Referenzstacks 2026, 17 Schichten mit Lücken und Best-Practice-Abweichungen, 20 Meta-Bauteile mit Hebel, eigen/fremd je Schicht, Reihenfolge.",
+      "tags": [
+        "stack",
+        "bauteile",
+        "best-practice"
+      ],
+      "title": "Gesamtstack-Bericht: was fehlt, wo nicht Best Practice, welche Bauteile zuerst"
+    },
+    {
+      "date": "2026-11-03",
+      "id": "zielbetriebsmodell-und-dominosteine",
+      "path": "2026-11-03/ZIELBETRIEBSMODELL-UND-DOMINOSTEINE.md",
+      "scope": "firma",
+      "sha256": "645768e61da4f46b81c3db04eeac7c0dfdf1195e05894519ed799b60a7869614",
+      "summary": "Zielbetriebsmodell: Bewertungsmaßstäbe, aethelCompany-Kriterien, Arbeitsfähigkeit, lokale KI für Company, Git-Sackgasse und Landung on top, strategische und technologische Projekte, fünf Dominosteine, Effizienzregeln bei knapper Kapazität.",
+      "tags": [
+        "betriebsmodell",
+        "company",
+        "landing",
+        "dominosteine",
+        "apple-first"
+      ],
+      "title": "Zielbetriebsmodell: professionell und kybernetisch, mit knapper Kapazität"
+    }
+  ],
+  "schema": "aethel.projects.analysen/v1"
+}

@@ -12,6 +12,7 @@ venv/
 *.scan.json
 portfolio.json
 /report.html
+/reports/
 
 # Editor / OS
 .DS_Store

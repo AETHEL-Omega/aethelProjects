@@ -12,8 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import gitio
-
-MAX_DEPTH = 2
+from .inventory import census
 
 
 @dataclass(frozen=True)
@@ -29,12 +28,7 @@ class RepoIdentity:
 
 def _candidate_dirs(root: Path) -> list[Path]:
     """Alle Verzeichnisse unterhalb root, die ein .git enthalten (Datei oder Ordner)."""
-    found: list[Path] = []
-    for depth in range(1, MAX_DEPTH + 1):
-        pattern = "/".join(["*"] * depth) + "/.git"
-        for git_marker in root.glob(pattern):
-            found.append(git_marker.parent)
-    return sorted(set(found))
+    return [Path(p) for p in census(root)["git_candidates"]]
 
 
 def _common_dir(repo: Path) -> str | None:
@@ -63,7 +57,6 @@ def discover(root: Path | str) -> list[RepoIdentity]:
 
     identities: list[RepoIdentity] = []
     for common, members in sorted(grouped.items()):
-        common_path = Path(common)
         # Das Hauptverzeichnis ist derjenige, in dem .git selbst liegt.
         owner = None
         for member in members:
@@ -71,8 +64,8 @@ def discover(root: Path | str) -> list[RepoIdentity]:
                 owner = member
                 break
         if owner is None:
-            # Alle sind Worktrees: der Besitzer liegt eine Ebene über common_dir.
-            owner = common_path.parent
+            # Ohne Hauptcheckout einen vorhandenen Worktree oder Bare-Pfad nutzen.
+            owner = members[0]
         worktrees = tuple(
             sorted(str(m) for m in members if m != owner)
         )
@@ -81,7 +74,7 @@ def discover(root: Path | str) -> list[RepoIdentity]:
                 name=owner.name,
                 path=str(owner),
                 git_common_dir=common,
-                is_worktree=owner not in members,
+                is_worktree=(owner / ".git").is_file(),
                 worktree_paths=worktrees,
             )
         )

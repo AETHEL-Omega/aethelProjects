@@ -1,0 +1,49 @@
+from aethel_projects.stubs import scan
+
+
+def test_language_stubs_and_exclusions(tmp_path):
+    files = {
+        'app.py': 'from typing import Protocol, overload\nfrom abc import abstractmethod\nclass P(Protocol):\n def method(self): ...\nclass A:\n @abstractmethod\n def f(self): pass\n@overload\ndef f(x: int): ...\ndef pending(): pass\ndef missing():\n raise NotImplementedError\n',
+        'src/lib.rs': 'fn x() { todo!(); }\nfn y() { unimplemented!(); }\n',
+        'src/App.swift': 'func f() { fatalError("not implemented") }\n',
+        'src/a.dart': 'void f() { throw UnimplementedError(); }\n',
+        'src/a.ts': 'function f() { throw new Error("not implemented"); }\n',
+        'src/a.js': '// TODO: implement this\n',
+        'tests/test_fake.py': 'def fake(): pass\n',
+        'vendor/a.rs': 'todo!()\n',
+        'build/a.rs': 'todo!()\n',
+        'src/generated.rs': '// @generated\ntodo!()\n',
+    }
+    for name, content in files.items():
+        path = tmp_path / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content)
+    findings = scan(tmp_path)
+    assert sum(f['path'] == 'app.py' for f in findings) == 2
+    assert {f['path'] for f in findings} == {'app.py', 'src/lib.rs', 'src/App.swift', 'src/a.dart', 'src/a.ts', 'src/a.js'}
+    assert all(f['line'] > 0 and f['sicherheit'] in {'sicher', 'hinweis'} for f in findings)
+    assert all(f['sicherheit'] == 'sicher' for f in findings if f['path'] == 'app.py')
+
+
+def test_python_string_literals_are_not_markers(tmp_path):
+    (tmp_path / 'app.py').write_text('label = "STUB"\npattern = r"TODO: implement"\n')
+    assert scan(tmp_path) == []
+
+
+def test_stub_word_in_prose_is_not_a_marker(tmp_path):
+    (tmp_path / 'app.py').write_text('# A stub is only an example in this explanation.\ndef run(): return 1\n')
+    assert scan(tmp_path) == []
+
+
+def test_complete_functions_in_each_language_are_not_stubs(tmp_path):
+    files = {
+        'app.py': 'def run(): return 1\n',
+        'lib.rs': 'fn run() -> i32 { 1 }\n',
+        'App.swift': 'func run() -> Int { return 1 }\n',
+        'app.dart': 'int run() { return 1; }\n',
+        'app.ts': 'function run(): number { return 1; }\n',
+        'app.js': 'function run() { return 1; }\n',
+    }
+    for name, content in files.items():
+        (tmp_path / name).write_text(content)
+    assert scan(tmp_path) == []

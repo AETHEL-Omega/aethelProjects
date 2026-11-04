@@ -1,0 +1,7 @@
+schema: aethel.engineering/v1
+method:
+  spec_format:
+    document: docs/SPEC.md
+    requirement_columns: [id, priority, requirement, acceptance]
+    test_cases: docs/TEST-CASES.md
+    rule: Each requirement has at least one linked test case.
