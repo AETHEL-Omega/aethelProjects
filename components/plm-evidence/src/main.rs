@@ -41,10 +41,11 @@ fn run() -> Result<(), (u8, String)> {
         && command != "copilot-observation"
         && command != "landscape-project"
         && command != "landing-observation"
+        && command != "cockpit-observation"
     {
         return Err((
             2,
-            "usage: plm-evidence assess|assess-quality|assess-linked|project-observation|copilot-observation|landscape-project|landing-observation --input FILE --format json|text".into(),
+            "usage: plm-evidence assess|assess-quality|assess-linked|project-observation|copilot-observation|landscape-project|landing-observation|cockpit-observation --input FILE --format json|text".into(),
         ));
     }
     let (mut input, mut format, mut repository, mut source, mut evidence, mut goal) =
@@ -70,6 +71,7 @@ fn run() -> Result<(), (u8, String)> {
                     "project-observation"
                         | "copilot-observation"
                         | "landscape-project"
+                        | "cockpit-observation"
                         | "landing-observation"
                 ) && source.is_none() =>
             {
@@ -104,7 +106,16 @@ fn run() -> Result<(), (u8, String)> {
         return Err((2, "invalid format".into()));
     }
     let bytes = read_input(&input)?;
-    let output = if command == "landing-observation" {
+    let output = if command == "cockpit-observation" {
+        if format != "json" {
+            return Err((2, "cockpit-observation requires --format json".into()));
+        }
+        let source = source.ok_or((2, "missing --source-id".into()))?;
+        let input =
+            serde_json::from_slice(&bytes).map_err(|e| (2, format!("invalid cockpit: {e}")))?;
+        let result = plm_evidence::cockpit::project(input, &source).map_err(|e| (2, e))?;
+        serde_json::to_string_pretty(&result).map_err(|e| (2, e.to_string()))? + "\n"
+    } else if command == "landing-observation" {
         if format != "json" {
             return Err((2, "landing-observation requires --format json".into()));
         }

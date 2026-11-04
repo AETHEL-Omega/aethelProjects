@@ -1,6 +1,12 @@
 # AETHEL Arbeitsraum – lesender Pilot
 
-Eigenständiger Flutter-Prototyp für macOS. Einstieg ist eine datierte,
+Eigenständiger Flutter-Prototyp für macOS. Der Produkteinstieg zeigt den
+historischen Y-1-Fall sowie getrennte Fragen für Firma, Fabrik und mBOM. Der
+eingebundene Projects-Leitstand stammt aus dem abgelegten Export vom
+03.11.2026 aus PR #2; Aktualität und Autorität werden nicht live geprüft. Die
+mBOM-Karte beschreibt AIX-Vertragsfelder, keinen nachgewiesenen Y-1-Auftrag.
+
+Die Projektlandschaft ist eine datierte,
 pseudonymisierte Rechercheprojektion der Projektlandschaft: 624 Einträge und
 921 Beziehungen aus dem ursprünglichen Bericht sowie zwei ausdrücklich
 gekennzeichnete Komponenten und drei Beziehungen als Zusatz. Es handelt sich
@@ -39,6 +45,17 @@ Recherchedatei erzeugt und anschließend geöffnet:
 cargo run --offline --manifest-path components/plm-evidence/Cargo.toml -- \
   landscape-project --input projektgraph.json --format json --source-id 'Recherche 04.11.2026' \
   > /tmp/aethel-landschaft.json
+```
+
+Eine vorhandene Projects-Leitstanddatei im Schema
+`aethel.projects.cockpit/v1` kann ebenfalls ausdrücklich projiziert und über
+**Auswertung öffnen** geladen werden. Der Quellenbezeichner ist eine Angabe,
+keine Prüfung der Herkunft:
+
+```sh
+cargo run --offline --manifest-path components/plm-evidence/Cargo.toml -- \
+  cockpit-observation --input /pfad/zum/leitstand.json --source-id 'Projects-Export' --format json \
+  > /tmp/aethel-cockpit.json
 ```
 
 Für eine Fallzuordnung sind außerdem ein ausdrücklich gebundenes `--binding`

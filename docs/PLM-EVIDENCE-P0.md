@@ -619,3 +619,19 @@ aethelema-Integration zum dortigen Owner. Dieser Schnitt bleibt bei
 versionierter Produkt-/Änderungsakte, belegtem Zustand und lesender Darstellung
 vorhandener Projects-Projektionen. Eine Übergabe der AIX-Befunde oder eine
 aktive Besitzerbestätigung ist durch diesen Hinweis noch nicht belegt.
+
+Besitzabgleich nach Claudes durch Manuel übermittelter Antwort: Der Schnitt
+`components/plm-evidence/**` und dieses Dokument sind parallel frei. Claudes
+Projects-PRs #2–#4 betreffen `src/aethel_projects/**`, `tests/**`, `analysen/**`
+und andere Projektdokumente, nicht `components/`; der laufende Worker arbeitet
+an `aethelScripts`. Keine dieser fremden Dateien wurde geändert. Der Arbeitsraum
+zeigt nun einen eigenen Produkteinstieg für den historischen Y-1-Fall und
+getrennte Firmen-, Fabrik- und mBOM-Fragen. Ein datierter Projects-Leitstand
+aus PR #2 wird über `cockpit-observation` projiziert; er ist kein Live-Stand.
+Der AIX-POM-v2-Vertrag beschreibt die mBOM-Felder, aber kein konkreter Y-1-
+Fertigungsauftrag oder dessen mBOM wurde hier gefunden oder geprüft.
+
+Zukünftige Gesamt- und Rollenansichten müssen auf denselben berechtigten
+Quellen beruhen. Rollenfilter allein sind keine Datenzugriffskontrolle; Finanz-
+und Investorendaten brauchen Rechte an der Quelle. Dieser Schnitt implementiert
+keine Rollenautorisierung und keine finanzielle Bewertung.

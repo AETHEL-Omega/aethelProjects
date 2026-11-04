@@ -345,6 +345,7 @@ pub mod link;
 
 pub mod projects;
 
+pub mod cockpit;
 pub mod copilot;
 pub mod landing;
 pub mod landscape;

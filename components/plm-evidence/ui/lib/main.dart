@@ -3,6 +3,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'landscape.dart';
+import 'product_home.dart';
 
 void main() => runApp(const AethelPlm());
 
@@ -50,6 +51,7 @@ class Workspace extends StatefulWidget {
 class _WorkspaceState extends State<Workspace> {
   Map<String, dynamic>? document;
   Map<String, dynamic>? landscape;
+  Map<String, dynamic>? cockpit;
   String landscapeOrigin = 'Historische Recherche · Pfade pseudonymisiert';
   String? selectedLandscapeId;
   int landscapeGeneration = 0;
@@ -63,6 +65,7 @@ class _WorkspaceState extends State<Workspace> {
   @override
   void initState() {
     super.initState();
+    _loadCockpit();
     if (widget.initialLandscapeJson == null) {
       _loadLandscape();
     } else {
@@ -93,6 +96,23 @@ class _WorkspaceState extends State<Workspace> {
         'Historischer Pilot Y-1',
         navigate: false,
       );
+    }
+  }
+
+  Future<void> _loadCockpit() async {
+    try {
+      final value = jsonDecode(
+        await rootBundle.loadString('assets/cockpit-2026-11-03.json'),
+      );
+      if (value is! Map<String, dynamic>) throw const FormatException();
+      validateShape(value);
+      if (mounted && cockpit == null) setState(() => cockpit = value);
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => error = 'Projects-Leitstand konnte nicht geladen werden.',
+        );
+      }
     }
   }
 
@@ -192,23 +212,26 @@ class _WorkspaceState extends State<Workspace> {
       validateShape(value);
       if (mounted) {
         setState(() {
-          if (value['schema'] == 'aethel.plm.landscape-projection/v1') {
+          if (value['schema'] == 'aethel.plm.cockpit-observation/v1') {
+            cockpit = value;
+            if (navigate) section = 0;
+          } else if (value['schema'] == 'aethel.plm.landscape-projection/v1') {
             landscapeGeneration++;
             landscape = value;
             landscapeOrigin = title;
             selectedLandscapeId = null;
             boundProjectSources.clear();
             boundLandingSources.clear();
-            if (navigate) section = 0;
+            if (navigate) section = 1;
           } else if (value['schema'] == 'aethel.plm.project-observation/v1' ||
               value['schema'] == 'aethel.plm.copilot-observation/v1' ||
               value['schema'] == 'aethel.plm.landing-observation/v1') {
             sources.add(SourceItem(title, value));
-            if (navigate) section = 4;
+            if (navigate) section = 5;
           } else {
             document = value;
             origin = title;
-            if (navigate) section = 1;
+            if (navigate) section = 2;
           }
           error = null;
         });
@@ -264,7 +287,7 @@ class _WorkspaceState extends State<Workspace> {
             color: Theme.of(context).colorScheme.secondaryContainer,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
             child: Text(
-              section == 0
+              section == 0 || section == 1
                   ? '$landscapeOrigin · Lesende Ansicht · Angaben nicht live geprüft'
                   : '$origin · Lesende Ansicht · Quelle und Autorität nicht geprüft',
             ),
@@ -307,32 +330,39 @@ class _WorkspaceState extends State<Workspace> {
                         child: Column(
                           children: [
                             if (compact)
-                              SegmentedButton<int>(
-                                segments: const [
-                                  ButtonSegment(
-                                    value: 0,
-                                    label: Text('Landschaft'),
-                                  ),
-                                  ButtonSegment(
-                                    value: 1,
-                                    label: Text('Änderung'),
-                                  ),
-                                  ButtonSegment(
-                                    value: 2,
-                                    label: Text('Qualität'),
-                                  ),
-                                  ButtonSegment(
-                                    value: 3,
-                                    label: Text('Zusammenhang'),
-                                  ),
-                                  ButtonSegment(
-                                    value: 4,
-                                    label: Text('Quelle'),
-                                  ),
-                                ],
-                                selected: {section},
-                                onSelectionChanged: (v) =>
-                                    setState(() => section = v.first),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: SegmentedButton<int>(
+                                  segments: const [
+                                    ButtonSegment(
+                                      value: 0,
+                                      label: Text('Produkte'),
+                                    ),
+                                    ButtonSegment(
+                                      value: 1,
+                                      label: Text('Landschaft'),
+                                    ),
+                                    ButtonSegment(
+                                      value: 2,
+                                      label: Text('Änderung'),
+                                    ),
+                                    ButtonSegment(
+                                      value: 3,
+                                      label: Text('Qualität'),
+                                    ),
+                                    ButtonSegment(
+                                      value: 4,
+                                      label: Text('Zusammenhang'),
+                                    ),
+                                    ButtonSegment(
+                                      value: 5,
+                                      label: Text('Quelle'),
+                                    ),
+                                  ],
+                                  selected: {section},
+                                  onSelectionChanged: (v) =>
+                                      setState(() => section = v.first),
+                                ),
                               ),
                             Expanded(
                               child: SingleChildScrollView(
@@ -343,7 +373,16 @@ class _WorkspaceState extends State<Workspace> {
                                       maxWidth: 1100,
                                     ),
                                     child: switch (section) {
-                                      0 =>
+                                      0 => ProductHome(
+                                        cockpit: cockpit,
+                                        onOpenY1: () => _example(
+                                          'assets/y1-assessment.json',
+                                          'Historischer Pilot Y-1',
+                                        ),
+                                        onLandscape: () =>
+                                            setState(() => section = 1),
+                                      ),
+                                      1 =>
                                         landscape == null
                                             ? const EmptyPanel(
                                                 'Keine Projektlandschaft geladen.',
@@ -383,9 +422,9 @@ class _WorkspaceState extends State<Workspace> {
                                                   'Historischer Pilot Y-1',
                                                 ),
                                               ),
-                                      1 => ChangePanel(data: data),
-                                      2 => QualityPanel(data: data),
-                                      3 => TracePanel(data: data),
+                                      2 => ChangePanel(data: data),
+                                      3 => QualityPanel(data: data),
+                                      4 => TracePanel(data: data),
                                       _ => SourcePanel(
                                         data: data,
                                         sources: sources,
@@ -411,6 +450,10 @@ class _WorkspaceState extends State<Workspace> {
 
 const destinations = [
   NavigationRailDestination(
+    icon: Icon(Icons.dashboard_outlined),
+    label: Text('Produkte'),
+  ),
+  NavigationRailDestination(
     icon: Icon(Icons.grid_view_outlined),
     label: Text('Projektlandschaft'),
   ),
@@ -432,6 +475,7 @@ const destinations = [
   ),
 ];
 const supported = {
+  'aethel.plm.cockpit-observation/v1',
   'aethel.plm.landscape-projection/v1',
   'aethel.plm.landing-observation/v1',
   'aethel.plm.assessment/v1',
@@ -446,6 +490,12 @@ List<dynamic> list(dynamic value) => value is List ? value : const [];
 String show(dynamic value) => value == null ? 'Unbekannt' : value.toString();
 void validateShape(Map<String, dynamic> data) {
   final schema = data['schema'];
+  if (schema == 'aethel.plm.cockpit-observation/v1' &&
+      (data['tiles'] is! List ||
+          data['missing'] is! List ||
+          object(data['sources']) == null)) {
+    throw const FormatException();
+  }
   if (schema == 'aethel.plm.landscape-projection/v1' &&
       (data['nodes'] is! List ||
           data['edges'] is! List ||

@@ -29,6 +29,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Projektlandschaft'));
+      await tester.pumpAndSettle();
       await tester.enterText(
         find.byKey(const Key('landscape-search')),
         'aethelema',
@@ -78,6 +80,8 @@ void main() {
           ).readAsStringSync(),
         ),
       );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Projektlandschaft'));
       await tester.pumpAndSettle();
       await tester.enterText(
         find.byKey(const Key('landscape-search')),
@@ -129,6 +133,8 @@ void main() {
         ).readAsStringSync(),
       ),
     );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Projektlandschaft'));
     await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const Key('landscape-search')),
