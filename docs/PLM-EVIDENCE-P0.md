@@ -738,3 +738,13 @@ Bis zum Vorliegen der echten Quelle gibt es keine automatische Y-1-mBOM-
 Anbindung. Dieser Entwurf erzeugt weder ein Ledger-Ereignis noch einen
 Fertigungsauftrag; die verbleibende Entscheidung ist die Einführung und
 Belegung des Auftrags über den AIX-Owner.
+
+## Erneutes Lesen ausgewählter Projects-Exporte
+
+Ein über den Dateidialog gewählter Originalexport `aethel.projects.cockpit/v1`
+wird während der Sitzung alle 30 Sekunden erneut eingelesen. Fehler, ungültige
+oder zu große Dateien lassen den letzten Stand mit Veraltet-Hinweis stehen.
+Die Dateiauswahl kann beendet werden; nach App-Neustart muss sie erneut
+erfolgen. Die App startet keinen Projects-Scan und erzeugt keinen Export.
+Das Zeitpunkt-/Aktualitätsproblem der eigentlichen Daten bleibt unaufgelöst;
+das neue Lesen ist keine Quellen- oder Autoritätsprüfung.

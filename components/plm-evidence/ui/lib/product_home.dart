@@ -5,6 +5,8 @@ class ProductHome extends StatelessWidget {
   const ProductHome({
     super.key,
     required this.cockpit,
+    this.projectsStatus,
+    this.onProjectsStop,
     this.aixDashboard,
     this.aixStatus,
     this.aixConnected = false,
@@ -15,6 +17,8 @@ class ProductHome extends StatelessWidget {
     required this.onLandscape,
   });
   final Map<String, dynamic>? cockpit;
+  final String? projectsStatus;
+  final VoidCallback? onProjectsStop;
   final Map<String, dynamic>? aixDashboard;
   final String? aixStatus;
   final bool aixConnected;
@@ -197,6 +201,13 @@ class ProductHome extends StatelessWidget {
           const SizedBox(height: 16),
         ],
         Text('Projects-Leitstand', style: theme.textTheme.titleLarge),
+        if (projectsStatus != null) Text(projectsStatus!),
+        if (onProjectsStop != null)
+          TextButton(
+            onPressed: onProjectsStop,
+            child: const Text('Datei-Neulesen beenden'),
+          ),
+
         Text(
           cockpit == null
               ? 'Keine Leitstandprojektion geladen.'

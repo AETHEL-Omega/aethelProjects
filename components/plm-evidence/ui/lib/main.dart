@@ -7,6 +7,7 @@ import 'landscape.dart';
 import 'product_home.dart';
 import 'source_adapters.dart';
 import 'aix_live.dart';
+import 'projects_file.dart';
 
 void main() => runApp(const AethelPlm());
 
@@ -55,6 +56,11 @@ class _WorkspaceState extends State<Workspace> {
   Map<String, dynamic>? document;
   Map<String, dynamic>? landscape;
   Map<String, dynamic>? cockpit;
+  Timer? projectsTimer;
+  XFile? projectsFile;
+  int projectsGeneration = 0;
+  bool projectsLoading = false;
+  String projectsStatus = 'Mitgelieferte historische Momentaufnahme';
   Map<String, dynamic>? aixDashboard;
   Timer? aixTimer;
   int aixGeneration = 0;
@@ -111,6 +117,7 @@ class _WorkspaceState extends State<Workspace> {
   @override
   void dispose() {
     aixTimer?.cancel();
+    projectsTimer?.cancel();
     super.dispose();
   }
 
@@ -155,6 +162,62 @@ class _WorkspaceState extends State<Workspace> {
       }
     } finally {
       if (generation == aixGeneration) aixLoading = false;
+    }
+  }
+
+  void _stopProjects() {
+    projectsTimer?.cancel();
+    projectsTimer = null;
+    projectsFile = null;
+    projectsGeneration++;
+    projectsLoading = false;
+    setState(
+      () =>
+          projectsStatus = 'Automatisches Neulesen beendet; letzter Dateistand',
+    );
+  }
+
+  void _watchProjects(XFile file, Map<String, dynamic> initial) {
+    projectsTimer?.cancel();
+    projectsGeneration++;
+    projectsLoading = false;
+    projectsFile = file;
+    setState(() {
+      cockpit = initial;
+      projectsStatus =
+          'Ausgewählte Datei · automatisches Neulesen alle 30 Sekunden';
+      section = 0;
+      error = null;
+    });
+    projectsTimer = Timer.periodic(
+      const Duration(seconds: 30),
+      (_) => _refreshProjects(),
+    );
+  }
+
+  Future<void> _refreshProjects() async {
+    final file = projectsFile;
+    if (file == null || projectsLoading) return;
+    projectsLoading = true;
+    final generation = ++projectsGeneration;
+    try {
+      final value = await readProjectsFile(file);
+      if (mounted && generation == projectsGeneration) {
+        setState(() {
+          cockpit = value;
+          projectsStatus =
+              'Datei erneut gelesen · Datenalter durch Projects-Quelle bestimmt';
+        });
+      }
+    } catch (_) {
+      if (mounted && generation == projectsGeneration) {
+        setState(
+          () => projectsStatus =
+              'Datei nicht lesbar oder ungültig · letzter Stand möglicherweise veraltet',
+        );
+      }
+    } finally {
+      if (generation == projectsGeneration) projectsLoading = false;
     }
   }
 
@@ -251,7 +314,14 @@ class _WorkspaceState extends State<Workspace> {
       if (utf8.encode(content).length > 8 * 1024 * 1024) {
         throw const FormatException('Datei überschreitet 8 MiB.');
       }
-      _setDocument(content, 'Datei: ${file.name}');
+      final value = jsonDecode(content);
+      if (value is Map<String, dynamic> &&
+          value['schema'] == 'aethel.projects.cockpit/v1') {
+        final initial = readCockpit(value, 'Datei: ${file.name}');
+        if (mounted) _watchProjects(file, initial);
+      } else {
+        _setDocument(content, 'Datei: ${file.name}');
+      }
     } catch (_) {
       if (mounted) {
         setState(
@@ -313,6 +383,13 @@ class _WorkspaceState extends State<Workspace> {
       if (mounted) {
         setState(() {
           if (value['schema'] == 'aethel.plm.cockpit-observation/v1') {
+            projectsTimer?.cancel();
+            projectsTimer = null;
+            projectsFile = null;
+            projectsGeneration++;
+            projectsLoading = false;
+            projectsStatus =
+                'Manuell geöffnete Projektion · kein automatisches Neulesen';
             cockpit = value;
             if (navigate) section = 0;
           } else if (value['schema'] == 'aethel.plm.landscape-projection/v1') {
@@ -475,6 +552,10 @@ class _WorkspaceState extends State<Workspace> {
                                     child: switch (section) {
                                       0 => ProductHome(
                                         cockpit: cockpit,
+                                        projectsStatus: projectsStatus,
+                                        onProjectsStop: projectsFile == null
+                                            ? null
+                                            : _stopProjects,
                                         aixDashboard: aixDashboard,
                                         aixStatus: aixStatus,
                                         aixConnected: aixTimer != null,

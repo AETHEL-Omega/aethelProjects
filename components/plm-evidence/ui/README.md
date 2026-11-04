@@ -96,8 +96,11 @@ verbindet **AIX lokal verbinden** das bestehende Dashboard unter
 Beenden der Verbindung oder der App. Die App startet keinen Dienst. Ist das
 Dashboard nicht verfügbar oder die Antwort ungültig, wird ein früherer Stand
 als möglicherweise veraltet gekennzeichnet. Loopback und Schema belegen weder
-die Identität des Dienstes noch eine Produktzuordnung. Projects und mBOM werden
-noch nicht automatisch aktualisiert.
+die Identität des Dienstes noch eine Produktzuordnung. Ein über den Dateidialog gewählter Projects-Cockpit-Export wird während der
+Sitzung alle 30 Sekunden erneut gelesen; bei Fehlern bleibt der letzte Stand mit
+Warnung sichtbar. Der Arbeitsraum erzeugt keinen neuen Export, prüft dessen
+Alter nicht und speichert die Dateiberechtigung nicht für den nächsten Start.
+Die mBOM wird noch nicht automatisch aktualisiert.
 
 Beispiel mit vorhandenen Werkzeugen und einem Projects-Checkout, der `cockpit`
 bereitstellt (derzeit PR #2):
@@ -120,8 +123,7 @@ lesender Vertragspfad, kein nachgewiesener v2-Compiler.
 - Ein Dateidialog öffnet explizit ausgewählte Dateien. Quelle, Autorität und
   Aktualität der Inhalte werden nicht verifiziert. Die Prüfung des nativen
   Dateidialogs war zuletzt nicht vollständig abgeschlossen.
-- Es gibt noch keine native Rust-Anbindung, keine automatische Aktualisierung
-  für Projects oder mBOM, keine Live-Anbindung an Landing, Git oder aethelBrowser und
+- Es gibt noch keine native Rust-Anbindung, keine automatische Erzeugung eines Projects-Exports oder mBOM, keine Live-Anbindung an Landing, Git oder aethelBrowser und
   keine Schreib-, Auftrags-, Ausführungs- oder Mergefunktion.
 - Die historische Momentaufnahme ist kein aktueller Produkt- oder
   Freigabestand. Die Beispiele belegen weder eine gültige Produktidentität
