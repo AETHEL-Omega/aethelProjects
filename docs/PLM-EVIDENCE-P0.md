@@ -781,3 +781,18 @@ Ein für diesen Fall bestätigter installierter, berechtigter Auftragsweg und
 eine gültige mBOM-Quelle sind somit nicht nachgewiesen. Kein Besitz und keine
 Ledger-Bindung wurden vorgetäuscht. Automatische mBOM-Anbindung bleibt offen,
 bis der zuständige AIX-Weg und die konkrete Quelle verfügbar sind.
+
+## AIX-POM-Schnitt und Kernel-Abhängigkeit (04.11.2026)
+
+Der separate AIX-Draft-PR `ManuelWilde/aethelScripts#1387`, Kopf
+`a75607a4066694ff4756a734e8e3b034c3c700aa`, ergänzt eine strukturelle
+POM-v2-Prüfung im vorhandenen Feed und Schema. Der Feed hält v2 mit
+`factory.v2_runtime` bewusst blockiert: Eine Fabriklaufzeit, die die Produkt-,
+Host- und Outputbindung bis zum Ergebnis nachweist, ist noch nicht belegt.
+Die gezielte Feed-Suite meldete 65 bestandene Tests; Opus-Review, Gate und
+Landung stehen aus. Der AIX-Kernel-Schutzschnitt `#1379` ist separat offen;
+er schützt das echte AIX-Heim vor Entwicklungskernen, installiert aber keinen
+neuen Kernel. Er war bei der Abfrage nicht mergefähig (`DIRTY`). Die
+Fertigstellung des installierten Auftragswegs, die tatsächliche Y-1-Bindung,
+die echte mBOM-Quelle und deren automatische Zuordnung bleiben offen. Es
+wurden weder die Produktivinstallation noch das Produktivledger verändert.
