@@ -1,6 +1,18 @@
-use std::{env, fs, process::ExitCode};
+use std::{
+    env,
+    fs::File,
+    io::{self, Read, Write},
+    process::ExitCode,
+};
+const MAX_INPUT_BYTES: u64 = 8 * 1024 * 1024;
 fn run() -> Result<(), (u8, String)> {
-    let mut args = env::args().skip(1);
+    let args: Result<Vec<_>, _> = env::args_os()
+        .skip(1)
+        .map(|arg| arg.into_string())
+        .collect();
+    let mut args = args
+        .map_err(|_| (2, "arguments must be valid UTF-8".into()))?
+        .into_iter();
     if args.next().as_deref() != Some("assess") {
         return Err((
             2,
@@ -21,37 +33,35 @@ fn run() -> Result<(), (u8, String)> {
     if format != "json" && format != "text" {
         return Err((2, "invalid format".into()));
     }
-    let bytes = fs::read(input).map_err(|e| (3, format!("input I/O: {e}")))?;
+    if !std::fs::metadata(&input)
+        .map_err(|e| (3, format!("input I/O: {e}")))?
+        .is_file()
+    {
+        return Err((2, "input must be a regular JSON file".into()));
+    }
+    let file = File::open(input).map_err(|e| (3, format!("input I/O: {e}")))?;
+    if !file.metadata().map_err(|e| (3, e.to_string()))?.is_file() {
+        return Err((2, "input must be a regular JSON file".into()));
+    }
+    let mut bytes = Vec::new();
+    file.take(MAX_INPUT_BYTES + 1)
+        .read_to_end(&mut bytes)
+        .map_err(|e| (3, format!("input I/O: {e}")))?;
+    if bytes.len() as u64 > MAX_INPUT_BYTES {
+        return Err((2, "input exceeds 8 MiB limit".into()));
+    }
     let case = serde_json::from_slice(&bytes)
         .map_err(|e| (2, format!("invalid JSON or case structure: {e}")))?;
     let assessment = plm_evidence::assess(case).map_err(|e| (2, e))?;
-    if format == "json" {
-        println!(
-            "{}",
-            serde_json::to_string_pretty(&assessment).map_err(|e| (2, e.to_string()))?
-        );
+    let output = if format == "json" {
+        serde_json::to_string_pretty(&assessment).map_err(|e| (2, e.to_string()))? + "\n"
     } else {
-        println!(
-            "{} — {}\n{}",
-            assessment.change.id, assessment.change.context, assessment.change.goal
-        );
-        for claim in assessment.claims {
-            println!("\n{}: {}", claim.id, claim.statement);
-            for r in claim.references {
-                println!(
-                    "  {}: {:?}; Art: {}; Standbindung: {}; {}\n    Quelle: {} ({}); Stand: {}; Herkunft: {}",
-                    r.evidence.id, r.evidence.reported_result, r.kind_match, r.candidate_binding, r.assurance,
-                    r.evidence.source, r.evidence.source_id, r.evidence.candidate.as_deref().unwrap_or("unbekannt"), r.evidence.provenance
-                );
-                if let Some(explanation) = &r.evidence.explanation {
-                    println!("    Berichtete Erklärung: {explanation}");
-                }
-            }
-            for g in claim.gaps {
-                println!("  [{}] {}", g.code, g.explanation);
-            }
-        }
-    }
+        plm_evidence::render_text(&assessment)
+    };
+    io::stdout()
+        .lock()
+        .write_all(output.as_bytes())
+        .map_err(|e| (3, format!("output I/O: {e}")))?;
     Ok(())
 }
 fn main() -> ExitCode {

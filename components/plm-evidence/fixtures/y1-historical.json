@@ -1,5 +1,6 @@
 {
   "schema": "aethel.plm.case/v1",
+  "snapshot": {"kind": "historical", "captured_on": "2026-11-04"},
   "change": {
     "id": "Y-1",
     "product_reference": null,

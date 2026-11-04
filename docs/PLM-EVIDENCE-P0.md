@@ -46,7 +46,7 @@ cargo run --manifest-path components/plm-evidence/Cargo.toml -- assess \
 
 Ergebnisse gehen auf stdout, Diagnosen auf stderr. Exitcode 0 bedeutet gültige
 Auswertung, auch mit Lücken; 2 bedeutet ungültige Eingabe oder Bedienfehler;
-3 bedeutet Eingabe-I/O-Fehler. Ein gültiges Ergebnis ist kein grünes Gate.
+3 bedeutet Ein-/Ausgabe-I/O-Fehler. Ein gültiges Ergebnis ist kein grünes Gate.
 
 ## Historischer Pilot und Übergabe
 
@@ -69,3 +69,38 @@ Reviewfragen für Opus: Sind die Dimensionen und die Behandlung von einzelnen
 Fehlschlägen, widersprüchlichen Ergebnissen und Nichtanwendbarkeit fachlich
 korrekt? Ist der Vertrag für spätere Adapter hinreichend eindeutig, ohne eine
 Prüfautorität vorzutäuschen?
+
+## Präzisierung des noch unveröffentlichten v1-Vorschlags
+
+- `snapshot` ist optional. Ohne Angabe gilt `{"kind":"unspecified"}`:
+  keine bekannte Quellenzeit, keine Aktualitätsaussage. Für die Pilotfixture
+  gilt `{"kind":"historical","captured_on":"2026-11-04"}`. Das Datum wird
+  kalendarisch geprüft, bleibt aber eine Quellenbehauptung. Es gibt bewusst
+  keinen `live`-Status; der Evaluator liest keine aktuellen Quellen und keine Uhr.
+- Jeder Fall muss mindestens eine Aussage enthalten. Leere Fälle sind
+  Strukturfehler und werden nicht als erfolgreiche Auswertung ausgegeben.
+- Lücken besitzen `evidence_ids`: konkrete Ursachen referenzieren die betroffenen
+  Belege; Widersprüche nennen alle vergleichbaren Pass-/Fail-Referenzen.
+  Allgemeine Lücken haben eine leere Liste. Kein UI muss IDs aus Text parsen.
+- `unreferenced_evidence` bewahrt alle keiner Aussage zugeordneten Belege,
+  sortiert nach ID. Sie begründen keine Aussage und werden im Text ausgewiesen.
+- Vergleichbar bedeutet hier ausschließlich gleiche **deklarierte** Belegart
+  und gleicher **deklarierter** Kandidatenstand. Identische Strings verifizieren
+  weder Semantik noch Quelle. Herkunft, Digest und `verified` sind keine Autorität.
+  Freie Belegartnamen sind ein offener Vorschlagsvertrag, keine zentrale Registry.
+- Die CLI akzeptiert reguläre JSON-Dateien bis 8 MiB; Übergröße ist Exitcode 2.
+  Ein-/Ausgabefehler einschließlich Broken Pipe sind Exitcode 3. Referenzfelder
+  werden weiterhin nicht aufgelöst. Die Bibliothek selbst macht kein I/O;
+  direkte Bibliotheksnutzer verantworten die Eingabegrößenbegrenzung.
+- Die Textprojektion maskiert Steuerzeichen und gerichtete Unicode-Steuerzeichen
+  aus Quelldaten. JSON erhält die ursprünglichen Daten; ein späteres UI muss
+  diese seinerseits als untrusted Text rendern.
+
+Die Erweiterung erfolgte im bestehenden Chat mit gpt-6-astra (Modellangabe der
+Sitzung), ohne zusätzliche Modellaufträge. Das ist keine unabhängige Prüfung.
+Autorenprüfungen: 16 Integrationstests, darunter eine 24-Fälle-Matrix,
+Formatprüfung und Clippy mit `-D warnings`. Kein Gate oder Merge durchgeführt.
+Review bleibt bei Opus: vorgeschlagene Wire-Semantik, Quellen-/Kandidatenbindung,
+Nichtanwendbarkeit, vollständige Referenzprojektion und CLI-Fehlervertrag prüfen.
+Der neue Kopf ersetzt den früheren Reviewkandidaten; Urteil und Gate müssen an
+den finalen Stand gebunden werden.

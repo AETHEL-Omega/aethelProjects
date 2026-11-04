@@ -224,3 +224,211 @@ fn omitted_optional_fields_stay_unknown() {
         "unknown"
     );
 }
+
+#[test]
+fn outcome_matrix_preserves_scope_and_source_only_assurance() {
+    for kind_matches in [false, true] {
+        for binding in [None, Some("other"), Some("candidate")] {
+            for outcome in [
+                ReportedResult::Pass,
+                ReportedResult::Fail,
+                ReportedResult::Unknown,
+                ReportedResult::NotApplicable,
+            ] {
+                let mut c = fixture();
+                c.claims.truncate(1);
+                c.evidence.truncate(1);
+                c.change.candidate = Some("candidate".into());
+                c.claims[0].required_kind = if kind_matches {
+                    "unit_test"
+                } else {
+                    "real_login"
+                }
+                .into();
+                c.evidence[0].candidate = binding.map(str::to_owned);
+                c.evidence[0].reported_result = outcome;
+                c.evidence[0].verified = true;
+                c.evidence[0].explanation =
+                    Some("Only this reference is declared inapplicable".into());
+                let a = assess(c).unwrap();
+                let claim = &a.claims[0];
+                let applicable = kind_matches
+                    && binding == Some("candidate")
+                    && outcome != ReportedResult::NotApplicable;
+                let has = |code| claim.gaps.iter().any(|g| g.code == code);
+                assert_eq!(has("missing_applicable_evidence"), !applicable);
+                assert_eq!(
+                    has("reported_failure"),
+                    applicable && outcome == ReportedResult::Fail
+                );
+                assert_eq!(
+                    has("reported_unknown"),
+                    applicable && outcome == ReportedResult::Unknown
+                );
+                assert!(has("independent_verification_missing"));
+                assert_eq!(claim.references[0].assurance, "source_assertion_only");
+                for gap in &claim.gaps {
+                    for id in &gap.evidence_ids {
+                        assert_eq!(id, "ua-chain");
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn conflicts_link_only_comparable_evidence_and_ignore_input_order() {
+    let mut c = fixture();
+    c.claims[0].required_kind = "unit_test".into();
+    let mut failure = c.evidence[0].clone();
+    failure.id = "failure".into();
+    failure.reported_result = ReportedResult::Fail;
+    let mut foreign = failure.clone();
+    foreign.id = "foreign".into();
+    foreign.candidate = Some("other".into());
+    c.claims[0]
+        .evidence_ids
+        .extend([failure.id.clone(), foreign.id.clone()]);
+    c.evidence.extend([failure, foreign]);
+    let a = assess(c.clone()).unwrap();
+    let login = a.claims.iter().find(|c| c.id == "login").unwrap();
+    assert_eq!(
+        login
+            .gaps
+            .iter()
+            .find(|g| g.code == "contradictory_results")
+            .unwrap()
+            .evidence_ids,
+        ["failure", "ua-chain"]
+    );
+    let expected = json(c.clone());
+    c.claims.reverse();
+    c.evidence.reverse();
+    for claim in &mut c.claims {
+        claim.evidence_ids.reverse();
+    }
+    assert_eq!(expected, json(c));
+}
+
+#[test]
+fn orphan_references_and_historical_context_are_not_silently_lost() {
+    let mut c = fixture();
+    c.claims.retain(|c| c.id == "login");
+    let a = assess(c).unwrap();
+    assert_eq!(
+        a.unreferenced_evidence
+            .iter()
+            .map(|e| e.id.as_str())
+            .collect::<Vec<_>>(),
+        ["agent-report", "reported-tests"]
+    );
+    let text = plm_evidence::render_text(&a);
+    assert!(text.contains("Historische Momentaufnahme: 2026-11-04; kein Live-Stand."));
+    assert!(text.contains("Nicht zugeordnet: reported-tests"));
+    for date in [
+        "2026-02-29",
+        "0000-01-01",
+        "2026-13-01",
+        "2026-01-00",
+        "2026-11-31",
+        "today",
+    ] {
+        let mut c = fixture();
+        c.snapshot = plm_evidence::Snapshot::Historical {
+            captured_on: date.into(),
+        };
+        assert!(assess(c).is_err(), "{date}");
+    }
+    let mut c = fixture();
+    c.snapshot = plm_evidence::Snapshot::Historical {
+        captured_on: "2024-02-29".into(),
+    };
+    assert!(assess(c).is_ok());
+}
+
+#[test]
+fn text_escapes_controls_and_preserves_explanations() {
+    let mut c = fixture();
+    c.evidence[0].source = "evil\x1b[2J\nforged\u{202e}".into();
+    c.evidence[0].reported_result = ReportedResult::NotApplicable;
+    c.evidence[0].explanation = Some("scenario excluded".into());
+    let text = plm_evidence::render_text(&assess(c).unwrap());
+    assert!(!text.contains('\x1b'));
+    assert!(!text.contains('\u{202e}'));
+    assert!(!text.contains("\nforged"));
+    assert!(text.contains("Berichtete Erklärung: scenario excluded"));
+}
+
+#[test]
+fn empty_case_and_unknown_fields_are_structure_errors() {
+    let mut c = fixture();
+    c.claims.clear();
+    assert!(assess(c).is_err());
+    let mut value = serde_json::to_value(fixture()).unwrap();
+    value["claims"][0]["approved"] = true.into();
+    assert!(serde_json::from_value::<Case>(value).is_err());
+    let mut c = fixture();
+    c.claims[0].evidence_ids.push("ua-chain".into());
+    assert!(assess(c).is_err());
+}
+
+#[cfg(unix)]
+#[test]
+fn stdout_failure_returns_io_exit_code_without_panic() {
+    use std::os::{fd::OwnedFd, unix::net::UnixStream};
+    use std::process::Stdio;
+    let (writer, reader) = UnixStream::pair().unwrap();
+    drop(reader);
+    let fd: OwnedFd = writer.into();
+    let out = Command::new(env!("CARGO_BIN_EXE_plm-evidence"))
+        .args([
+            "assess",
+            "--input",
+            concat!(env!("CARGO_MANIFEST_DIR"), "/fixtures/y1-historical.json"),
+            "--format",
+            "json",
+        ])
+        .stdout(Stdio::from(fd))
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(3));
+    let err = String::from_utf8(out.stderr).unwrap();
+    assert!(err.contains("output I/O"));
+    assert!(!err.contains("panicked"));
+}
+
+#[test]
+fn cli_rejects_oversized_packages_and_usage_errors() {
+    let path = std::env::temp_dir().join(format!("plm-limit-{}.json", std::process::id()));
+    let file = fs::File::create(&path).unwrap();
+    file.set_len(8 * 1024 * 1024 + 1).unwrap();
+    let out = Command::new(env!("CARGO_BIN_EXE_plm-evidence"))
+        .args([
+            "assess",
+            "--input",
+            path.to_str().unwrap(),
+            "--format",
+            "json",
+        ])
+        .output()
+        .unwrap();
+    fs::remove_file(path).unwrap();
+    assert_eq!(out.status.code(), Some(2));
+    assert!(out.stdout.is_empty());
+    assert!(String::from_utf8(out.stderr).unwrap().contains("8 MiB"));
+    for args in [
+        vec!["assess"],
+        vec!["assess", "--format", "xml", "--input", "absent"],
+        vec![
+            "assess", "--input", "absent", "--input", "again", "--format", "json",
+        ],
+    ] {
+        let out = Command::new(env!("CARGO_BIN_EXE_plm-evidence"))
+            .args(args)
+            .output()
+            .unwrap();
+        assert_eq!(out.status.code(), Some(2));
+        assert!(out.stdout.is_empty());
+    }
+}
