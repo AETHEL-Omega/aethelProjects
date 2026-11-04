@@ -844,3 +844,36 @@ mit POM v2 hält vor dem Ausführungspfad an. Prüfergebnis: 80 Feed-Tests und
 der gezielte Goal-Test grün. Es existieren weiterhin kein produktiv gebundener
 Y-1-Auftrag und keine maßgebliche mBOM-Quelle; eine automatische Anbindung darf
 dies nicht suggerieren. Das separate Opus-Review ist ausstehend.
+
+## Arbeitsplan: autoritative Y-1-Kette schließen (04.11.2026)
+
+1. **Spezifikation:** Vorhandene Living-Spec-Sitzung und Graph aus ihrer
+   zuständigen Quelle laden, Quellenidentität/Freigabe und Git-Stand binden;
+   Digest und Inhalt mit AIX nachrechnen. Der reine Prüfbaustein ist in
+   AIX-PR #1387 vorbereitet; Quellenbindung und Admission-Anschluss fehlen.
+2. **Host-Lease und Hybrid:** Den vorhandenen AIX-Lease-/Ressourcenvertrag
+   verwenden, aktive Lease einschließlich Host, Auftrag, Lebenszeit und
+   wirksamem Modus vor Nutzung und bei Widerruf prüfen. LOCAL_AI_ONLY bleibt
+   fail-closed; HYBRID erweitert keine einzelnen Anbieter-, Daten- oder
+   Kostenrechte. Keine eigene Lease-Registry.
+3. **Output:** Tatsächliches, versioniertes Output-Artefakt aus dem bestehenden
+   Fertigungs-/Belegpfad an Auftragsrevision, Paketdigest, Spezifikation,
+   Kandidatenbaum und Lease binden; fehlen Pflichtfelder oder passt ein Digest
+   nicht, bleibt die Wirkung unbekannt. Erwarteter Outputvertrag ist noch kein
+   Outputbeleg; bestehendes `aix.provenance.v1` nicht als `aix.pbom.v2` ausgeben.
+4. **AIX-Auftrag/mBOM:** Nach geprüftem und gelandetem Auftrags-/POM-Vertrag
+   Y-1 über den bestehenden autorisierten AIX-Weg anlegen und die konkrete
+   mBOM mit echten Quellenreferenzen binden; keine IDs oder Freigaben erfinden.
+5. **Arbeitsraum:** Nur den tatsächlich gebundenen Auftrag und dessen mBOM
+   lesend automatisch beziehen, mit Quelle, Revision, Zeitpunkt und getrennten
+   Fehlermeldungen für fehlend, veraltet, fremd und nicht erreichbar. Keine
+   zusätzliche Registry, kein zweiter Executor. Gegen reale Quellen und
+   manipulierte, fehlende und abweichende Daten testen.
+6. **Abschluss:** Unabhängiges Opus-Review des jeweiligen finalen Kopfs, danach
+   das zuständige Gate und Landung über `aix-merge-gated`. Installation und
+   E2E erst auf den zugelassenen Ständen, ohne fremde laufende Arbeit zu stören.
+
+Stand: Der isolierte Spezifikationsprüfer kann Graph, Digest und Kandidat
+nachrechnen; die autoritative Quellenkette, Lease- und Outputprüfung sowie die
+produktive Y-1-Anbindung sind noch offen. Ein technischer Graphabgleich ist
+keine menschliche Freigabe, kein Gate und kein Wirksamkeitsbeleg.
