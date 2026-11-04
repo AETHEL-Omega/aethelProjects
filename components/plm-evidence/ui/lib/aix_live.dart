@@ -7,20 +7,31 @@ import 'source_adapters.dart';
 Future<Map<String, dynamic>> readLocalAix({
   HttpClient? client,
   int port = 7331,
+}) async => readAixDashboard(
+  await _readLocalProjection('/api/state', client: client, port: port),
+  'AIX Dashboard · 127.0.0.1:$port',
+);
+
+/// Uses the existing AIX dashboard's lightweight order endpoint.
+Future<Map<String, dynamic>> readLocalAixOrders({
+  HttpClient? client,
+  int port = 7331,
+}) async => readAixOrders(
+  await _readLocalProjection('/api/orders', client: client, port: port),
+  'AIX Auftragsquelle · 127.0.0.1:$port',
+);
+
+Future<Map<String, dynamic>> _readLocalProjection(
+  String path, {
+  HttpClient? client,
+  required int port,
 }) async {
   final http = client ?? HttpClient();
   http.findProxy = (_) => 'DIRECT';
   http.connectionTimeout = const Duration(seconds: 3);
   try {
     final request = await http
-        .getUrl(
-          Uri(
-            scheme: 'http',
-            host: '127.0.0.1',
-            port: port,
-            path: '/api/state',
-          ),
-        )
+        .getUrl(Uri(scheme: 'http', host: '127.0.0.1', port: port, path: path))
         .timeout(const Duration(seconds: 3));
     request.followRedirects = false;
     final response = await request.close().timeout(const Duration(seconds: 3));
@@ -42,7 +53,7 @@ Future<Map<String, dynamic>> readLocalAix({
     if (value is! Map<String, dynamic>) {
       throw const FormatException('AIX-Ausgabe ungültig');
     }
-    return readAixDashboard(value, 'AIX Dashboard · 127.0.0.1:7331');
+    return value;
   } finally {
     http.close(force: true);
   }

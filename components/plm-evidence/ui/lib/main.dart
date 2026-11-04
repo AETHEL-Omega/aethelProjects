@@ -65,7 +65,8 @@ class _WorkspaceState extends State<Workspace> {
   Timer? inventoryTimer;
   int inventoryGeneration = 0;
   bool inventoryLoading = false;
-  String inventoryStatus = 'Keine Inventurdatei ausgewählt';
+  String inventoryStatus = 'Inventurquelle noch nicht verbunden';
+  static const inventoryChannel = MethodChannel('aethel.projects.inventory/v1');
   XFile? privateFile;
   Timer? privateTimer;
   int privateGeneration = 0;
@@ -77,6 +78,8 @@ class _WorkspaceState extends State<Workspace> {
   bool projectsLoading = false;
   String projectsStatus = 'Mitgelieferte historische Momentaufnahme';
   Map<String, dynamic>? aixDashboard;
+  Map<String, dynamic>? aixOrders;
+  String aixOrdersStatus = 'AIX-Auftragsquelle nicht verbunden';
   Timer? aixTimer;
   int aixGeneration = 0;
   bool aixLoading = false;
@@ -90,12 +93,13 @@ class _WorkspaceState extends State<Workspace> {
   final List<SourceItem> sources = [];
   String origin = 'Kein Dokument geöffnet';
   String? error;
-  int section = 0;
+  int section = 7;
 
   @override
   void initState() {
     super.initState();
     _loadCockpit();
+    _restoreInventoryDirectory();
     if (widget.initialLandscapeJson == null) {
       _loadLandscape();
     } else {
@@ -152,9 +156,11 @@ class _WorkspaceState extends State<Workspace> {
     aixTimer = null;
     aixGeneration++;
     aixLoading = false;
-    setState(
-      () => aixStatus = 'Verbindung beendet; letzter Stand nicht aktuell',
-    );
+    setState(() {
+      aixStatus = 'Verbindung beendet; letzter Stand nicht aktuell';
+      aixOrders = null;
+      aixOrdersStatus = 'AIX-Verbindung beendet';
+    });
   }
 
   Future<void> _refreshAix() async {
@@ -164,18 +170,31 @@ class _WorkspaceState extends State<Workspace> {
     if (mounted) setState(() => aixStatus = 'AIX wird abgefragt');
     try {
       final data = await readLocalAix();
+      Map<String, dynamic>? orders;
+      String orderStatus;
+      try {
+        orders = await readLocalAixOrders();
+        orderStatus = 'AIX-Auftragsquelle aktualisiert';
+      } catch (_) {
+        orderStatus =
+            'AIX-Auftragsquelle nicht erreichbar oder nicht bereitgestellt';
+      }
       if (mounted && generation == aixGeneration) {
         setState(() {
           aixDashboard = data;
+          aixOrders = orders;
+          aixOrdersStatus = orderStatus;
           aixStatus = 'Automatisch aktualisiert · alle 30 Sekunden';
         });
       }
     } catch (_) {
       if (mounted && generation == aixGeneration) {
-        setState(
-          () => aixStatus =
-              'AIX nicht erreichbar oder ungültig · letzter Stand möglicherweise veraltet',
-        );
+        setState(() {
+          aixStatus =
+              'AIX nicht erreichbar oder ungültig · letzter Stand möglicherweise veraltet';
+          aixOrders = null;
+          aixOrdersStatus = 'AIX-Auftragsquelle nicht erreichbar';
+        });
       }
     } finally {
       if (generation == aixGeneration) aixLoading = false;
@@ -353,19 +372,58 @@ class _WorkspaceState extends State<Workspace> {
     }
   }
 
-  void _watchInventory(XFile file, Map<String, dynamic> initial) {
-    validateInventory(initial);
+  Future<void> _restoreInventoryDirectory() async {
+    try {
+      final directory = await inventoryChannel.invokeMethod<String>(
+        'restoreDirectory',
+      );
+      if (!mounted || directory == null || inventoryFile != null) return;
+      _watchInventory(
+        XFile('$directory/inventory.json'),
+        null,
+        navigate: false,
+      );
+    } catch (_) {
+      if (mounted) {
+        setState(() => inventoryStatus = 'Inventurordner erneut auswählen');
+      }
+    }
+  }
+
+  Future<void> _chooseInventoryDirectory() async {
+    try {
+      final directory = await inventoryChannel.invokeMethod<String>(
+        'chooseDirectory',
+      );
+      if (!mounted || directory == null) return;
+      _watchInventory(XFile('$directory/inventory.json'), null);
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => inventoryStatus =
+              'Inventurordner nicht verfügbar oder nicht freigegeben',
+        );
+      }
+    }
+  }
+
+  void _watchInventory(
+    XFile file,
+    Map<String, dynamic>? initial, {
+    bool navigate = true,
+  }) {
+    if (initial != null) validateInventory(initial);
     inventoryTimer?.cancel();
     inventoryFile = file;
     final generation = ++inventoryGeneration;
     inventoryLoading = false;
     setState(() {
-      liveInventory = initial;
-      section = 7;
-      inventoryStatus = 'Inventurdatei ausgewählt · Neulesen alle 30 Sekunden';
+      if (initial != null) liveInventory = initial;
+      if (navigate) section = 7;
+      inventoryStatus = 'Inventurquelle verbunden · Neulesen alle 30 Sekunden';
       error = null;
     });
-    inventoryTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
+    Future<void> refresh() async {
       if (inventoryLoading) return;
       inventoryLoading = true;
       try {
@@ -383,20 +441,26 @@ class _WorkspaceState extends State<Workspace> {
           setState(() {
             liveInventory = value;
             inventoryStatus =
-                'Datei erneut gelesen · Scannerstand und Fehler beachten';
+                'Quelle verbunden · Scannerstand und Fehler beachten';
           });
         }
       } catch (_) {
         if (mounted && generation == inventoryGeneration) {
           setState(
             () => inventoryStatus =
-                'Datei nicht lesbar · letzter Stand möglicherweise veraltet',
+                'Inventurquelle nicht erreichbar · letzter Stand möglicherweise veraltet',
           );
         }
       } finally {
         if (generation == inventoryGeneration) inventoryLoading = false;
       }
-    });
+    }
+
+    refresh();
+    inventoryTimer = Timer.periodic(
+      const Duration(seconds: 30),
+      (_) => refresh(),
+    );
   }
 
   void _watchPrivate(XFile file, Map<String, dynamic> value) {
@@ -758,6 +822,10 @@ class _WorkspaceState extends State<Workspace> {
                                   InventoryPanel(
                                     data: liveInventory,
                                     status: inventoryStatus,
+                                    orders: aixOrders,
+                                    orderStatus: aixOrdersStatus,
+                                    onConnectOrders: _startAix,
+                                    onChooseSource: _chooseInventoryDirectory,
                                   ),
                                 ],
                               ),

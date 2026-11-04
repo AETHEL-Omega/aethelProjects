@@ -4,6 +4,38 @@ import 'package:aethel_plm/aix_live.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('reads order projection from the local AIX route', () async {
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    addTearDown(() => server.close(force: true));
+    server.listen((request) {
+      expect(request.uri.path, '/api/orders');
+      request.response.write(
+        jsonEncode({
+          'ok': true,
+          'ergebnis': {
+            'schema': 'aix.auftrag.leseprojektion.v1',
+            'beobachtet_epoch': 100,
+            'auftraege': [
+              {
+                'auftrag_ref': 'a1',
+                'lesestatus': 'historisch_nicht_rekonstruiert',
+                'revision': 2,
+                'projekt': '/project',
+                'kandidat': 'abc',
+                'quelle_zeit': '90',
+              },
+            ],
+          },
+        }),
+      );
+      request.response.close();
+    });
+    final result = await readLocalAixOrders(port: server.port);
+    final row = (result['auftraege'] as List).single;
+    expect(row['auftrag_ref'], 'a1');
+    expect(row['lesestatus'], 'historisch_nicht_rekonstruiert');
+    expect(row['host_lease'], isNull);
+  });
   test('reads local projection without retaining the prompt', () async {
     final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
     addTearDown(() => server.close(force: true));

@@ -134,7 +134,9 @@ class _LandscapePanelState extends State<LandscapePanel> {
             ? 0
             : name.startsWith(term)
             ? 1
-            : 2;
+            : name.contains(term)
+            ? 2
+            : 3;
       }
 
       final relevance = rank(a).compareTo(rank(b));
@@ -146,11 +148,20 @@ class _LandscapePanelState extends State<LandscapePanel> {
       final kindOrder = (a['kind'] == 'repository' ? 0 : 1).compareTo(
         b['kind'] == 'repository' ? 0 : 1,
       );
-      return kindOrder != 0
-          ? kindOrder
+      if (kindOrder != 0) return kindOrder;
+      final archiveOrder =
+          (_show(a['git_common_dir']).contains('/_archive/') ? 1 : 0).compareTo(
+            _show(b['git_common_dir']).contains('/_archive/') ? 1 : 0,
+          );
+      return archiveOrder != 0
+          ? archiveOrder
           : _show(a['id']).compareTo(_show(b['id']));
     });
-    final selected = byId[widget.selectedId];
+    final selectedVisible = visible.any(
+      (entry) => entry['id'] == widget.selectedId,
+    );
+    // Never leave a different project selected after narrowing the search.
+    final selected = selectedVisible ? byId[widget.selectedId] : null;
     final exact = visible
         .where(
           (n) => _show(n['name']).toLowerCase() == query.trim().toLowerCase(),

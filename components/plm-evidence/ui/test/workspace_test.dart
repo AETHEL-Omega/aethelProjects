@@ -45,7 +45,7 @@ void main() {
     await tester.tap(find.text('Projekte aktuell'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
-    expect(find.textContaining('Inventurdatei'), findsOneWidget);
+    expect(find.text('Inventurordner auswählen'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
   testWidgets('historical Rust output shows login evidence gaps', (

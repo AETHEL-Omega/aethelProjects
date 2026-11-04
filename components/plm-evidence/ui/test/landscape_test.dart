@@ -11,6 +11,55 @@ Map<String, dynamic> load(String file) =>
 
 void main() {
   testWidgets(
+    'Nuru project ranks before embedded sources; changing search clears stale detail',
+    (tester) async {
+      tester.view.physicalSize = const Size(1600, 1300);
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        AethelPlm(
+          initialJson: File('assets/y1-assessment.json').readAsStringSync(),
+          initialLandscapeJson: File(
+            'assets/landscape-historical.json',
+          ).readAsStringSync(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Projektlandschaft'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('landscape-search')),
+        'aethelNuru',
+      );
+      await tester.pumpAndSettle();
+      final project = find.byKey(const ValueKey('node-repo:8f2116efa04affb1'));
+      final embedded = find.byKey(const ValueKey('node-repo:4606a176bfd35952'));
+      expect(
+        tester.getTopLeft(project).dy,
+        lessThan(tester.getTopLeft(embedded).dy),
+      );
+      await tester.ensureVisible(embedded);
+      await tester.pumpAndSettle();
+      await tester.tap(embedded);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('landscape-detail')), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const Key('landscape-search')));
+      await tester.enterText(
+        find.byKey(const Key('landscape-search')),
+        'aethelema',
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.text(
+          'Eintrag auswählen, um Herkunft, Beziehungen und Lücken zu sehen.',
+        ),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
     'at desktop window width selection and explanation are side by side',
     (tester) async {
       tester.view.physicalSize = const Size(1600, 1300);

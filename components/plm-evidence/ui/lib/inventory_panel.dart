@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 void validateInventory(Map<String, dynamic> data) {
@@ -14,9 +15,21 @@ void validateInventory(Map<String, dynamic> data) {
 }
 
 class InventoryPanel extends StatefulWidget {
-  const InventoryPanel({super.key, required this.data, required this.status});
+  const InventoryPanel({
+    super.key,
+    required this.data,
+    required this.status,
+    this.onChooseSource,
+    this.orders,
+    this.orderStatus = 'AIX-Auftragsquelle nicht verbunden',
+    this.onConnectOrders,
+  });
   final Map<String, dynamic>? data;
   final String status;
+  final VoidCallback? onChooseSource;
+  final Map<String, dynamic>? orders;
+  final String orderStatus;
+  final VoidCallback? onConnectOrders;
   @override
   State<InventoryPanel> createState() => _InventoryPanelState();
 }
@@ -29,13 +42,24 @@ class _InventoryPanelState extends State<InventoryPanel> {
     final scan = data?['scan'];
     if (data == null || scan is! Map<String, dynamic>) {
       return Center(
-        child: Text(
-          data == null
-              ? 'Inventurdatei über „Auswertung öffnen“ auswählen.'
-              : 'Kein gültiger Inventurstand verfügbar.',
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Projekte anzeigen'),
+            Text(widget.status),
+            const Text(
+              'Inventurordner einmalig auswählen; vorhandene Quelle wird beim nächsten Start wieder geöffnet.',
+            ),
+            if (widget.onChooseSource != null)
+              FilledButton.tonal(
+                onPressed: widget.onChooseSource,
+                child: const Text('Inventurordner auswählen'),
+              ),
+          ],
         ),
       );
     }
+
     final attempted = DateTime.tryParse('${data['attempted_at'] ?? ''}');
     final age = attempted == null
         ? null
@@ -55,7 +79,17 @@ class _InventoryPanelState extends State<InventoryPanel> {
         .toList();
     final rows =
         <
-          ({String name, String description, String identity, bool candidate})
+          ({
+            String name,
+            String description,
+            String identity,
+            bool candidate,
+            Map<String, dynamic>? observation,
+            Map<String, dynamic>? analyzer,
+            Map<String, dynamic>? readme,
+            String recent,
+            List<String> paths,
+          })
         >[];
     for (final repo in repos) {
       final identity = '${repo['git_common_dir'] ?? ''}';
@@ -77,6 +111,22 @@ class _InventoryPanelState extends State<InventoryPanel> {
         description: states.isEmpty ? paths.join('\n') : states,
         identity: identity,
         candidate: false,
+        paths: paths,
+        observation: repo['direct_observation'] is Map<String, dynamic>
+            ? repo['direct_observation'] as Map<String, dynamic>
+            : null,
+        recent:
+            matching
+                .map((c) => c['last_commit'])
+                .whereType<String>()
+                .firstOrNull ??
+            '',
+        readme: repo['readme_purpose'] is Map<String, dynamic>
+            ? repo['readme_purpose'] as Map<String, dynamic>
+            : null,
+        analyzer: repo['analyzer_observation'] is Map<String, dynamic>
+            ? repo['analyzer_observation'] as Map<String, dynamic>
+            : null,
       ));
     }
     for (final item in nonGit) {
@@ -88,6 +138,11 @@ class _InventoryPanelState extends State<InventoryPanel> {
         description: 'Manifest-Kandidat ohne Git: $path',
         identity: path,
         candidate: true,
+        observation: null,
+        analyzer: null,
+        readme: null,
+        recent: '',
+        paths: [path],
       ));
     }
     final filtered = rows
@@ -112,20 +167,32 @@ class _InventoryPanelState extends State<InventoryPanel> {
                 'Projekte aus Inventur',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
-              Text(widget.status),
-              if (data['message'] != null) Text('Hinweis: ${data['message']}'),
-              Text(
-                'Leseprobleme: ${(scan['summary'] is Map ? (scan['summary'] as Map)['checkout_errors'] : null) ?? 'unbekannt'} Git-Orte · ${(scan['summary'] is Map ? (scan['summary'] as Map)['filesystem_errors'] : null) ?? 'unbekannt'} Dateisystemfehler',
-              ),
-              Text(freshness),
-              Text(
-                'Erfassung: ${data['attempted_at'] ?? 'unbekannt'} · letzter vollständiger Lauf: ${data['last_success_at'] ?? 'unbekannt'} · Zustand: ${data['status']}',
-              ),
-              const Text(
-                'Lokale Beobachtung, kein Produkt- oder Liefernachweis. Nicht gefundene Einträge sind nicht automatisch gelöscht.',
-              ),
-              Text(
-                'Neu beobachtete Repositorygruppen: ${(changes['new_repositories'] is List ? changes['new_repositories'] as List : []).length} · geänderte Arbeitskopien: ${(changes['changed_checkouts'] is List ? changes['changed_checkouts'] as List : []).length} · neu beobachtete Nicht-Git-Kandidaten: ${(changes['new_non_git_candidates'] is List ? changes['new_non_git_candidates'] as List : []).length}',
+              Text('${filtered.length} Einträge · $freshness'),
+              if (widget.onChooseSource != null)
+                TextButton(
+                  onPressed: widget.onChooseSource,
+                  child: const Text('Inventurordner ändern'),
+                ),
+              ExpansionTile(
+                title: const Text('Quelle und Erfassungsdetails'),
+                children: [
+                  Text(widget.status),
+                  if (data['message'] != null)
+                    Text('Hinweis: ${data['message']}'),
+                  Text(
+                    'Leseprobleme: ${(scan['summary'] is Map ? (scan['summary'] as Map)['checkout_errors'] : null) ?? 'unbekannt'} Git-Orte · ${(scan['summary'] is Map ? (scan['summary'] as Map)['filesystem_errors'] : null) ?? 'unbekannt'} Dateisystemfehler',
+                  ),
+                  Text(freshness),
+                  Text(
+                    'Erfassung: ${data['attempted_at'] ?? 'unbekannt'} · letzter vollständiger Lauf: ${data['last_success_at'] ?? 'unbekannt'} · Zustand: ${data['status']}',
+                  ),
+                  const Text(
+                    'Lokale Beobachtung, kein Produkt- oder Liefernachweis. Nicht gefundene Einträge sind nicht automatisch gelöscht.',
+                  ),
+                  Text(
+                    'Neu beobachtete Repositorygruppen: ${(changes['new_repositories'] is List ? changes['new_repositories'] as List : []).length} · geänderte Arbeitskopien: ${(changes['changed_checkouts'] is List ? changes['changed_checkouts'] as List : []).length} · neu beobachtete Nicht-Git-Kandidaten: ${(changes['new_non_git_candidates'] is List ? changes['new_non_git_candidates'] as List : []).length}',
+                  ),
+                ],
               ),
               TextField(
                 decoration: const InputDecoration(
@@ -144,20 +211,174 @@ class _InventoryPanelState extends State<InventoryPanel> {
             itemCount: filtered.length,
             itemBuilder: (context, index) {
               final row = filtered[index];
+              String? realPath(String path) {
+                try {
+                  return Directory(path).resolveSymbolicLinksSync();
+                } on FileSystemException {
+                  return null;
+                }
+              }
+
+              final paths = row.paths.map(realPath).whereType<String>().toSet();
+              final orders =
+                  (widget.orders?['auftraege'] is List
+                          ? widget.orders!['auftraege'] as List
+                          : const [])
+                      .whereType<Map>()
+                      .where((order) {
+                        final project = order['projekt'];
+                        if (row.candidate || project is! String ||
+                            order['lesestatus'] != 'gebunden') {
+                          return false;
+                        }
+                        final resolved = realPath(project);
+                        if (resolved == null || !paths.contains(resolved)) {
+                          return false;
+                        }
+                        return rows
+                                .where(
+                                  (candidate) => candidate.paths
+                                      .map(realPath)
+                                      .contains(resolved),
+                                )
+                                .length ==
+                            1;
+                      })
+                      .toList();
               return ExpansionTile(
                 title: Text(row.name),
                 subtitle: Text(
-                  row.candidate
+                  row.observation?['state'] == 'source_bytes_match' &&
+                          row.observation?['purpose'] is String
+                      ? '${row.observation!['purpose']}'
+                      : row.readme?['text'] is String
+                      ? 'Laut README: ${row.readme!['text']}'
+                      : row.candidate
                       ? 'Nicht-Git-Kandidat · Zuordnung offen'
-                      : 'Repositorygruppe · Identität lokal',
+                      : 'Repositorygruppe · Zweck noch nicht geprüft',
                 ),
                 children: [
-                  SelectableText(row.identity),
-                  SelectableText(row.description),
+                  if (row.observation?['state'] == 'source_bytes_match') ...[
+                    ListTile(
+                      title: const Text('Was ist bekannt?'),
+                      subtitle: Text(
+                        '${row.observation!['finding'] ?? 'Nicht angegeben'}',
+                      ),
+                    ),
+                    ListTile(
+                      title: const Text('Nächster Schritt'),
+                      subtitle: Text(
+                        '${row.observation!['next_step'] ?? 'Nicht angegeben'}',
+                      ),
+                    ),
+                    const Text(
+                      'Quellenbericht, keine Freigabe oder Betriebsbestätigung.',
+                    ),
+                  ] else if (row.observation != null)
+                    const Text(
+                      'Frühere Quellenbeobachtung ist veraltet oder nicht verifiziert.',
+                    ),
+                  if (row.recent.isNotEmpty)
+                    ListTile(
+                      title: const Text('Letzter Commit der Arbeitskopie'),
+                      subtitle: Text(row.recent),
+                    ),
+                  if (row.analyzer != null)
+                    AnalyzerSummary(data: row.analyzer!)
+                  else
+                    const ListTile(
+                      title: Text('Codeanalyse: noch kein Ergebnis zugeordnet'),
+                      subtitle: Text(
+                        'Vorhandenen CodeAnalyzer für dieses Projekt ausführen und Ergebnis zuordnen.',
+                      ),
+                    ),
+                  ListTile(
+                    title: const Text('AIX-Aufträge'),
+                    subtitle: Text(
+                      widget.orders == null
+                          ? widget.orderStatus
+                          : orders.isEmpty
+                          ? 'Kein eindeutig gebundener Auftrag in dieser Quelle gefunden.'
+                          : '${orders.length} eindeutig zugeordnete Aufträge',
+                    ),
+                    trailing:
+                        widget.orders == null && widget.onConnectOrders != null
+                        ? TextButton(
+                            onPressed: widget.onConnectOrders,
+                            child: const Text('AIX verbinden'),
+                          )
+                        : null,
+                  ),
+                  ...orders.map(
+                    (order) => ListTile(
+                      title: Text(
+                        'Auftrag ${order['auftrag_ref']} · ${order['zustand']}',
+                      ),
+                      subtitle: Text(
+                        'Revision ${order['revision']} · Kandidat ${order['kandidat']} · Quelle: AIX',
+                      ),
+                    ),
+                  ),
+                  const ListTile(
+                    title: Text('Getestet · gelandet · installiert'),
+                    subtitle: Text('In dieser Quelle nicht belegt.'),
+                  ),
+                  ExpansionTile(
+                    title: const Text('Technische Quelle und Arbeitskopien'),
+                    children: [
+                      SelectableText(row.identity),
+                      SelectableText(row.description),
+                      if (row.readme != null)
+                        SelectableText(
+                          'README: ${row.readme!['source']} · SHA-256 ${row.readme!['sha256']} · Arbeitskopie, kein Funktionsnachweis',
+                        ),
+                      if (row.observation?['sources'] != null)
+                        SelectableText('${row.observation!['sources']}'),
+                    ],
+                  ),
                 ],
               );
             },
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class AnalyzerSummary extends StatelessWidget {
+  const AnalyzerSummary({super.key, required this.data});
+  final Map<String, dynamic> data;
+  @override
+  Widget build(BuildContext context) {
+    final findings = data['findings'] is List
+        ? data['findings'] as List
+        : const [];
+    final incomplete = data['incomplete_reasons'] is List
+        ? data['incomplete_reasons'] as List
+        : const [];
+    return ExpansionTile(
+      title: Text(
+        'Codeanalyse · ${data['reported_finding_count'] ?? '?'} Hinweise',
+      ),
+      subtitle: Text(
+        'Stand: ${data['observed_at'] ?? 'unbekannt'} · Quellen: ${data['source_state'] ?? 'unbekannt'} · Abdeckung ${incomplete.isEmpty ? 'nicht unabhängig bestätigt' : 'unvollständig'}',
+      ),
+      children: [
+        if (incomplete.isNotEmpty)
+          SelectableText('Grenzen: ${incomplete.join(', ')}'),
+        ...findings.whereType<Map>().map(
+          (item) => ListTile(
+            title: Text(
+              '${item['rule'] ?? 'Regel unbekannt'} · ${item['severity'] ?? 'unbekannt'} · ${item['evidence_tier'] ?? 'unbekannt'}',
+            ),
+            subtitle: SelectableText(
+              '${item['file'] ?? '?'}:${item['line'] ?? '?'} · ${item['message'] ?? ''}',
+            ),
+          ),
+        ),
+        const Text(
+          'Befunde sind keine automatische Fehlerfreiheit oder Produktfreigabe. Wiederholkommandos werden nicht ausgeführt.',
         ),
       ],
     );
