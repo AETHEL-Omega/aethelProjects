@@ -13,7 +13,7 @@ from pathlib import Path
 
 from . import market as market_mod
 from . import report as report_mod
-from .scanner import scan_workspace
+from .scanner import load_snapshot, scan_workspace
 
 DEFAULT_ROOT = Path.home() / "workspace"
 EXIT_OK = 0
@@ -168,7 +168,25 @@ def _build_parser() -> argparse.ArgumentParser:
                                help="Nur Repos dieser Portfolio-Klasse")
     incubator_cmd.add_argument("--out", default=None, help="Zieldatei (Default: stdout)")
 
+    for name in ("scan", "report", "audit", "market", "forensics", "code", "factory",
+                 "continuity", "stack", "applefirst", "incubator"):
+        sub.choices[name].add_argument("--snapshot", default=None, help="JSON aus scan --json")
+
     return parser
+
+
+class _SnapshotMissing(FileNotFoundError):
+    """Der angegebene Scan-Snapshot fehlt."""
+
+
+def _scan(args: argparse.Namespace):
+    """Lädt einen Snapshot oder scannt den Workspace."""
+    if args.snapshot:
+        try:
+            return load_snapshot(args.snapshot)
+        except FileNotFoundError as error:
+            raise _SnapshotMissing(str(error)) from error
+    return scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
 
 
 def _write(text: str, destination: str | None) -> None:
@@ -210,13 +228,13 @@ def _cmd_inventory(args: argparse.Namespace) -> int:
 
 
 def _cmd_scan(args: argparse.Namespace) -> int:
-    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    result = _scan(args)
     _write(report_mod.to_json(result), args.json)
     return EXIT_OK
 
 
 def _cmd_report(args: argparse.Namespace) -> int:
-    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    result = _scan(args)
     if args.format == "html":
         text = report_mod.render_html(result)
         suffix = "html"
@@ -232,7 +250,7 @@ def _cmd_report(args: argparse.Namespace) -> int:
 
 
 def _cmd_audit(args: argparse.Namespace) -> int:
-    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    result = _scan(args)
     threshold = SEVERITY_ORDER[args.severity]
     selected = [f for f in result.findings if SEVERITY_ORDER.get(f.severity, 3) <= threshold]
 
@@ -275,7 +293,7 @@ def _cmd_audit(args: argparse.Namespace) -> int:
 
 
 def _cmd_market(args: argparse.Namespace) -> int:
-    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    result = _scan(args)
     view = market_mod.build(result.repos)
 
     if args.format == "json":
@@ -358,7 +376,7 @@ def _cmd_market(args: argparse.Namespace) -> int:
 
 
 def _cmd_forensics(args: argparse.Namespace) -> int:
-    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    result = _scan(args)
     from . import forensics as forensics_mod
 
     selected = tuple(result.repos)
@@ -432,7 +450,7 @@ def _cmd_code(args: argparse.Namespace) -> int:
     """Statische Code-Analyse via aethelCodeAnalyzer."""
     from . import codeanalysis as code_mod
 
-    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    result = _scan(args)
     binary = code_mod.find_analyzer()
     if binary is None:
         sys.stderr.write(
@@ -551,7 +569,7 @@ def _cmd_factory(args: argparse.Namespace) -> int:
     """Fabrik- und Firmensicht."""
     from . import factory as factory_mod
 
-    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    result = _scan(args)
     view = factory_mod.build(result.repos)
 
     if args.format == "json":
@@ -660,7 +678,7 @@ def _cmd_continuity(args: argparse.Namespace) -> int:
     """Kontinuität über den Workspace."""
     from . import continuity as continuity_mod
 
-    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    result = _scan(args)
     repos = result.repos
     if args.repo:
         repos = tuple(r for r in repos if r.name == args.repo)
@@ -812,7 +830,7 @@ def _cmd_stack(args: argparse.Namespace) -> int:
     """Schichtenkarte des Gesamtstacks."""
     from . import stack as stack_mod
 
-    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    result = _scan(args)
     repos = result.repos
     if args.repo:
         repos = tuple(r for r in repos if r.name == args.repo)
@@ -828,7 +846,7 @@ def _cmd_applefirst(args: argparse.Namespace) -> int:
     """Apple-first-Audit über den Workspace."""
     from . import applefirst as applefirst_mod
 
-    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    result = _scan(args)
     repos = result.repos
     if args.repo:
         wanted = set(args.repo)
@@ -884,7 +902,7 @@ def _cmd_incubator(args: argparse.Namespace) -> int:
     """Inkubator-Reifeleiter über den Workspace."""
     from . import incubator as incubator_mod
 
-    result = scan_workspace(args.root, jobs=args.jobs, timeout=args.timeout, manifest_path=args.manifest)
+    result = _scan(args)
     repos = result.repos
     if args.repo:
         wanted = set(args.repo)
@@ -928,6 +946,9 @@ def main(argv: list[str] | None = None) -> int:
         return EXIT_ERROR
     try:
         return COMMANDS[args.command](args)
+    except _SnapshotMissing as error:
+        sys.stderr.write(f"Fehler: {error}\n")
+        return EXIT_USAGE
     except (OSError, ValueError) as error:
         sys.stderr.write(f"Fehler: {error}\n")
         return EXIT_ERROR

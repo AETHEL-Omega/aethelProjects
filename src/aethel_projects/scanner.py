@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
@@ -15,7 +16,10 @@ from . import maturity as maturity_mod
 from . import pmview as pmview_mod
 from .discovery import discover
 from .metrics import collect
-from .models import CategorySummary, Finding, RepoReport, ScanResult, ScanSummary
+from .models import (
+    CategorySummary, Finding, Intent, ManifestEntry, Maturity, ProjectManagementView,
+    RepoReport, ScanResult, ScanSummary, UnmergedBranch,
+)
 
 STALE_DAYS = 90
 
@@ -57,6 +61,40 @@ def _derive(
     updated = replace(updated, findings=findings_mod.detect(updated))
     updated = replace(updated, pm_view=pmview_mod.build(updated))
     return updated
+
+
+def load_snapshot(path: Path | str) -> ScanResult:
+    """Lädt einen Scan-Snapshot und stellt seine Datenmodelle wieder her."""
+    snapshot = Path(path).expanduser()
+    try:
+        document = json.loads(snapshot.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(
+            f"Snapshot nicht gefunden: {snapshot} (erzeugen mit: scan --json <pfad>)"
+        ) from exc
+    if not isinstance(document, dict) or document.get("schema") != "aethel.projects/v1":
+        raise ValueError("Erwartet: Scan-Snapshot mit Schema aethel.projects/v1")
+
+    repos = []
+    for item in document["repos"]:
+        data = dict(item)
+        data["worktree_paths"] = tuple(data["worktree_paths"])
+        data["unmerged_branches"] = tuple(UnmergedBranch(**branch) for branch in data["unmerged_branches"])
+        data["intent"] = Intent(**data["intent"]) if data["intent"] is not None else None
+        data["maturity"] = Maturity(**data["maturity"]) if data["maturity"] is not None else None
+        manifest = data.pop("manifest")
+        data["manifest_entry"] = ManifestEntry(**manifest) if manifest is not None else None
+        data["findings"] = tuple(Finding(**finding) for finding in data["findings"])
+        pm = data["pm_view"]
+        data["pm_view"] = (ProjectManagementView(**{**pm, "next_actions": tuple(pm["next_actions"])})
+                           if pm is not None else None)
+        repos.append(RepoReport(**data))
+    return ScanResult(
+        generated_at=document["generated_at"], workspace_root=document["workspace_root"],
+        repos=tuple(repos), findings=tuple(Finding(**finding) for finding in document["findings"]),
+        categories=tuple(CategorySummary(**category) for category in document["categories"]),
+        summary=ScanSummary(**document["summary"]),
+    )
 
 
 def scan_workspace(

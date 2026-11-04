@@ -51,6 +51,14 @@ aethel-projects applefirst --root ~/workspace --format md|json [--min-score N] #
 aethel-projects cockpit   --format md|json|html [--out LEITSTAND.html]          # Leitstand: eine Seite für alles
 ```
 
+Einmal scannen, alle Sichten aus dem Snapshot:
+
+```sh
+aethel-projects scan --json scan.json
+aethel-projects stack --snapshot scan.json
+aethel-projects audit --snapshot scan.json
+```
+
 Gemeinsame Optionen: `--root` (Default `~/workspace`), `--jobs` (Parallelität),
 `--timeout` (je Git-Aufruf), `--manifest` (Pfad zu `projects.yaml`).
 
