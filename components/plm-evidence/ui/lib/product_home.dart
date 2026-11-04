@@ -6,12 +6,20 @@ class ProductHome extends StatelessWidget {
     super.key,
     required this.cockpit,
     this.aixDashboard,
+    this.aixStatus,
+    this.aixConnected = false,
+    this.onAixConnect,
+    this.onAixDisconnect,
     this.factoryInput,
     required this.onOpenY1,
     required this.onLandscape,
   });
   final Map<String, dynamic>? cockpit;
   final Map<String, dynamic>? aixDashboard;
+  final String? aixStatus;
+  final bool aixConnected;
+  final VoidCallback? onAixConnect;
+  final VoidCallback? onAixDisconnect;
   final Map<String, dynamic>? factoryInput;
   final VoidCallback onOpenY1;
   final VoidCallback onLandscape;
@@ -129,6 +137,21 @@ class ProductHome extends StatelessWidget {
           },
         ),
         const SizedBox(height: 18),
+        Text('AIX-Dashboard', style: theme.textTheme.titleLarge),
+        Text(aixStatus ?? 'Nicht verbunden'),
+        if (onAixConnect != null)
+          TextButton.icon(
+            onPressed: aixConnected ? onAixDisconnect : onAixConnect,
+            icon: Icon(aixConnected ? Icons.link_off : Icons.link),
+            label: Text(
+              aixConnected
+                  ? 'Automatische Abfrage beenden'
+                  : 'AIX lokal verbinden',
+            ),
+          ),
+        const Text(
+          'Lokales Dashboard; keine Prüfung der Identität oder Produktzuordnung.',
+        ),
         if (aixDashboard != null) ...[
           Text(
             'AIX-Fabrikstand · ausgewählte Quelle',

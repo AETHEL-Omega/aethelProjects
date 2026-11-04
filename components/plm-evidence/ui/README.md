@@ -90,8 +90,14 @@ einzeln öffnen. Die Kommandos und deren Grenzen stehen in
 Quellen- oder Rechteprüfung. Der AIX-Dashboard-Adapter übernimmt nur Zeitpunkt,
 Goal-Kennung, Zustand und Belegstatus; der Dashboard-Export selbst kann weitere
 private Angaben enthalten. Dateien geschützt ablegen und nach Gebrauch löschen.
-Die Quellen müssen bewusst exportiert und ausgewählt werden; die App startet
-keine externen Prozesse und aktualisiert sie nicht automatisch.
+Die Dateiquellen müssen bewusst exportiert und ausgewählt werden. Zusätzlich
+verbindet **AIX lokal verbinden** das bestehende Dashboard unter
+`127.0.0.1:7331/api/state` lesend und aktualisiert es alle 30 Sekunden bis zum
+Beenden der Verbindung oder der App. Die App startet keinen Dienst. Ist das
+Dashboard nicht verfügbar oder die Antwort ungültig, wird ein früherer Stand
+als möglicherweise veraltet gekennzeichnet. Loopback und Schema belegen weder
+die Identität des Dienstes noch eine Produktzuordnung. Projects und mBOM werden
+noch nicht automatisch aktualisiert.
 
 Beispiel mit vorhandenen Werkzeugen und einem Projects-Checkout, der `cockpit`
 bereitstellt (derzeit PR #2):
@@ -114,8 +120,8 @@ lesender Vertragspfad, kein nachgewiesener v2-Compiler.
 - Ein Dateidialog öffnet explizit ausgewählte Dateien. Quelle, Autorität und
   Aktualität der Inhalte werden nicht verifiziert. Die Prüfung des nativen
   Dateidialogs war zuletzt nicht vollständig abgeschlossen.
-- Es gibt noch keine native Rust-Anbindung, keine automatische Aktualisierung,
-  keine Live-Anbindung an AIX, Projects, Landing, Git oder aethelBrowser und
+- Es gibt noch keine native Rust-Anbindung, keine automatische Aktualisierung
+  für Projects oder mBOM, keine Live-Anbindung an Landing, Git oder aethelBrowser und
   keine Schreib-, Auftrags-, Ausführungs- oder Mergefunktion.
 - Die historische Momentaufnahme ist kein aktueller Produkt- oder
   Freigabestand. Die Beispiele belegen weder eine gültige Produktidentität

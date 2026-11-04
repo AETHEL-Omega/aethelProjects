@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'landscape.dart';
 import 'product_home.dart';
 import 'source_adapters.dart';
+import 'aix_live.dart';
 
 void main() => runApp(const AethelPlm());
 
@@ -54,6 +56,10 @@ class _WorkspaceState extends State<Workspace> {
   Map<String, dynamic>? landscape;
   Map<String, dynamic>? cockpit;
   Map<String, dynamic>? aixDashboard;
+  Timer? aixTimer;
+  int aixGeneration = 0;
+  bool aixLoading = false;
+  String aixStatus = 'Nicht verbunden';
   Map<String, dynamic>? factoryInput;
   String landscapeOrigin = 'Historische Recherche · Pfade pseudonymisiert';
   String? selectedLandscapeId;
@@ -99,6 +105,56 @@ class _WorkspaceState extends State<Workspace> {
         'Historischer Pilot Y-1',
         navigate: false,
       );
+    }
+  }
+
+  @override
+  void dispose() {
+    aixTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startAix() {
+    aixTimer?.cancel();
+    _refreshAix();
+    aixTimer = Timer.periodic(
+      const Duration(seconds: 30),
+      (_) => _refreshAix(),
+    );
+  }
+
+  void _stopAix() {
+    aixTimer?.cancel();
+    aixTimer = null;
+    aixGeneration++;
+    aixLoading = false;
+    setState(
+      () => aixStatus = 'Verbindung beendet; letzter Stand nicht aktuell',
+    );
+  }
+
+  Future<void> _refreshAix() async {
+    if (aixLoading) return;
+    aixLoading = true;
+    final generation = ++aixGeneration;
+    if (mounted) setState(() => aixStatus = 'AIX wird abgefragt');
+    try {
+      final data = await readLocalAix();
+      if (mounted && generation == aixGeneration) {
+        setState(() {
+          aixDashboard = data;
+          aixStatus = 'Automatisch aktualisiert · alle 30 Sekunden';
+        });
+      }
+    } catch (_) {
+      if (mounted && generation == aixGeneration) {
+        setState(
+          () => aixStatus =
+              'AIX nicht erreichbar oder ungültig · letzter Stand möglicherweise veraltet',
+        );
+      }
+    } finally {
+      if (generation == aixGeneration) aixLoading = false;
     }
   }
 
@@ -224,9 +280,15 @@ class _WorkspaceState extends State<Workspace> {
       }
       if (value['schema'] == 'aix.dashboard.v2') {
         final adapted = readAixDashboard(value, title);
+        aixTimer?.cancel();
+        aixTimer = null;
+        aixGeneration++;
+        aixLoading = false;
         if (mounted) {
           setState(() {
             aixDashboard = adapted;
+            aixStatus =
+                'Manuell geöffnete Datei · keine automatische Aktualisierung';
             section = 0;
             error = null;
           });
@@ -414,6 +476,10 @@ class _WorkspaceState extends State<Workspace> {
                                       0 => ProductHome(
                                         cockpit: cockpit,
                                         aixDashboard: aixDashboard,
+                                        aixStatus: aixStatus,
+                                        aixConnected: aixTimer != null,
+                                        onAixConnect: _startAix,
+                                        onAixDisconnect: _stopAix,
                                         factoryInput: factoryInput,
                                         onOpenY1: () => _example(
                                           'assets/y1-assessment.json',

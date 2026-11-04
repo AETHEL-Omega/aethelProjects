@@ -654,3 +654,29 @@ konkreter Y-1-Auftrag mit v2-Produktbindung gefunden. Weder Name noch manuelle
 Auswahl belegen eine Y-1-Zuordnung, einen Lauf, eine Freigabe oder Installation.
 Nächster Schnitt: autoritative Auftragsreferenz und ausgeführte v2-Quelle mit
 dem AIX-Owner klären und die bestehende AIX-Prüfung integrieren.
+
+## Lokale AIX-Dashboard-Verbindung
+
+Die Oberfläche kann das bereits vorhandene AIX-Dashboard nach ausdrücklichem
+Start durch den Nutzer über `127.0.0.1:7331/api/state` alle 30 Sekunden
+lesen. Keine Umleitung, kein Proxy, höchstens 1 MiB, begrenzte Wartezeit;
+Fehler kennzeichnen den letzten Stand als möglicherweise veraltet. Der Adapter
+übernimmt weder den Prompt noch Rohtelemetrie in seine Darstellung. Das
+Dashboard wird nicht durch den Arbeitsraum gestartet und die Verbindung ist
+nicht authentifiziert: Die Quelle ist eine ungeprüfte lokale Behauptung.
+Die Sandbox erhält das Netzwerk-Client-Entitlement; der implementierte Client
+verwendet ausschließlich den lokalen Dashboard-Pfad. Getrennte POM-/Y-1- und
+Projects-Live-Anbindung bleiben offen.
+
+AIX-Owner-Auskunft vom 04.11.2026 im Chat „AIX/Copilot 0.10 Fertigstellung“:
+Bei seiner lesenden Prüfung von `origin/main`, Auftragsledger und
+Produktionsplan fand Claude keinen konkreten Y-1-Auftrag mit Produkt-/
+Kandidatenbindung oder mBOM. Die gefundenen Browser-Aufträge sind andere
+Korpusfälle und werden nicht zu Y-1 zusammengeführt. Er nennt das Ledger als
+read-only SQLite-Quelle für `aix.auftrag.v2`; `aix-kernel auftrag` sei wegen
+Sperre und Migration kein rein lesender Weg. Dies ist eine Owner-Auskunft mit
+dem genannten Prüfumfang, kein Beweis weltweiter Nichtexistenz. Die frühere
+POM-v2-Dokumentation wurde aus einem anderen lokalen AIX-Stand gelesen; die
+beiden Stände nicht gleichsetzen. Y-1-Bindung und ihre autoritative Quelle
+bleiben offen. Die Dashboard-Verbindung zeigt einen generischen Betriebsstand,
+nicht den Y-1-Auftrag.
