@@ -8,6 +8,7 @@ import 'product_home.dart';
 import 'source_adapters.dart';
 import 'aix_live.dart';
 import 'projects_file.dart';
+import 'private_history.dart';
 
 void main() => runApp(const AethelPlm());
 
@@ -56,6 +57,12 @@ class _WorkspaceState extends State<Workspace> {
   Map<String, dynamic>? document;
   Map<String, dynamic>? landscape;
   Map<String, dynamic>? cockpit;
+  Map<String, dynamic>? privateHistory;
+  XFile? privateFile;
+  Timer? privateTimer;
+  int privateGeneration = 0;
+  bool privateLoading = false;
+  String privateStatus = 'Keine private Erfassung ausgewählt';
   Timer? projectsTimer;
   XFile? projectsFile;
   int projectsGeneration = 0;
@@ -118,6 +125,7 @@ class _WorkspaceState extends State<Workspace> {
   void dispose() {
     aixTimer?.cancel();
     projectsTimer?.cancel();
+    privateTimer?.cancel();
     super.dispose();
   }
 
@@ -315,7 +323,9 @@ class _WorkspaceState extends State<Workspace> {
         throw const FormatException('Datei überschreitet 8 MiB.');
       }
       final value = jsonDecode(content);
-      if (value is Map<String, dynamic> &&
+      if (value is Map<String, dynamic> && isPrivateHistory(value)) {
+        _watchPrivate(file, value);
+      } else if (value is Map<String, dynamic> &&
           value['schema'] == 'aethel.projects.cockpit/v1') {
         final initial = readCockpit(value, 'Datei: ${file.name}');
         if (mounted) _watchProjects(file, initial);
@@ -329,6 +339,52 @@ class _WorkspaceState extends State<Workspace> {
         );
       }
     }
+  }
+
+  void _watchPrivate(XFile file, Map<String, dynamic> value) {
+    validatePrivateHistory(value);
+    privateTimer?.cancel();
+    privateFile = file;
+    final generation = ++privateGeneration;
+    privateLoading = false;
+    setState(() {
+      privateHistory = value;
+      privateStatus = 'Private Datei ausgewählt · Neulesen alle 30 Sekunden';
+      section = 6;
+      error = null;
+    });
+    privateTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
+      if (privateLoading) return;
+      privateLoading = true;
+      try {
+        if (await file.length() > 8 * 1024 * 1024) {
+          throw const FormatException();
+        }
+        final raw = await file.readAsString();
+        if (utf8.encode(raw).length > 8 * 1024 * 1024) {
+          throw const FormatException();
+        }
+        final value = jsonDecode(raw);
+        if (value is! Map<String, dynamic>) throw const FormatException();
+        validatePrivateHistory(value);
+        if (mounted && generation == privateGeneration) {
+          setState(() {
+            privateHistory = value;
+            privateStatus =
+                'Datei erneut gelesen · Erfassung kann veraltet sein';
+          });
+        }
+      } catch (_) {
+        if (mounted && generation == privateGeneration) {
+          setState(
+            () => privateStatus =
+                'Datei nicht lesbar · letzter Stand möglicherweise veraltet',
+          );
+        }
+      } finally {
+        if (generation == privateGeneration) privateLoading = false;
+      }
+    });
   }
 
   void _setDocument(String content, String title, {bool navigate = true}) {
@@ -535,6 +591,10 @@ class _WorkspaceState extends State<Workspace> {
                                       value: 5,
                                       label: Text('Quelle'),
                                     ),
+                                    ButtonSegment(
+                                      value: 6,
+                                      label: Text('Privat'),
+                                    ),
                                   ],
                                   selected: {section},
                                   onSelectionChanged: (v) =>
@@ -612,6 +672,10 @@ class _WorkspaceState extends State<Workspace> {
                                       2 => ChangePanel(data: data),
                                       3 => QualityPanel(data: data),
                                       4 => TracePanel(data: data),
+                                      6 => PrivateHistoryPanel(
+                                        data: privateHistory,
+                                        status: privateStatus,
+                                      ),
                                       _ => SourcePanel(
                                         data: data,
                                         sources: sources,
@@ -659,6 +723,10 @@ const destinations = [
   NavigationRailDestination(
     icon: Icon(Icons.source_outlined),
     label: Text('Quelle'),
+  ),
+  NavigationRailDestination(
+    icon: Icon(Icons.lock_outline),
+    label: Text('Privat'),
   ),
 ];
 const supported = {

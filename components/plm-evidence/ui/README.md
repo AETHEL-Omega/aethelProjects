@@ -130,3 +130,18 @@ lesender Vertragspfad, kein nachgewiesener v2-Compiler.
   noch die Wirksamkeit einer Maßnahme.
 - Der macOS-Debug-Build ist ein Prototyp, keine unabhängig geprüfte,
   signierte und notarisierte Veröffentlichung.
+
+## Private Arbeitsnachweise (Teilschnitt)
+
+Über **Auswertung öffnen** können eine ausdrücklich ausgewählte private
+`coverage.json` aus dem `work-history`-Import oder eine private Fallakte mit
+`case`, `open` und `chat_evidence` geöffnet werden. Der Bereich **Privat**
+zeigt Abdeckung, offene Prüfschritte beziehungsweise Fallangaben und historische
+Quellauszüge. Aussagen sind keine Freigabe. Die gewählte Datei wird während der
+Sitzung alle 30 Sekunden erneut gelesen. Bei Lesefehlern bleibt der letzte Stand
+mit Warnung sichtbar; nach App-Neustart ist die Auswahl erneut erforderlich.
+
+Dies erzeugt keine neue Erfassung, entdeckt keine neuen Projekte und verknüpft
+auch nicht sämtliche Chat- oder Auftragsbezüge. Insbesondere die automatische
+Inventur, Identitätsklärung und Aktualisierung der privaten Projektion sind noch
+nicht mit dieser Oberfläche verbunden. Private JSON-Dateien nicht veröffentlichen.
