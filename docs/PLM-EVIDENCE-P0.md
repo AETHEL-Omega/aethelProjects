@@ -796,3 +796,32 @@ neuen Kernel. Er war bei der Abfrage nicht mergefähig (`DIRTY`). Die
 Fertigstellung des installierten Auftragswegs, die tatsächliche Y-1-Bindung,
 die echte mBOM-Quelle und deren automatische Zuordnung bleiben offen. Es
 wurden weder die Produktivinstallation noch das Produktivledger verändert.
+
+## Kernelkorrektur und POM-Arbeitspaket (04.11.2026)
+
+Die frühere Aussage zum installierten Auftragskernel betraf `~/bin/aix-kernel`
+und war für die angeheftete Copilot-Laufzeit unvollständig: Der tatsächliche
+Release-Zeiger zeigte bei der Probe auf
+`~/.aix/copilot/releases/cc4139e4fddc9fb258ea03bb6791af6cfd94960e/bin`.
+Dessen Kernel verarbeitet `auftrag arbeitsstand`, obwohl der Befehl in seiner
+Hilfe fehlt. Mit eigenem `AIX_HOME` unter `/private/tmp` gab er für den
+isolierten historischen Browser-Checkout Commit `c1b0c46…` und einen
+Arbeitsstand-Digest aus. Das belegt weder eine Produktiv-Ledger-Bindung noch
+Bereitschaft des gesamten Auftragswegs. Der wirksame AIX-Modus war bei der
+Prüfung `LOCAL_AI_ONLY`.
+
+Im AIX-Schnitt #1387 werden POM-v2-Daten zusätzlich unverändert in das
+Engineering-Arbeitspaket und dessen Digest übernommen. Die Paketprüfung und
+ASSM-Admission blockieren v2 weiter, auch bei einer behaupteten Ready-Meldung.
+Die Prüfung mit 76 Feed-Tests war grün; die breitere ASSM-Suite meldete drei
+Mill-Testfehler, die am unveränderten AIX-Basiskopf identisch auftraten
+(jeweils 63 bestanden, 3 fehlgeschlagen). Eine Laufzeitprüfung realer
+Produkt- und Hostbindung sowie die Y-1-mBOM bleiben offen. Kein produktiver
+Auftrag, kein Produktionsledger und keine Installation wurden verändert.
+
+POM v2 kann `HYBRID` als deklarierte Planung tragen. Der Feed blockiert
+abweichende Ausführungs-/Hostmodi und das nicht eindeutig auf die vorhandene
+AIX-Autorität abgebildete `CLOUD_ALLOWED`. Der tatsächlich wirksame Modus,
+Ressourcen- und Datenfreigaben bleiben beim bestehenden AIX-Pfad; diese
+Vorprüfung ändert keine Prefs und genehmigt keine Cloud-Nutzung. AIX-PR #1387
+stand nach dieser Ergänzung auf `9e8910392e43a6321770bdb81336ea18e8be9b80`.
