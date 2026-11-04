@@ -31,6 +31,26 @@ class ProductHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final product = factoryInput?['product_binding'] is Map
+        ? factoryInput!['product_binding'] as Map
+        : const {};
+    final substrate = factoryInput?['substrate_binding'] is Map
+        ? factoryInput!['substrate_binding'] as Map
+        : const {};
+    final output = factoryInput?['output_contract'] is Map
+        ? factoryInput!['output_contract'] as Map
+        : const {};
+    final project = factoryInput?['project'] is Map
+        ? factoryInput!['project'] as Map
+        : const {};
+    String value(Object? item) =>
+        item is String && item.trim().isNotEmpty ? item : 'nicht angegeben';
+    String values(Object? items) =>
+        items is List &&
+            items.isNotEmpty &&
+            items.every((item) => item is String && item.trim().isNotEmpty)
+        ? items.join(', ')
+        : 'nicht angegeben';
     final tiles =
         (cockpit?['tiles'] is List ? cockpit!['tiles'] as List : const [])
             .whereType<Map<String, dynamic>>()
@@ -181,20 +201,21 @@ class ProductHome extends StatelessWidget {
             'Quelle: ${factoryInput!['source']} · Eingabe: ${factoryInput!['id']} · Revision: ${factoryInput!['revision'] ?? 'unbekannt'}',
           ),
           Text(
+            'Projekt laut Quelle: ${value(project['id'] ?? project['name'])}',
+          ),
+          Text(
             'POM: ${factoryInput!['pom']} · Auftrag: ${factoryInput!['work_order_id'] ?? 'nicht angegeben'} · Aktivierung laut Quelle: ${factoryInput!['enabled'] ?? 'unbekannt'}',
           ),
           Text(
             'Linie: ${factoryInput!['line'] ?? 'nicht angegeben'} · Station: ${factoryInput!['station'] ?? 'nicht angegeben'}',
           ),
-          Text(
-            'Produktbindung: ${factoryInput!['product_binding'] ?? 'nicht angegeben'}',
-          ),
-          Text(
-            'Hostbindung: ${factoryInput!['substrate_binding'] ?? 'nicht angegeben'}',
-          ),
-          Text(
-            'Outputvertrag: ${factoryInput!['output_contract'] ?? 'nicht angegeben'}',
-          ),
+          Text('Spezifikationsdigest: ${value(product['spec_digest'])}'),
+          Text('Modellreferenzen: ${values(product['model_refs'])}'),
+          Text('Produktionsmodus: ${value(product['production_mode'])}'),
+          Text('Hostprofil: ${value(substrate['host_profile'])}'),
+          Text('Compute-Modus: ${value(substrate['compute_mode'])}'),
+          Text('Erwartetes Outputschema: ${value(output['pbom_schema'])}'),
+          Text('Erwartete Outputfelder: ${values(output['required_fields'])}'),
           const Text(
             'Quellangaben; keine Validierung, Freigabe oder Zuordnung zu Y-1. Ein POM v1 ist keine produktgebundene mBOM v2.',
           ),

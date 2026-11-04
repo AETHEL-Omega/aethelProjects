@@ -32,8 +32,21 @@ void main() {
       'metadata': {'id': 'E-1', 'revision': 1},
       'project': {'id': 'other'},
       'factory': {
-        'pom': 'aix.production_operations_model.v1',
+        'pom': 'aix.production_operations_model.v2',
         'work_order_id': 'WO-TEST-001',
+        'product_binding': {
+          'spec_digest': 'abc',
+          'model_refs': ['REQ-1'],
+          'production_mode': 'prototype',
+        },
+        'substrate_binding': {
+          'host_profile': 'test-host',
+          'compute_mode': 'LOCAL_AI_ONLY',
+        },
+        'output_contract': {
+          'pbom_schema': 'aix.pbom.v2',
+          'required_fields': ['tree_sha'],
+        },
       },
     };
     await tester.pumpWidget(
@@ -53,6 +66,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Ausgewählter Fertigungsvertrag'), findsOneWidget);
     expect(find.textContaining('WO-TEST-001'), findsOneWidget);
+    expect(find.text('Projekt laut Quelle: other'), findsOneWidget);
+    expect(find.text('Spezifikationsdigest: abc'), findsOneWidget);
+    expect(find.text('Modellreferenzen: REQ-1'), findsOneWidget);
+    expect(find.text('Hostprofil: test-host'), findsOneWidget);
+    expect(find.text('Erwartete Outputfelder: tree_sha'), findsOneWidget);
     expect(
       find.textContaining('keine Validierung, Freigabe oder Zuordnung zu Y-1'),
       findsOneWidget,
