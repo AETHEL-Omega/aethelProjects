@@ -859,6 +859,11 @@ Quellenbehauptung, keine verifizierte Auftragsbindung oder automatische Quelle.
 Der separate Adapter `readAixOrders` kann die Antwort von `aix-kernel auftrag
 liste_lesend` übernehmen. Er ist noch nicht in die App eingebunden; ein
 aktualisierter installierter AIX-Kernel ist ebenfalls Voraussetzung.
+`readLocalAixOrders` verwendet den vorgesehenen Endpunkt
+`http://127.0.0.1:7331/api/orders` mit Größen- und Zeitbegrenzung. Die Funktion
+ist noch nicht an die laufende App angeschlossen. Sie wird erst nach regulärer
+Bereitstellung des neuen AIX-Dashboards und Release-Kernels produktive Daten
+liefern; die bestehende Dienstinstanz wurde nicht neu gestartet.
 Eine Produktionsprobe der neuen AIX-Lesefunktion zeigte 22 Altaufträge und
 keinen vollständig rekonstruierbaren Auftrag. Eine eng begrenzte ältere
 Methodenform wird als `historisch_nicht_rekonstruiert` mit Projekt und damals
