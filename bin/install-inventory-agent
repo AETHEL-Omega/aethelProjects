@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+"""Install or remove the user LaunchAgent for the existing guarded inventory."""
+from __future__ import annotations
+
+import argparse
+import io
+import os
+from pathlib import Path
+import plistlib
+import re
+import subprocess
+import tarfile
+
+LABEL = 'com.aethel.projects.inventory'
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('action', choices=('install', 'uninstall', 'status'))
+    parser.add_argument('--root', type=Path, default=Path.home() / 'workspace')
+    parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--aix-runtime', type=Path, required=True)
+    parser.add_argument('--observations-dir', type=Path)
+    args = parser.parse_args()
+    plist = Path.home() / 'Library' / 'LaunchAgents' / (LABEL + '.plist')
+    domain = f'gui/{os.getuid()}'
+    if args.action == 'status':
+        return subprocess.run(['/bin/launchctl', 'print', f'{domain}/{LABEL}'], check=False).returncode
+    if args.action == 'uninstall':
+        if not plist.exists():
+            print('Nicht installiert.')
+            return 0
+        subprocess.run(['/bin/launchctl', 'bootout', domain, str(plist)], check=False)
+        plist.unlink()
+        print('Inventur-Dienst entfernt; Daten und Versionen bleiben erhalten.')
+        return 0
+    if plist.exists():
+        raise SystemExit('Dienstdatei existiert bereits; vorhandene Konfiguration bleibt unverändert.')
+    repo = Path(__file__).resolve().parents[1]
+    head = subprocess.run(['git', '-C', str(repo), 'rev-parse', '--verify', 'HEAD'], check=True, capture_output=True, text=True).stdout.strip()
+    if not re.fullmatch(r'[0-9a-f]{40,64}', head):
+        raise SystemExit('Git-Revision ungültig.')
+    dirty = subprocess.run(['git', '-C', str(repo), 'status', '--porcelain', '--', 'src/aethel_projects', 'bin/aethel-projects', 'bin/install-inventory-agent'], check=True, capture_output=True, text=True).stdout
+    if dirty:
+        raise SystemExit('Inventurcode ist nicht vollständig committet.')
+    if not (args.aix_runtime / 'bin' / 'aix-resource').is_file() or not (args.aix_runtime / 'bin' / '_aix_gate_lock.py').is_file():
+        raise SystemExit('Installierte AIX-Ressourcenautorität nicht gefunden.')
+    output = args.out.expanduser().absolute()
+    if any(path.is_symlink() for path in (output, *output.parents)):
+        raise SystemExit('Symbolische Links im Inventurziel sind nicht zugelassen.')
+    out_dir = output.parent
+    if not out_dir.is_dir() or out_dir.stat().st_mode & 0o077:
+        raise SystemExit('Zielordner muss bereits bestehen und privat sein (0700).')
+    base = out_dir / 'service'
+    base.mkdir(parents=True, exist_ok=True, mode=0o700)
+    os.chmod(base, 0o700)
+    release = base / 'releases' / head
+    if release.exists():
+        raise SystemExit('Versioniertes Ziel existiert bereits; kein Überschreiben.')
+    release.mkdir(parents=True, mode=0o700)
+    archive = subprocess.run(['git', '-C', str(repo), 'archive', head, 'src/aethel_projects', 'bin/aethel-projects'], check=True, capture_output=True).stdout
+    with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
+        tar.extractall(release, filter='data')
+    command = ['/opt/homebrew/bin/python3', str(release / 'bin' / 'aethel-projects'), '--root', str(args.root.expanduser().resolve()),
+               'inventory', '--watch', '--once', '--aix-runtime', str(args.aix_runtime.expanduser().resolve()), '--out', str(output)]
+    if args.observations_dir:
+        command.extend(['--observations-dir', str(args.observations_dir.expanduser().resolve())])
+    for log_name in ('inventory.log', 'inventory-error.log'):
+        log = base / log_name
+        fd = os.open(log, os.O_WRONLY | os.O_CREAT | os.O_APPEND | os.O_NOFOLLOW, 0o600)
+        os.close(fd)
+        os.chmod(log, 0o600)
+    config = {'Label': LABEL, 'ProgramArguments': command, 'StartInterval': 900,
+              'RunAtLoad': False, 'Nice': 10, 'StandardOutPath': str(base / 'inventory.log'),
+              'StandardErrorPath': str(base / 'inventory-error.log')}
+    plist.parent.mkdir(parents=True, exist_ok=True)
+    fd = os.open(plist, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, 'wb') as stream:
+        plistlib.dump(config, stream)
+    started = subprocess.run(['/bin/launchctl', 'bootstrap', domain, str(plist)], check=False)
+    if started.returncode:
+        plist.unlink()
+        raise SystemExit('Dienst konnte nicht geladen werden; Dienstdatei entfernt.')
+    print(f'Installiert: {LABEL}; Version {head}; Intervall 15 Minuten. Nächster Lauf über AIX-Admission.')
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

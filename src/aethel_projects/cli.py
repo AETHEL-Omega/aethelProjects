@@ -86,6 +86,8 @@ def _build_parser() -> argparse.ArgumentParser:
     inventory_cmd.add_argument("--format", choices=["md", "json"], default="json")
     inventory_cmd.add_argument("--out", default=None)
     inventory_cmd.add_argument("--watch", action="store_true", help="Lokale Inventur wiederholt in geschützte JSON-Datei schreiben")
+    inventory_cmd.add_argument("--once", action="store_true", help="Mit --watch genau eine geschützte Inventur ausführen")
+    inventory_cmd.add_argument("--aix-runtime", type=Path, default=None, help="Für --watch --once bestehende AIX-Ressourcen- und Gatesperre verwenden")
     inventory_cmd.add_argument("--interval-seconds", type=int, default=300, help="Mindestabstand 300 Sekunden")
     inventory_cmd.add_argument("--observations-dir", type=Path, default=None, help="Optionale lokale Direktbeobachtungen; Identität und Quellen werden geprüft")
 
@@ -210,12 +212,22 @@ def _cmd_dossier(args: argparse.Namespace) -> int:
 
 def _cmd_inventory(args: argparse.Namespace) -> int:
     from . import inventory
+    if getattr(args, 'aix_runtime', None) and not (args.watch and args.once and args.out and args.out != '-' and args.format == 'json'):
+        sys.stderr.write("--aix-runtime erfordert --watch --once und --out.\n")
+        return EXIT_USAGE
+    if getattr(args, 'aix_runtime', None):
+        from .inventory_service import run_once
+        run_once(args.root, args.out, args.aix_runtime, observations_dir=args.observations_dir)
+        return EXIT_OK
+    if getattr(args, 'once', False) and not args.watch:
+        sys.stderr.write("--once erfordert --watch.\n")
+        return EXIT_USAGE
     if args.watch:
         if not args.out or args.out == "-" or args.format != "json":
             raise ValueError('watch requires --out and --format json')
         from . import inventory_live
         inventory_live.watch_inventory(args.root, args.out, jobs=args.jobs, interval=args.interval_seconds,
-                                       observations_dir=args.observations_dir)
+                                       once=getattr(args, 'once', False), observations_dir=args.observations_dir)
         return EXIT_OK
     result = inventory.build(args.root, jobs=args.jobs)
     output = (json.dumps(result, ensure_ascii=False, indent=2)
