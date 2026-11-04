@@ -864,6 +864,28 @@ aktualisierter installierter AIX-Kernel ist ebenfalls Voraussetzung.
 ist noch nicht an die laufende App angeschlossen. Sie wird erst nach regulärer
 Bereitstellung des neuen AIX-Dashboards und Release-Kernels produktive Daten
 liefern; die bestehende Dienstinstanz wurde nicht neu gestartet.
+
+### Übergabe an die Projects-Oberfläche
+
+Der lesende Einstieg ist `readLocalAixOrders()` in
+`components/plm-evidence/ui/lib/aix_live.dart`; er fragt ausschließlich
+`GET http://127.0.0.1:7331/api/orders` ab und liefert `source`,
+`beobachtet_epoch` und `auftraege`. Für `gebunden` enthält ein Eintrag die
+Auftragsreferenz, Revision, Projektpfad, den bei der Bindung erfassten
+Kandidaten und gegebenenfalls den zuletzt erfassten Besitzstand. Ein Projekt
+darf nur anhand einer expliziten, auf denselben realen Pfad aufgelösten
+Checkout-Zuordnung verbunden werden; gleiche Namen belegen keine Identität.
+Bei fehlendem oder mehrdeutigem Pfad bleibt die Zuordnung offen.
+
+`historisch_nicht_rekonstruiert` ist eine historische Quellenangabe, keine
+aktuelle Bindung: Besitzer, Zustand, Host-Lease und Output sind unbekannt.
+`unlesbar` zeigt nur eine Referenz. Ein Requestfehler oder HTTP 404/503 ist
+als fehlende beziehungsweise veraltete Quelle anzuzeigen, nicht als leere
+Auftragsliste. Der reale Dienst meldete am 04.11.2026 für die Route HTTP 404;
+der ausgewählte Release-Kernel kennt den Leseschalter noch nicht. Das neue
+Dashboard und der Kernel müssen erst über den bestehenden gegateten
+Release-/Ownerweg bereitgestellt werden. Ein Dashboard-Neustart allein reicht
+nicht. Diese Übergabe schaltet keine UI-Aktualisierung selbst ein.
 Eine Produktionsprobe der neuen AIX-Lesefunktion zeigte 22 Altaufträge und
 keinen vollständig rekonstruierbaren Auftrag. Eine eng begrenzte ältere
 Methodenform wird als `historisch_nicht_rekonstruiert` mit Projekt und damals
