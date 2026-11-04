@@ -15,14 +15,19 @@ Ziel, optional den Kandidatenstand und Kontext. Claims benennen die nötige Art
 und referenzieren Evidence-IDs. Evidence enthält Quelle, Quellen-ID, optionale
 Revision/Digest, Art, optionalen Kandidaten, Herkunft und berichtetes Ergebnis
 (`pass`, `fail`, `unknown`, `not_applicable`). `not_applicable` verlangt eine
-nichtleere Erklärung. `verified` ist optional und wird nur als behauptetes
+nichtleere Erklärung für die jeweilige Referenz, keine Befreiung der Aussage.
+Eine solche Referenz zählt nicht als anwendbarer Nachweis. `verified` ist optional und wird nur als behauptetes
 Eingabefeld durchgereicht; es verleiht keine Beweiskraft.
 
 Alle IDs müssen innerhalb ihres Objekttyps eindeutig sein, Referenzen je Claim
 eindeutig und auf vorhandene Evidence zeigen. Unbekannte Felder und Versionen,
 leere Pflichtangaben und leere optionale Zeichenketten sind Strukturfehler.
-Claims, Referenzen und Lücken sind stabil sortiert. Belege ungeeigneter Art,
-fremden oder unbekannten Stands werden getrennt ausgewiesen. Gegenläufige
+Claims, Referenzen und Lücken sind stabil sortiert. Belegart (`kind_match`) und Kandidatenbindung (`candidate_binding`) werden
+unabhängig bewertet, auch wenn beide unpassend sind. Fehlende Referenzen
+(`missing_evidence`), nicht anwendbare Referenzen und ausschließlich
+unpassende Referenzen (`missing_applicable_evidence`) bleiben unterscheidbar.
+Ein berichteter Fehlschlag bzw. unbekanntes Ergebnis eines passenden Belegs
+erzeugt `reported_failure` bzw. `reported_unknown`. Gegenläufige
 Ergebnisse gleichartiger, auf den Kandidaten gebundener Belege werden angezeigt.
 Ein passender Beleg bleibt eine Quellenbehauptung; ein Digest bindet keine
 Wahrheit, `not_applicable` ist keine Freigabe. P0 prüft keine Quellen und kann
@@ -59,3 +64,8 @@ für den Schnitt wurde bei der Vorprüfung nicht gefunden; keine fremden
 Worktrees geändert. Autorenprüfungen sind keine unabhängige Reviewfreigabe.
 Nächster Schritt: getrenntes Review, danach zuständiges Gate auf dem finalen
 Kopf und gegebenenfalls Landung ausschließlich über `aix-merge-gated`.
+
+Reviewfragen für Opus: Sind die Dimensionen und die Behandlung von einzelnen
+Fehlschlägen, widersprüchlichen Ergebnissen und Nichtanwendbarkeit fachlich
+korrekt? Ist der Vertrag für spätere Adapter hinreichend eindeutig, ohne eine
+Prüfautorität vorzutäuschen?

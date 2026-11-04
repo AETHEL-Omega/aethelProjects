@@ -68,7 +68,8 @@ pub struct ClaimAssessment {
 #[derive(Debug, Serialize)]
 pub struct ReferenceAssessment {
     pub evidence: EvidenceReference,
-    pub applicability: &'static str,
+    pub kind_match: &'static str,
+    pub candidate_binding: &'static str,
     pub assurance: &'static str,
 }
 #[derive(Debug, Serialize, PartialEq, Eq, PartialOrd, Ord)]
@@ -150,57 +151,79 @@ pub fn assess(case: Case) -> Result<Assessment, String> {
         let mut gaps = BTreeSet::new();
         let mut matching = false;
         let mut results = BTreeSet::new();
+        let has_references = !refs.is_empty();
         for id in refs {
             let e = evidence
                 .get(&id)
                 .ok_or_else(|| format!("unknown evidence reference: {id}"))?;
-            let applicability = if e.kind != claim.required_kind {
-                "wrong_kind"
-            } else if c.candidate.is_none() || e.candidate.is_none() {
-                "unknown_binding"
-            } else if e.candidate != c.candidate {
-                "different_candidate"
+            let kind_match = if e.kind == claim.required_kind {
+                "match"
             } else {
-                "matching"
+                "different"
             };
-            match applicability {
-                "wrong_kind" => {
-                    gaps.insert(gap(
-                        "wrong_kind",
-                        &format!("{id}: evidence kind does not match the required kind."),
-                    ));
-                }
-                "unknown_binding" => {
+            let candidate_binding = if c.candidate.is_none() || e.candidate.is_none() {
+                "unknown"
+            } else if e.candidate != c.candidate {
+                "different"
+            } else {
+                "match"
+            };
+            if kind_match == "different" {
+                gaps.insert(gap(
+                    "wrong_kind",
+                    &format!("{id}: evidence kind does not match the required kind."),
+                ));
+            }
+            match candidate_binding {
+                "unknown" => {
                     gaps.insert(gap(
                         "unknown_binding",
                         &format!("{id}: candidate binding is unknown."),
                     ));
                 }
-                "different_candidate" => {
+                "different" => {
                     gaps.insert(gap(
                         "different_candidate",
                         &format!("{id}: evidence refers to another candidate."),
                     ));
                 }
-                _ => {
-                    matching = true;
-                    results.insert(e.reported_result);
-                }
+                _ => {}
             }
             if e.reported_result == ReportedResult::NotApplicable {
-                gaps.insert(gap("not_applicable", &format!("{id}: reported not applicable; explanation is a source assertion, not approval.")));
+                gaps.insert(gap("not_applicable", &format!("{id}: this reference is reported not applicable; its explanation is a source assertion, not a claim-level exemption or approval.")));
+            } else if kind_match == "match" && candidate_binding == "match" {
+                matching = true;
+                results.insert(e.reported_result);
+                match e.reported_result {
+                    ReportedResult::Fail => {
+                        gaps.insert(gap(
+                            "reported_failure",
+                            &format!("{id}: an applicable reference reports failure."),
+                        ));
+                    }
+                    ReportedResult::Unknown => {
+                        gaps.insert(gap(
+                            "reported_unknown",
+                            &format!("{id}: an applicable reference reports an unknown result."),
+                        ));
+                    }
+                    _ => {}
+                }
             }
             references.push(ReferenceAssessment {
                 evidence: e.clone(),
-                applicability,
+                kind_match,
+                candidate_binding,
                 assurance: "source_assertion_only",
             });
         }
-        if !matching {
+        if !has_references {
             gaps.insert(gap(
-                "missing_applicable_evidence",
-                "No reference of the required kind is bound to the candidate.",
+                "missing_evidence",
+                "No evidence references were provided for this claim.",
             ));
+        } else if !matching {
+            gaps.insert(gap("missing_applicable_evidence", "No reference of the required kind is bound to the candidate and reported applicable."));
         }
         if results.contains(&ReportedResult::Pass) && results.contains(&ReportedResult::Fail) {
             gaps.insert(gap(

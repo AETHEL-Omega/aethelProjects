@@ -39,9 +39,13 @@ fn run() -> Result<(), (u8, String)> {
             println!("\n{}: {}", claim.id, claim.statement);
             for r in claim.references {
                 println!(
-                    "  {}: {:?}, {}, {}",
-                    r.evidence.id, r.evidence.reported_result, r.applicability, r.assurance
+                    "  {}: {:?}; Art: {}; Standbindung: {}; {}\n    Quelle: {} ({}); Stand: {}; Herkunft: {}",
+                    r.evidence.id, r.evidence.reported_result, r.kind_match, r.candidate_binding, r.assurance,
+                    r.evidence.source, r.evidence.source_id, r.evidence.candidate.as_deref().unwrap_or("unbekannt"), r.evidence.provenance
                 );
+                if let Some(explanation) = &r.evidence.explanation {
+                    println!("    Berichtete Erklärung: {explanation}");
+                }
             }
             for g in claim.gaps {
                 println!("  [{}] {}", g.code, g.explanation);

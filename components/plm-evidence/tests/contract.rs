@@ -29,7 +29,7 @@ fn binding_and_verified_flag_do_not_grant_authority() {
     c.evidence[0].verified = true;
     let a = assess(c.clone()).unwrap();
     let claim = a.claims.iter().find(|x| x.id == "login").unwrap();
-    assert_eq!(claim.references[0].applicability, "different_candidate");
+    assert_eq!(claim.references[0].candidate_binding, "different");
     assert_eq!(claim.references[0].assurance, "source_assertion_only");
     c.evidence[0].candidate = None;
     let a = assess(c).unwrap();
@@ -39,8 +39,8 @@ fn binding_and_verified_flag_do_not_grant_authority() {
             .find(|x| x.id == "login")
             .unwrap()
             .references[0]
-            .applicability,
-        "unknown_binding"
+            .candidate_binding,
+        "unknown"
     );
 }
 #[test]
@@ -148,4 +148,79 @@ fn cli_does_not_execute_or_open_references() {
         .unwrap();
     assert_eq!(bad.status.code(), Some(2));
     fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn independent_dimensions_and_empty_references() {
+    let mut c = fixture();
+    c.evidence[0].candidate = Some("other".into());
+    let a = assess(c).unwrap();
+    let login = a.claims.iter().find(|x| x.id == "login").unwrap();
+    assert_eq!(login.references[0].kind_match, "different");
+    assert_eq!(login.references[0].candidate_binding, "different");
+    for code in [
+        "wrong_kind",
+        "different_candidate",
+        "missing_applicable_evidence",
+    ] {
+        assert!(login.gaps.iter().any(|g| g.code == code));
+    }
+    let review = a.claims.iter().find(|x| x.id == "review").unwrap();
+    assert!(review.gaps.iter().any(|g| g.code == "missing_evidence"));
+    assert!(!review
+        .gaps
+        .iter()
+        .any(|g| g.code == "missing_applicable_evidence"));
+}
+
+#[test]
+fn results_and_non_applicability_are_distinct() {
+    for (result, expected) in [
+        (ReportedResult::Fail, "reported_failure"),
+        (ReportedResult::Unknown, "reported_unknown"),
+        (ReportedResult::NotApplicable, "not_applicable"),
+    ] {
+        let mut c = fixture();
+        c.claims[0].required_kind = "unit_test".into();
+        c.evidence[0].reported_result = result;
+        if result == ReportedResult::NotApplicable {
+            c.evidence[0].explanation = Some("Scenario does not apply to this reference".into());
+        }
+        let a = assess(c).unwrap();
+        let login = a.claims.iter().find(|x| x.id == "login").unwrap();
+        assert!(login.gaps.iter().any(|g| g.code == expected));
+        assert_eq!(
+            login
+                .gaps
+                .iter()
+                .any(|g| g.code == "missing_applicable_evidence"),
+            result == ReportedResult::NotApplicable
+        );
+    }
+}
+
+#[test]
+fn omitted_optional_fields_stay_unknown() {
+    let mut value: serde_json::Value =
+        serde_json::from_str(include_str!("../fixtures/y1-historical.json")).unwrap();
+    value["change"].as_object_mut().unwrap().remove("candidate");
+    value["change"]
+        .as_object_mut()
+        .unwrap()
+        .remove("product_reference");
+    let e = value["evidence"][0].as_object_mut().unwrap();
+    for field in ["candidate", "revision_or_digest", "explanation", "verified"] {
+        e.remove(field);
+    }
+    let a = assess(serde_json::from_value(value).unwrap()).unwrap();
+    assert!(a.change.product_reference.is_none());
+    assert_eq!(
+        a.claims
+            .iter()
+            .find(|c| c.id == "login")
+            .unwrap()
+            .references[0]
+            .candidate_binding,
+        "unknown"
+    );
 }
