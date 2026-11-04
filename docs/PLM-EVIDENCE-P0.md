@@ -602,3 +602,20 @@ und nachvollziehbaren, datierten Bewertungsannahmen; keine Bewertung aus
 Commitzahlen. Priorität 4: Release und Markt an Anleitungen, Warnungen und
 rechtliche Prüfung durch zuständige Menschen binden. Diese Prioritäten sind
 Vorschläge, keine implementierten oder freigegebenen Prozesse.
+
+## Owner-Hinweis und Abgrenzung
+
+Manuel meldet drei wieder arbeitende Claude-Arbeitsbereiche: AIX/Copilot,
+Workspace-Übersicht und aethelBot/aethelema. Das ist ein aktueller
+Owner-Hinweis, keine unabhängig geprüfte Lease oder Dateisperre. Die
+Workspace-Übersicht kann den Projects-/Arbeitsraum-Schnitt überschneiden.
+Vor weiteren überlappenden Änderungen Dateibesitz, Branch, HEAD, laufenden
+Schreiber und bestehende Übergabe im zuständigen System prüfen; bei unklarer
+Bindung nur den betroffenen Schreibschnitt zurückstellen. Keine zweite
+Registry, keinen zweiten Scanner und keinen parallelen Schreiber anlegen.
+
+AIX-Kernbefunde gehören zur Prüfung durch den AIX/Copilot-Owner; Bot- und
+aethelema-Integration zum dortigen Owner. Dieser Schnitt bleibt bei
+versionierter Produkt-/Änderungsakte, belegtem Zustand und lesender Darstellung
+vorhandener Projects-Projektionen. Eine Übergabe der AIX-Befunde oder eine
+aktive Besitzerbestätigung ist durch diesen Hinweis noch nicht belegt.
