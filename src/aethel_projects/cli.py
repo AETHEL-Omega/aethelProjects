@@ -725,12 +725,12 @@ def _cmd_analyses(args: argparse.Namespace) -> int:
                     if args.format == "json" else analyses_mod.render_loops_markdown(loops))
         elif args.stats:
             stats = analyses_mod.summary(base)
-            text = (json.dumps(stats, ensure_ascii=False, indent=2, sort_keys=True) if args.format == "json"
+            text = (json.dumps({"schema": "aethel.projects.analysen-stats/v1", **stats}, ensure_ascii=False, indent=2, sort_keys=True) if args.format == "json"
                     else "\n".join(f"{key}: {value}" for key, value in sorted(stats.items())))
         elif args.show:
             markdown = analyses_mod.show(base, args.show)
             if args.format == "json":
-                text = json.dumps({"id": args.show, "markdown": markdown,
+                text = json.dumps({"schema": "aethel.projects.analyse/v1", "id": args.show, "markdown": markdown,
                                    "verified": not markdown.startswith(analyses_mod.CHANGED_WARNING)},
                                   ensure_ascii=False, indent=2)
             else:
@@ -850,9 +850,17 @@ def _cmd_cockpit(args: argparse.Namespace) -> int:
     if not base.is_dir():
         sys.stderr.write(f"Ablage nicht gefunden: {base}\n")
         return EXIT_USAGE
-    if args.out and _is_within(Path(args.out).expanduser(), base) and not Path(args.out).name.lower().startswith("leitstand"):
-        sys.stderr.write("--out in der Ablage nur als LEITSTAND-*.md/.html/.json\n")
-        return EXIT_USAGE
+    if args.out:
+        out = Path(args.out).expanduser()
+        try:
+            target = out.resolve()
+        except OSError:
+            target = out.absolute()
+        # Name und Endung am aufgelösten Ziel prüfen, damit kein Symlink auf INDEX.json führt.
+        allowed = target.name.lower().startswith("leitstand") and target.suffix.lower() in {".md", ".html", ".json"}
+        if _is_within(target, base) and not allowed:
+            sys.stderr.write("--out in der Ablage nur als LEITSTAND-*.md/.html/.json\n")
+            return EXIT_USAGE
     try:
         view = cockpit_mod.build(base)
     except ValueError as error:

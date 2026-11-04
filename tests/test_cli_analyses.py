@@ -133,3 +133,15 @@ def test_tc064_stack_cli_markdown_json_and_unknown_repo(tmp_path: Path, capsys) 
     payload = json.loads(capsys.readouterr().out)
     assert payload["schema"] == "aethel.projects.stack/v1"
     assert main(["--root", str(root), "stack", "--repo", "gibt-es-nicht"]) == 1
+
+
+def test_tc065_cockpit_out_sperre_gegen_symlink_und_endung(tmp_path: Path, capsys) -> None:
+    """TC-065: cockpit --out darf weder über Symlink noch mit falscher Endung in die Ablage schreiben."""
+    base = _ablage(tmp_path)
+    (base / "INDEX.json").write_text('{"schema": "aethel.projects.analysen/v1", "entries": []}\n', encoding="utf-8")
+    link = tmp_path / "leitstand.md"
+    link.symlink_to(base / "INDEX.json")
+    assert main(["--root", str(tmp_path), "cockpit", "--base", str(base), "--out", str(link)]) == 2
+    assert main(["--root", str(tmp_path), "cockpit", "--base", str(base), "--out", str(base / "leitstand.py")]) == 2
+    assert main(["--root", str(tmp_path), "cockpit", "--base", str(base), "--out", str(base / "LEITSTAND-x.md")]) == 0
+    assert json.loads((base / "INDEX.json").read_text(encoding="utf-8"))["schema"] == "aethel.projects.analysen/v1"

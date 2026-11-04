@@ -122,6 +122,7 @@ sind Altbestand.
 
 Neu in diesem Schnitt zusätzlich: `incubator` (Reifeleiter R0–R11, RF, RI), `applefirst`
 (Score, Grade, Anti-Muster), `cockpit` (Leitstand md/json/html aus der Ablage); Analysen
-7 bis 9 (Zielbetriebsmodell und Dominosteine, Werkzeuge, die Werkzeuge bauen,
-Chat-Protokoll) sowie echte Läufe (Register-Abgleich, Schichtenkarte, Apple-first) als
-Markdown und JSON unter `analysen/2026-11-03/`.
+5 bis 11 (Zielbetriebsmodell und Dominosteine, Werkzeuge, die Werkzeuge bauen,
+Chat-Protokoll) sowie vier echte Läufe (Register-Abgleich, Schichtenkarte, Apple-first,
+Inkubator) als Markdown und JSON unter `analysen/2026-11-03/`; Leitstand als md/json/html.
+Komponente: aethelProjects@aethel.projects.incubator/v1, applefirst/v1, cockpit/v1.

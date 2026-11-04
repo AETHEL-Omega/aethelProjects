@@ -95,3 +95,18 @@ def test_tc065_leitstand_ignoriert_kaputte_und_fremde_json(tmp_path: Path) -> No
     (base / "2026-11-03" / "fremd.json").write_text(json.dumps({"schema": "x/v9", "items": []}), encoding="utf-8")
     view = cockpit.build(base)
     assert view.quellen == {}
+
+
+def test_tc065_juengster_datumsordner_gewinnt_und_archiv_zaehlt_nicht(tmp_path: Path) -> None:
+    """TC-065: Nur <Datum>/-Ordner zählen; das jüngste Datum gewinnt."""
+    base = _ablage(tmp_path)
+    for ordner, leer in (("2026-11-02", ["S1"]), ("2026-11-04", ["S16"])):
+        (base / ordner).mkdir(exist_ok=True)
+        (base / ordner / "stack.json").write_text(json.dumps({
+            "schema": "aethel.projects.stack/v1", "layer_names": {}, "per_layer": {}, "empty_layers": leer, "assignments": []}), encoding="utf-8")
+    (base / "archiv" / "2025-01-01").mkdir(parents=True)
+    (base / "archiv" / "zzz.json").write_text(json.dumps({
+        "schema": "aethel.projects.stack/v1", "layer_names": {}, "per_layer": {}, "empty_layers": ["S0"], "assignments": []}), encoding="utf-8")
+    view = cockpit.build(base)
+    assert view.leere_schichten == ("S16",)
+    assert view.quellen["stack"] == "2026-11-04/stack.json"

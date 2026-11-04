@@ -83,16 +83,27 @@ class Leitstand:
 
 def _latest_run(base: Path, schema: str) -> tuple[dict | None, str]:
     """Jüngste JSON-Datei unter ``base`` mit passendem Schema (Pfad sortiert, letzter gewinnt)."""
+    import re
+
     best: tuple[str, dict] | None = None
-    for path in sorted(base.rglob("*.json")):
-        if path.name in {analyses_mod.INDEX_FILE, analyses_mod.PROPOSALS_FILE, analyses_mod.LOOPS_FILE}:
+    best_key: tuple[str, float, str] | None = None
+    date_dir = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+    # Nur Läufe in <YYYY-MM-DD>/ zählen; jüngstes Datum gewinnt, am selben Tag die jüngste Datei.
+    for path in base.glob("*/*.json"):
+        if not date_dir.match(path.parent.name):
+            continue
+        try:
+            mtime = path.stat().st_mtime
+        except OSError:
             continue
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
         if isinstance(payload, dict) and payload.get("schema") == schema:
-            best = (str(path.relative_to(base)), payload)
+            key = (path.parent.name, mtime, path.name)
+            if best_key is None or key > best_key:
+                best_key, best = key, (str(path.relative_to(base)), payload)
     if best is None:
         return None, ""
     return best[1], best[0]

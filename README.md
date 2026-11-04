@@ -31,7 +31,7 @@ PYTHONPATH=src bin/aethel-projects scan --root ~/workspace --json /tmp/portfolio
 Optional in die AIX-Laufzeitumgebung deployen (siehe [docs/INTEGRATION.md](docs/INTEGRATION.md)):
 
 ```bash
-cp bin/aix-projects ~/bin/aix-projects && chmod +x ~/bin/aix-projects
+cp bin/aethel-projects ~/bin/aethel-projects && chmod +x ~/bin/aethel-projects
 ```
 
 ## Nutzung
@@ -43,7 +43,7 @@ aethel-projects report    --root ~/workspace --format md|html   # Portfolio-Repo
 aethel-projects audit     --root ~/workspace --format md|json   # Aufräum-Vorschläge
 aethel-projects market    --root ~/workspace --format md|json   # Marktview + USP + Claims
 aethel-projects forensics --root ~/workspace --format md|json   # hässlich / schön / interessant
-aethel-projects analyses  --list | --show ID | --proposals | --loops | --stats   # Analysen-Ablage (8 Analysen)
+aethel-projects analyses  --list | --show ID | --proposals | --loops | --stats   # Analysen-Ablage (11 Analysen)
 aethel-projects registers --snapshot scan.json --format md|json              # vier lokale Register abgleichen
 aethel-projects stack     --root ~/workspace --format md|json                 # Schichtenkarte
 aethel-projects incubator --root ~/workspace --format md|json                 # Reifeleiter R0 Idee … R11 Betrieb
@@ -72,11 +72,14 @@ PYTHONPATH=src bin/aethel-projects analyses --register analysen/2026-11-03/NEU.m
 ```
 
 `--show` prüft die Prüfsumme und warnt, wenn die Datei seit der Registrierung verändert wurde.
-`--register` ist die einzige Schreiboperation in `analysen/`; sie schreibt nur `INDEX.json`
-und akzeptiert nur Dateien innerhalb von `analysen/`; `--out` darf nicht in die Ablage zeigen.
-Stand 03.11.2026 liegen dort acht Analysen: Gesamtanalyse des Workspace, Technologie/Architektur/
-Kybernetik auf macOS 27, Gesamtstack und Bauteile, neue Projekte und Kreisläufe, Register-Abgleich,
-Schichtenkarte, Zielbetriebsmodell und Dominosteine, Werkzeuge, die Werkzeuge bauen. Kopien liegen zusätzlich unter `~/workspace/_docs/`.
+`--register` ist die einzige Operation des Befehls `analyses`, die schreibt; sie schreibt nur
+`INDEX.json` und akzeptiert nur Dateien innerhalb von `analysen/`; `--out` von `analyses` darf nicht
+in die Ablage zeigen. Die Läufe `registers`, `stack`, `incubator`, `applefirst` legen ihre Ergebnisse
+mit `--out` bewusst unter `analysen/<Datum>/` ab, `cockpit` nur als `LEITSTAND-*`.
+Stand 03.11.2026 liegen dort elf Analysen: Gesamtanalyse des Workspace, Technologie/Architektur/
+Kybernetik auf macOS 27, Gesamtstack und Bauteile, neue Projekte und Kreisläufe, Zielbetriebsmodell
+und Dominosteine, Werkzeuge, die Werkzeuge bauen, Chat-Protokoll sowie die Läufe Register-Abgleich,
+Schichtenkarte, Apple-first-Audit und Inkubator-Reifeleiter. Kopien liegen zusätzlich unter `~/workspace/_docs/`.
 
 ## Register-Abgleich und Schichtenkarte
 

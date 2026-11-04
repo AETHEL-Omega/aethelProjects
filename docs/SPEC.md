@@ -87,7 +87,7 @@ Gesamtzustand des Workspace als eine konsistente, deduplizierte Wahrheit liefert
 
 ## Ergänzung 03.11.2026: Analysen-Ablage, Register-Abgleich, Schichtenkarte
 
-Komponente: `aethelProjects@aethel.projects.analysen/v1` (Ablage), `aethelProjects@aethel.projects.register-drift/v1` (Abgleich), `aethelProjects@aethel.projects.stack/v1` (Schichtenkarte). Herkunft: Workspace-Analyse 03.11.2026 (vier Berichte unter `analysen/2026-11-03/`).
+Komponente: `aethelProjects@aethel.projects.analysen/v1` (Ablage), `aethelProjects@aethel.projects.register-drift/v1` (Abgleich), `aethelProjects@aethel.projects.stack/v1` (Schichtenkarte), `aethelProjects@aethel.projects.incubator/v1` (Reifeleiter), `aethelProjects@aethel.projects.applefirst/v1` (Apple-first), `aethelProjects@aethel.projects.cockpit/v1` (Leitstand). Herkunft: Workspace-Analyse 03.11.2026 (vier Berichte unter `analysen/2026-11-03/`).
 
 | ID | Prio | Anforderung (MUST/SHOULD/MAY) | Akzeptanzkriterium |
 |----|------|-------------------------------|--------------------|
