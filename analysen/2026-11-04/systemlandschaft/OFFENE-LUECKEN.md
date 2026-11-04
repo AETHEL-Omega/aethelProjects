@@ -45,6 +45,43 @@ Regressionstest; sein Google-/YouTube-Login ist kein Leitfall dieser Lieferung.
 8. Der identifizierte App-Build besteht Signatur-/Startprüfung und eine tatsächliche
    Bedienprobe des Datenwegs. Quellcodetests allein genügen hierfür nicht.
 
+9. Die Startansicht zeigt alle erfassten Projekte ohne Suchzwang. Suche und
+   Drill-down sind zusätzliche Zugänge; Arbeitskopien, Manifestkomponenten und
+   Fremdquellen werden nicht als gleichwertige fertige Produkte ausgegeben.
+10. Ein ausgewähltes Projekt kann über den bestehenden CodeAnalyzer analysiert
+    werden. Projektpfad, Quellrevision, Befundort und Regel bleiben gebunden.
+    Gelesene Dateien, tatsächlich angewandte Regeln, unbekannte Sprachen,
+    Auslassungen und abgebrochene Teilscans sind unterscheidbar. Stub-Verdacht
+    ist kein bewiesener Defekt; Testmocks und abstrakte Verträge sind Gegenfälle.
+11. Ein echter zulässiger Auftrag wird bis zum Ergebnis nachvollzogen. Bestehende
+    Ergebnis-, Review-, Gate-, Landing- und Installationsreferenzen bleiben an
+    denselben Auftrag/Kandidaten gebunden. Die abschließende unabhängige
+    Bedienprüfung bestätigt die tatsächliche Wirkung im identifizierten Build.
+12. Die gewählte Quelle bleibt nach App-Neustart nutzbar. Aktualisierung und
+    Analyse benötigen keinen erneuten Chatimport; ein einmal importierter
+    Quellenbericht ersetzt keinen dauerhaft ausführbaren Analysepfad.
+
+### Integrationsstand am 4. November, 20:00 UTC
+
+- Der UI-Kandidat `881d7fe` enthält Projektliste, Drill-down und lesenden
+  AIX-Adapter. Der Inventurkandidat `9c9f8c3` übernimmt quellgebundene
+  Direktbeobachtungen. Gezielte Tests sind laut Implementierungsbelegen grün;
+  ein gemeinsamer neuer App-Build und seine Bedienabnahme fehlen.
+- Die AIX-Auftragsroute ist als Kandidat vorhanden, im laufenden Dienst jedoch
+  noch nicht verfügbar. Der installierte Kernel unterstützt den neuen
+  Leseschalter noch nicht. Der bestehende PLM/AIX-Owner hält die Bereitstellung
+  zusammen mit dem Release-Owner; die Verantwortung endet nicht am Adapter.
+- Der CodeAnalyzer-Schnitt ergänzt Dart-/Python-Stubverdacht und eine getrennte
+  Abdeckungsanzeige. Der Kandidat ist noch ungeprüft und nicht installiert.
+  Der Projects-Owner führt den vorhandenen Provider pfadgebunden weiter und
+  erhält dessen Abdeckungsdaten, statt eine zweite Analyseengine aufzubauen.
+- Analyse-Start aus der App und dauerhafte automatische Aktualisierung sind
+  offen. Die unabhängige Bedienprüfung beginnt erst am gemeinsamen Build.
+- Der alte Gate-Lauf wurde mit ausdrücklicher Nutzerfreigabe beendet; Abbruchcode
+  143 ist kein grüner Nachweis. Der Release-Owner koordiniert das einzige
+  Prüf-/Gatefenster über die bestehenden Ressourcenregeln. Fehlende Reserve
+  wird nicht durch parallele Prüfstarts umgangen.
+
 ### Aufteilung und Lieferreihenfolge
 
 | Schnitt | Bestehende Verantwortung | Nächster überprüfbarer Abschluss |
