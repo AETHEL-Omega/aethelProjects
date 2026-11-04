@@ -1,0 +1,19 @@
+{
+  "schema": "aethel.plm.landing-observation/v1",
+  "repository_id": "~/workspace/aethelBrowser/.git",
+  "head_supplied": "532c170bd23ca9d5f905262c4fad9bb043b92937",
+  "source_id": "GitHub PR 1518: Kommentare; lokaler Landing verdict --check ohne Gate-Log",
+  "observed_at_supplied": "2026-11-04 (Uhrzeit nicht dokumentiert)",
+  "reported_ok": false,
+  "reported_reason": "no_structured_verdict_for_head",
+  "reported_verdicts": [],
+  "reported_other_heads": [],
+  "reported_rejected_lines": [],
+  "reported_covered_by_seal": [],
+  "reported_unstructured": 0,
+  "reported_notes": {},
+  "reported_unfulfilled": null,
+  "reported_inherited_from": null,
+  "freshness": "not_checked",
+  "authority": "reported_only; head_source_and_authority_not_verified"
+}

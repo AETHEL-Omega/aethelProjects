@@ -1,0 +1,51 @@
+{
+  "schema": "aethel.plm.landscape-supplement/v1",
+  "source_id": "Manuels Ziel und Helix-Quellprüfung, 04.11.2026; Arbeitsakte PLM-EVIDENCE-P0.md",
+  "generated_at": "2026-11-04",
+  "nodes": [
+    {
+      "id": "component:hologit-prototype",
+      "name": "HoloGit",
+      "kind": "komponente",
+      "purpose": "Experimenteller Versionsverwaltungsprototyp in aethelHelix; keine nachgewiesene Produktionsfreigabe.",
+      "source": "~/workspace/aethelHelix/src/hgit/mod.rs",
+      "areas": ["Plattform"]
+    },
+    {
+      "id": "component:omegam0-lambda0",
+      "name": "aethelOmegaLambda0",
+      "kind": "komponente",
+      "purpose": "Im Cargo-Manifest deklariertes Binärziel von aethelOmegaM0; Laufzeitverhalten nicht durch diesen Eintrag geprüft.",
+      "source": "~/workspace/aethelOmegaM0/Cargo.toml",
+      "source_revision": "6e70e86176e7fcf2e9749a7f6bc986ce04171b80",
+      "areas": ["Plattform"]
+    }
+  ],
+  "edges": [
+    {
+      "from": "repo:f34e89d554c0fde3",
+      "to": "repo:83295b83525e9e5c",
+      "type": "optionaler Snapshot-/Transportadapter",
+      "status": "geplant",
+      "evidence": "docs/PLM-EVIDENCE-P0.md · Manuels Ziel 04.11.2026",
+      "detail": "Zielvorschlag; tatsächliche Integration und Eignung für Veröffentlichung nicht nachgewiesen."
+    },
+    {
+      "from": "repo:83295b83525e9e5c",
+      "to": "component:hologit-prototype",
+      "type": "enthält Prototyp im Quellcode",
+      "status": "bestehend",
+      "evidence": "~/workspace/aethelHelix/src/hgit/mod.rs",
+      "detail": "Quellbezug; äußerer Authentifizierungs-, Reparatur- und dauerhafter Historienvertrag bleiben offen."
+    },
+    {
+      "from": "repo:a9be6f68e2d93f19",
+      "to": "component:omegam0-lambda0",
+      "type": "deklariertes Cargo-Binärziel",
+      "status": "bestehend",
+      "evidence": "~/workspace/aethelOmegaM0/Cargo.toml · sha256:3236be8c49d86c4379e2d57e085386112788a502e5da02cd0f8f64493813b579",
+      "source_revision": "6e70e86176e7fcf2e9749a7f6bc986ce04171b80",
+      "detail": "[[bin]] aethelOmegaLambda0 → src/bin/lambda0.rs; Deklaration ist kein Laufzeit- oder Abnahmenachweis."
+    }
+  ]
+}

@@ -1,11 +1,19 @@
 # AETHEL Arbeitsraum – lesender Pilot
 
-Eigenständiger Flutter-Prototyp für macOS. Er zeigt eine historische
-Momentaufnahme des aethelBrowser-Piloten Y-1 sowie ein synthetisches
-Qualitätsbeispiel. Die Ansichten verbinden Aussagen, referenzierte Belege,
+Eigenständiger Flutter-Prototyp für macOS. Einstieg ist eine datierte,
+pseudonymisierte Rechercheprojektion der Projektlandschaft: 624 Einträge und
+921 Beziehungen aus dem ursprünglichen Bericht sowie zwei ausdrücklich
+gekennzeichnete Komponenten und drei Beziehungen als Zusatz. Es handelt sich
+nicht um 626 eigenständige Produkte. Die Quelle enthält Erfassungsprobleme,
+ausgelassene Pfade und ungeprüfte Beziehungen; diese Grenzen sind einsehbar.
+
+Die Oberfläche zeigt eine historische Momentaufnahme des aethelBrowser-Piloten
+Y-1 sowie ein synthetisches Qualitätsbeispiel. Die Ansichten verbinden Aussagen, referenzierte Belege,
 Issues und Maßnahmen, ohne aus einer Verknüpfung eine geprüfte Erfüllung
-abzuleiten. `Quelle` zeigt gesondert geöffnete Projects- und Copilot-Berichte;
-eine automatische Zuordnung zu einer Änderung findet nicht statt.
+abzuleiten. Die Landing-Leseprobe zu PR 1518 wurde am 04.11. aus den damals
+abgefragten PR-Kommentaren ohne Gate-Log erzeugt. Ihre Zuordnung zum exakt
+passenden lokalen Repository muss in der Oberfläche ausdrücklich erfolgen;
+unterschiedliche Kandidaten werden angezeigt. Sie belegt keine Landung.
 
 ## Start
 
@@ -18,7 +26,24 @@ flutter run -d macos
 ```
 
 Über **Auswertung öffnen** lässt sich eine JSON-Ausgabe des Rust-Fachkerns
-auswählen. Ein Beispiel kann vom Repository-Wurzelverzeichnis aus erzeugt
+auswählen. Eine neue Landschaftsprojektion wird explizit aus einer vorhandenen
+Recherchedatei erzeugt und anschließend geöffnet:
+
+```sh
+cargo run --offline --manifest-path components/plm-evidence/Cargo.toml -- \
+  landscape-project --input projektgraph.json --format json --source-id 'Recherche 04.11.2026' \
+  > /tmp/aethel-landschaft.json
+```
+
+Für eine Fallzuordnung sind außerdem ein ausdrücklich gebundenes `--binding`
+und die zugehörige `--case`-Datei nötig; Beispiele stehen in `fixtures/`.
+Bereiche werden aus mitgelieferten Angaben oder Manifestkategorien gebildet;
+ohne solche Angabe bleibt ein Eintrag unter „Unzugeordnet“ auffindbar. Das
+integrierte Beispiel verwendet pseudonymisierte Pfade; ein Export mit echten
+lokalen Identitäten darf nicht anhand des gleichen Namens damit verschmolzen
+werden.
+
+Eine Fallauswertung kann vom Repository-Wurzelverzeichnis aus erzeugt
 werden:
 
 ```sh
@@ -29,7 +54,8 @@ cargo run --offline --manifest-path components/plm-evidence/Cargo.toml -- \
 
 Die Quelldateien der beiden eingebauten Beispiele sind Rust-Ausgaben; die
 Oberfläche berechnet keine fachlichen Zustände selbst. Sie kann außerdem die
-versionierten Ausgaben von `project-observation` und `copilot-observation`
+versionierten Ausgaben von `project-observation`, `copilot-observation` und
+`landing-observation`
 einzeln öffnen. Die Kommandos und deren Grenzen stehen in
 [`docs/PLM-EVIDENCE-P0.md`](../../../docs/PLM-EVIDENCE-P0.md).
 

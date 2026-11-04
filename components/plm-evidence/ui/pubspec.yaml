@@ -1,7 +1,7 @@
 name: aethel_plm
 description: "Lesender AETHEL Arbeitsraum für Softwareentwicklung und Qualität."
 publish_to: 'none'
-version: 0.1.0+1
+version: 0.2.1+3
 
 environment:
   sdk: ^3.12.2
@@ -21,3 +21,5 @@ flutter:
   assets:
     - assets/y1-assessment.json
     - assets/linked-assessment.json
+    - assets/landscape-historical.json
+    - assets/y1-landing-observation.json

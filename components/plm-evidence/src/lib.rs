@@ -346,3 +346,5 @@ pub mod link;
 pub mod projects;
 
 pub mod copilot;
+pub mod landing;
+pub mod landscape;

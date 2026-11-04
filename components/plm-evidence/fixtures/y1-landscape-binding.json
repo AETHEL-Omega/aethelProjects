@@ -1,0 +1,40 @@
+{
+  "schema": "aethel.plm.landscape-case-binding/v1",
+  "node_id": "repo:ed4da66dacb79098",
+  "repository_id": "~/workspace/aethelBrowser/.git",
+  "case_source": "Historische Fallakte Y-1 vom 04.11.2026; Quellpfade pseudonymisiert",
+  "case_id": "Y-1",
+  "candidate": "c1b0c46cbae60a69a00332a050841044e64b32e1",
+  "followups": [
+    {
+      "claim_id": "login",
+      "responsible_source": "Produkt / Nutzer · historische Fallakte",
+      "next_step": "Anmeldung im identifizierten Build bis zum sichtbaren angemeldeten Zustand prüfen.",
+      "as_of": "2026-11-04"
+    },
+    {
+      "claim_id": "gate",
+      "responsible_source": "AIX / Landing · historische Fallakte",
+      "next_step": "Nach unabhängigem Review den geltenden Gatevertrag am finalen Kandidaten anwenden.",
+      "as_of": "2026-11-04"
+    },
+    {
+      "claim_id": "review",
+      "responsible_source": "Unabhängige Prüfinstanz · historische Fallakte",
+      "next_step": "Review des konkreten Kandidaten und seiner Verhaltensannahmen zuordnen.",
+      "as_of": "2026-11-04"
+    },
+    {
+      "claim_id": "release",
+      "responsible_source": "Release / Gerät · historische Fallakte",
+      "next_step": "Build-ID, Artefakt und tatsächliche Installation belegen.",
+      "as_of": "2026-11-04"
+    },
+    {
+      "claim_id": "provenance",
+      "responsible_source": "AIX / zuständiger Laufbeleg · historische Fallakte",
+      "next_step": "Lauf, Host, Modell und tatsächlichen Inferenzort anhand geeigneter Quellen klären.",
+      "as_of": "2026-11-04"
+    }
+  ]
+}

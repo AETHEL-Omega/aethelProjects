@@ -18,6 +18,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Änderung'));
+    await tester.pumpAndSettle();
     expect(find.textContaining('Übergebene Auswertung'), findsOneWidget);
     expect(find.textContaining('Historisch: 2026-11-04'), findsOneWidget);
     expect(

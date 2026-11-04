@@ -414,3 +414,120 @@ beschreibt lokale Modelle über einen vorhandenen kompatiblen Dienst
 ([Dokumentation](https://docs.mistral.ai/vibe/code/cli/offline-models)).
 Keinen neuen Server, keine bezahlte API und keine neue Modellrunde aus diesem
 Papier ableiten; Review und Architektur bleiben unabhängig und hochwertig.
+
+## Nächster Schnitt: Projektlandschaft als Einstieg
+
+Manuels Ergänzung vom 04.11. verlangt eine sichtbare Projektlandschaft im
+Arbeitsraum. Firma, Produkt, Projekt, Repository, Komponente, Auftrag, Rolle,
+Lauf, Modell, Host, Release und Installation bleiben verschiedene Identitäten;
+Beziehungen sind typisiert und können mehrfach vorkommen. Der Arbeitsraum ist
+lesender Consumer: das Workspace-Manifest bleibt bestehendes Register, AIX
+zuständig für Aufträge/Rechte/Ressourcen, Landing für Prüfung/Landung. Keine
+Namensgleichheit als Identitätsnachweis und kein zweiter Executor.
+
+Enger Bauschnitt: eine explizit übergebene datierte
+`aethel.workspace.relationship-observation/v1`-Rechercheprojektion im Rust-Kern
+strukturell prüfen und als versionierte, nicht autoritative Lesesicht darstellen;
+Einstieg mit Suche, Bereichen, Beziehungen und Quelle. Die vorhandene Recherche
+ist nicht atomar, nicht vollständig und enthält ausdrücklich ungeprüfte Kanten;
+„bestehend“ bei einer Manifestkante bedeutet keine nachgewiesene Laufzeit.
+Für den Pilot ist die Y-1-Fallakte nur anhand einer expliziten Zuordnung zur
+genauen lokalen Repository-Identität anschließbar. Ein abweichender Kandidat
+ist sichtbar, unbekannte Produktidentität bleibt unbekannt. Die beigefügte
+Ansicht ist eine historische, pseudonymisierte Rechercheprojektion, kein neues
+Register; ein ausdrücklich benannter Zusatz markiert weitere geplante Bezüge.
+
+Orakel: Original-IDs, Mehrfachkanten, Status und Herkunft bleiben erhalten;
+Namensgleichheit ordnet nicht zu; doppelte IDs blockieren; fehlende Endpunkte
+bleiben als Lücke sichtbar; falsche Repository-ID blockiert die Fallzuordnung;
+abweichende Kandidaten dürfen keine passenden Belege suggerieren. Die UI muss
+von aethelBrowser nach Y-1 und zurück führen, offene Auftrags-, Review-, Gate-,
+Lauf-, Liefer- und Wirkungsbelege anzeigen und auch geplante/ungeprüfte
+Objekte auswählbar halten. Eine tatsächlich aktuelle AIX-/Git-/Release-Abfrage,
+schriftliche Workflows, Quellenautorisierung und Live-Adapter sind nicht Teil
+dieses Schnitts. Opus-Review vor finalem Gate bleibt unverändert.
+
+## Cursor Origin, eigenständiges Landing und Helix
+
+Cursor Origin ist eine Git-Forge mit nativen Repositories, PRs und Code Tours;
+bei einem GitHub-Spiegel bleibt GitHub die führende Quelle. Seine API erlaubt
+`expectedHeadSha` und kann bei gestapelten PRs mehrere Änderungen gemeinsam
+landen. Ein passender PR-Kopf allein beweist weder eine unveränderte Basis noch
+den tatsächlich geprüften Ergebnisbaum. Quellen: [Origin](https://cursor.com/docs/origin),
+[Spiegel](https://cursor.com/docs/origin/mirror-github),
+[Code Tours](https://cursor.com/docs/origin/code-tours),
+[API](https://cursor.com/docs/api/origin).
+
+Der gelesene aethelLanding-Stand `0a290bf` enthält bereits Kandidat, Siegel,
+Urteil, Blocker, Queue, Audit und `landing_beleg`; die ältere README-Markierung
+„design stage“ beschreibt nicht jeden heutigen Codebestand. Ein allgemeiner
+eigenständiger Publikationsbefehl ist damit nicht nachgewiesen. Landing bleibt
+eigene Python-/Git-Stdlib-Autorität; AIX ist Consumer. Für eine bessere
+Reviewoberfläche: versionierte Änderungen und konkrete Landungsmenge, Diff und
+Prüfbelege nachvollziehbar gruppieren sowie Änderungen seit dem letzten Review
+zeigen. Gelesen, reviewt, gegatet, gelandet, installiert und wirksam bleiben
+getrennte Zustände. Erklärtexte erteilen kein Urteil; das Öffnen benötigt keinen
+Modellaufruf. Runner-/Policy-Pin aus der Basis, unabhängige Prüfung, versiegelter
+Ergebnisbaum, Basis-CAS und Nachsiegel sind gegenüber einer reinen Kopfprüfung
+zusätzliche Anforderungen. Eine Umsetzung in Landing braucht einen eigenen
+besitzgebundenen Schnitt und dessen Review/Gate.
+
+Manuels Ziel vom 04.11. umfasst **beides**: Landing unabhängig von AIX und
+Hostingdienst sowie zusätzlich einen Git-freien Betrieb. Für Letzteres ist ein
+versionierter Vertrag vorzuschlagen, nicht `landing.v1` still umzudeuten:
+typisierter Kandidat aus Git-Baum oder kanonischem Artefakt-/Snapshot-Digest;
+getrennte Inhalts- und Publikationsadapter; gleiche Regeln für Policy, Basis,
+Prüfumfang, unabhängiges Urteil, atomaren Zielwechsel und Nachprüfung. Git lokal
+oder bare sowie optionale Forge-Adapter sind ein möglicher Weg; ein unveränderlicher
+Dateibundle-Snapshot wäre ein möglicher Git-freier Anfang. Kein Git-freier
+Publikationsadapter ist hier gebaut oder freigegeben.
+
+`aethelHelix` ist in Entwicklung. Der gelesene Stand dokumentiert HoloGit-Code
+und Forschungsergebnisse, nennt aber äußere Authentifizierung/Reparatur und
+einen dauerhaften Commit-/Historienvertrag als nächste offene Schritte. Helix
+ist deshalb ein experimenteller möglicher Inhalts-/Transportadapter, keine
+nachgewiesene Landing-Integration. Physischer Trägerhash, logischer
+Inhaltsdigest, Decoder-/Formatversion und etwaige Git-OID bleiben verschiedene
+Identitäten; Rekodierung ist nicht automatisch eine neue fachliche Freigabe.
+Ohne nachgewiesene Crash-/Transaktionsgarantie keine Veröffentlichung über
+diesen Pfad. Erst Vertrags- und Fehlertests, dann eigenständiger Durchstich;
+Helix-Dateien und fremde Landing-Schnitte bleiben bei ihrem Owner.
+
+Lesender Landing-Anschluss dieses Schnitts: `landing-observation` übernimmt
+einen explizit bereitgestellten Bericht aus `landing verdict --check`, nicht
+die Review- oder Gateautorität. Repository, Kopf, Quelle und Zeit werden vom
+Aufrufer mitgegeben und nicht unabhängig verifiziert. Die datierte Y-1-Probe
+nutzt PR 1518, dessen Kopf `532c170…` und die damals abgefragten PR-Kommentare;
+ohne Gate-Log meldete Landing `no_structured_verdict_for_head`. Das ist keine
+Aussage über nicht abgefragte Reviews, spätere Kommentare oder ein Gate. Der
+historische Fall nennt `c1b0c46…`; die Oberfläche weist die unterschiedlichen
+Commits aus, statt sie gleichzusetzen.
+
+## Projektabdeckung und nächster Projects-Providerschnitt
+
+Die separat vorgelegte symlinkfreie Recherche unterscheidet 323 auflösbare
+Repositorygruppen, Archive und 41 nicht aufgelöste Git-Orte; daraus folgen
+keine 323 eigenständigen Produkte und keine Laufzeitabnahme. Dauerhafte
+Bestandsaufnahme und Herkunft gehören in bestehende `aethelProjects`-Scanner
+und Exportverträge, nicht in einen zweiten Scanner oder eine neue Registry
+dieses Arbeitsraums. Der engste Folgeschnitt am Provider ist: Cargo-Binärziele
+und Workspace-Pakete, Flutter-Pakete und Python-Entrypoints mit Quellpfad,
+Revision und Quelldigest entdecken; fehlende oder nicht gelesene Quellen,
+Archive, Alias- und Registerkonflikte als offene Befunde erhalten. Das bestehende
+Workspace-Manifest und `aethel-foundation/workspace-registry.yaml` sind
+getrennte Quellen und vor einer Zuordnung abzugleichen. Consumer-Vertrag und
+Providerrechte sind vor dem Eingriff in Dateien außerhalb dieses P0-Schnitts zu
+binden. Kein vorhandener Scanner wird hier überschrieben.
+
+Konkreter Referenzfall: `aethelOmegaLambda0` ist laut Cargo-Manifest des
+Repositories `aethelOmegaM0` ein `[[bin]]` mit `src/bin/lambda0.rs`, kein
+eigenes nachgewiesenes Repository. Das gelesene Manifest entspricht HEAD
+`6e70e86176e7fcf2e9749a7f6bc986ce04171b80`, SHA-256
+`3236be8c49d86c4379e2d57e085386112788a502e5da02cd0f8f64493813b579`.
+Das Architekturpapier beschreibt 18 registrierte Angebote und begrenzte
+Runtime-Tests; Registrierung belegt nicht jede Funktion. Die Python-Route
+enthält als Simulation markierte Anteile. Dieser ausdrücklich belegte
+Einzelbefund ist ein Zusatz zur Rechercheansicht, kein allgemeiner
+Komponentenentdecker. Athelix beschreibt eine Low-Code-/Compilerlinie im
+README; eine durchgängige Laufzeit wurde hier nicht geprüft. Fabrik-, Runtime-
+und Sensorprojekte dürfen wegen ähnlicher Namen nicht gleichgesetzt werden.

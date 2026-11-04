@@ -2,12 +2,20 @@ import 'dart:convert';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'landscape.dart';
 
 void main() => runApp(const AethelPlm());
 
 class AethelPlm extends StatelessWidget {
-  const AethelPlm({super.key, this.initialJson});
+  const AethelPlm({
+    super.key,
+    this.initialJson,
+    this.initialLandscapeJson,
+    this.initialLandingJson,
+  });
   final String? initialJson;
+  final String? initialLandscapeJson;
+  final String? initialLandingJson;
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'AETHEL Arbeitsraum',
@@ -15,20 +23,37 @@ class AethelPlm extends StatelessWidget {
       colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff27566a)),
       useMaterial3: true,
     ),
-    home: Workspace(initialJson: initialJson),
+    home: Workspace(
+      initialJson: initialJson,
+      initialLandscapeJson: initialLandscapeJson,
+      initialLandingJson: initialLandingJson,
+    ),
   );
 }
 
 /// Displays an assessment, never calculates or grants a verdict.
 class Workspace extends StatefulWidget {
-  const Workspace({super.key, this.initialJson});
+  const Workspace({
+    super.key,
+    this.initialJson,
+    this.initialLandscapeJson,
+    this.initialLandingJson,
+  });
   final String? initialJson;
+  final String? initialLandscapeJson;
+  final String? initialLandingJson;
   @override
   State<Workspace> createState() => _WorkspaceState();
 }
 
 class _WorkspaceState extends State<Workspace> {
   Map<String, dynamic>? document;
+  Map<String, dynamic>? landscape;
+  String landscapeOrigin = 'Historische Recherche · Pfade pseudonymisiert';
+  String? selectedLandscapeId;
+  int landscapeGeneration = 0;
+  final Map<String, int> boundProjectSources = {};
+  final Map<String, int> boundLandingSources = {};
   final List<SourceItem> sources = [];
   String origin = 'Kein Dokument geöffnet';
   String? error;
@@ -37,16 +62,93 @@ class _WorkspaceState extends State<Workspace> {
   @override
   void initState() {
     super.initState();
-    if (widget.initialJson != null) {
-      _setDocument(widget.initialJson!, 'Übergebene Auswertung');
+    if (widget.initialLandscapeJson == null) {
+      _loadLandscape();
     } else {
-      _example('assets/y1-assessment.json', 'Historischer Pilot Y-1');
+      _setDocument(
+        widget.initialLandscapeJson!,
+        'Übergebene Landschaft',
+        navigate: false,
+      );
+    }
+    if (widget.initialLandingJson == null) {
+      _loadLandingExample();
+    } else {
+      _setDocument(
+        widget.initialLandingJson!,
+        'Y-1 PR 1518 · Landing-Leseprobe 04.11.',
+        navigate: false,
+      );
+    }
+    if (widget.initialJson != null) {
+      _setDocument(
+        widget.initialJson!,
+        'Übergebene Auswertung',
+        navigate: false,
+      );
+    } else {
+      _example(
+        'assets/y1-assessment.json',
+        'Historischer Pilot Y-1',
+        navigate: false,
+      );
     }
   }
 
-  Future<void> _example(String asset, String title) async {
+  Future<void> _loadLandingExample() async {
     try {
-      _setDocument(await rootBundle.loadString(asset), title);
+      final value = jsonDecode(
+        await rootBundle.loadString('assets/y1-landing-observation.json'),
+      );
+      if (value is! Map<String, dynamic>) throw const FormatException();
+      validateShape(value);
+      if (mounted) {
+        setState(
+          () => sources.add(
+            SourceItem('Y-1 PR 1518 · Landing-Leseprobe 04.11.', value),
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => error = 'Landing-Leseprobe konnte nicht geladen werden.',
+        );
+      }
+    }
+  }
+
+  Future<void> _loadLandscape() async {
+    final generation = landscapeGeneration;
+    try {
+      final value = jsonDecode(
+        await rootBundle.loadString('assets/landscape-historical.json'),
+      );
+      if (value is! Map<String, dynamic>) throw const FormatException();
+      validateShape(value);
+      if (mounted && generation == landscapeGeneration) {
+        setState(() => landscape = value);
+      }
+    } catch (_) {
+      if (mounted && generation == landscapeGeneration) {
+        setState(
+          () => error = 'Projektlandschaft konnte nicht geladen werden.',
+        );
+      }
+    }
+  }
+
+  Future<void> _example(
+    String asset,
+    String title, {
+    bool navigate = true,
+  }) async {
+    try {
+      _setDocument(
+        await rootBundle.loadString(asset),
+        title,
+        navigate: navigate,
+      );
     } catch (_) {
       if (mounted) {
         setState(() => error = 'Beispieldaten konnten nicht geladen werden.');
@@ -79,7 +181,7 @@ class _WorkspaceState extends State<Workspace> {
     }
   }
 
-  void _setDocument(String content, String title) {
+  void _setDocument(String content, String title, {bool navigate = true}) {
     try {
       final value = jsonDecode(content);
       if (value is! Map<String, dynamic> ||
@@ -89,14 +191,23 @@ class _WorkspaceState extends State<Workspace> {
       validateShape(value);
       if (mounted) {
         setState(() {
-          if (value['schema'] == 'aethel.plm.project-observation/v1' ||
-              value['schema'] == 'aethel.plm.copilot-observation/v1') {
+          if (value['schema'] == 'aethel.plm.landscape-projection/v1') {
+            landscapeGeneration++;
+            landscape = value;
+            landscapeOrigin = title;
+            selectedLandscapeId = null;
+            boundProjectSources.clear();
+            boundLandingSources.clear();
+            if (navigate) section = 0;
+          } else if (value['schema'] == 'aethel.plm.project-observation/v1' ||
+              value['schema'] == 'aethel.plm.copilot-observation/v1' ||
+              value['schema'] == 'aethel.plm.landing-observation/v1') {
             sources.add(SourceItem(title, value));
-            section = 3;
+            if (navigate) section = 4;
           } else {
             document = value;
             origin = title;
-            section = 0;
+            if (navigate) section = 1;
           }
           error = null;
         });
@@ -197,18 +308,22 @@ class _WorkspaceState extends State<Workspace> {
                                 segments: const [
                                   ButtonSegment(
                                     value: 0,
-                                    label: Text('Änderung'),
+                                    label: Text('Landschaft'),
                                   ),
                                   ButtonSegment(
                                     value: 1,
-                                    label: Text('Qualität'),
+                                    label: Text('Änderung'),
                                   ),
                                   ButtonSegment(
                                     value: 2,
-                                    label: Text('Zusammenhang'),
+                                    label: Text('Qualität'),
                                   ),
                                   ButtonSegment(
                                     value: 3,
+                                    label: Text('Zusammenhang'),
+                                  ),
+                                  ButtonSegment(
+                                    value: 4,
                                     label: Text('Quelle'),
                                   ),
                                 ],
@@ -225,9 +340,49 @@ class _WorkspaceState extends State<Workspace> {
                                       maxWidth: 1100,
                                     ),
                                     child: switch (section) {
-                                      0 => ChangePanel(data: data),
-                                      1 => QualityPanel(data: data),
-                                      2 => TracePanel(data: data),
+                                      0 =>
+                                        landscape == null
+                                            ? const EmptyPanel(
+                                                'Keine Projektlandschaft geladen.',
+                                              )
+                                            : LandscapePanel(
+                                                data: landscape!,
+                                                origin: landscapeOrigin,
+                                                currentAssessment: data,
+                                                selectedId: selectedLandscapeId,
+                                                sources: [
+                                                  for (final s in sources)
+                                                    {
+                                                      'name': s.name,
+                                                      'data': s.data,
+                                                    },
+                                                ],
+                                                selectedSourceIndex:
+                                                    boundProjectSources[selectedLandscapeId],
+                                                onBindSource: (index) => setState(
+                                                  () =>
+                                                      boundProjectSources[selectedLandscapeId!] =
+                                                          index,
+                                                ),
+                                                selectedLandingIndex:
+                                                    boundLandingSources[selectedLandscapeId],
+                                                onBindLanding: (index) => setState(
+                                                  () =>
+                                                      boundLandingSources[selectedLandscapeId!] =
+                                                          index,
+                                                ),
+                                                onSelect: (id) => setState(
+                                                  () =>
+                                                      selectedLandscapeId = id,
+                                                ),
+                                                onOpenY1: () => _example(
+                                                  'assets/y1-assessment.json',
+                                                  'Historischer Pilot Y-1',
+                                                ),
+                                              ),
+                                      1 => ChangePanel(data: data),
+                                      2 => QualityPanel(data: data),
+                                      3 => TracePanel(data: data),
                                       _ => SourcePanel(
                                         data: data,
                                         sources: sources,
@@ -253,6 +408,10 @@ class _WorkspaceState extends State<Workspace> {
 
 const destinations = [
   NavigationRailDestination(
+    icon: Icon(Icons.grid_view_outlined),
+    label: Text('Projektlandschaft'),
+  ),
+  NavigationRailDestination(
     icon: Icon(Icons.account_tree_outlined),
     label: Text('Änderung'),
   ),
@@ -270,6 +429,8 @@ const destinations = [
   ),
 ];
 const supported = {
+  'aethel.plm.landscape-projection/v1',
+  'aethel.plm.landing-observation/v1',
   'aethel.plm.assessment/v1',
   'aethel.plm.linked-assessment/v1',
   'aethel.plm.quality-assessment/v1',
@@ -282,6 +443,52 @@ List<dynamic> list(dynamic value) => value is List ? value : const [];
 String show(dynamic value) => value == null ? 'Unbekannt' : value.toString();
 void validateShape(Map<String, dynamic> data) {
   final schema = data['schema'];
+  if (schema == 'aethel.plm.landscape-projection/v1' &&
+      (data['nodes'] is! List ||
+          data['edges'] is! List ||
+          data['attachments'] is! List ||
+          data['unresolved_endpoints'] is! List)) {
+    throw const FormatException();
+  }
+  if (schema == 'aethel.plm.landscape-projection/v1') {
+    final identities = <String, Map<String, dynamic>>{};
+    for (final entry in data['nodes'] as List) {
+      final node = object(entry);
+      final id = node?['id'];
+      if (id is! String ||
+          id.trim().isEmpty ||
+          node?['name'] is! String ||
+          node?['kind'] is! String ||
+          identities.containsKey(id)) {
+        throw const FormatException();
+      }
+      identities[id] = node!;
+    }
+    for (final entry in data['edges'] as List) {
+      final edge = object(entry);
+      if (edge == null ||
+          ['from', 'to', 'type', 'status', 'evidence', 'detail'].any(
+            (key) =>
+                edge[key] is! String || (edge[key] as String).trim().isEmpty,
+          )) {
+        throw const FormatException();
+      }
+    }
+    for (final entry in data['attachments'] as List) {
+      final attachment = object(entry);
+      final node = identities[attachment?['node_id']];
+      if (attachment == null ||
+          node?['kind'] != 'repository' ||
+          node?['git_common_dir'] is! String ||
+          node?['git_common_dir'] != attachment['repository_id'] ||
+          attachment['case_id'] is! String ||
+          attachment['candidate'] is! String ||
+          attachment['claims'] is! List ||
+          attachment['followups'] is! List) {
+        throw const FormatException();
+      }
+    }
+  }
   if (schema == 'aethel.plm.assessment/v1' &&
       (object(data['change']) == null || data['claims'] is! List)) {
     throw const FormatException();
@@ -299,6 +506,14 @@ void validateShape(Map<String, dynamic> data) {
   if ((schema == 'aethel.plm.project-observation/v1' ||
           schema == 'aethel.plm.copilot-observation/v1') &&
       object(data['evidence']) == null) {
+    throw const FormatException();
+  }
+  if (schema == 'aethel.plm.landing-observation/v1' &&
+      (data['repository_id'] is! String ||
+          data['head_supplied'] is! String ||
+          data['reported_ok'] is! bool ||
+          data['reported_reason'] is! String ||
+          data['reported_verdicts'] is! List)) {
     throw const FormatException();
   }
 }
@@ -680,6 +895,20 @@ class SourceDetails extends StatelessWidget {
           Fact(
             'Scanzeit / Exportzeit (berichtet)',
             '${show(data['scan_generated_at_reported'])} / ${show(data['export_generated_at_reported'])}',
+          ),
+        ],
+        if (data['schema'] == 'aethel.plm.landing-observation/v1') ...[
+          Fact('Landing-Kopf (mitgeliefert)', show(data['head_supplied'])),
+          Fact(
+            'Landing-Ergebnis (berichtet)',
+            '${show(data['reported_ok'])} · ${show(data['reported_reason'])}',
+          ),
+          Fact(
+            'Quellenzeit (mitgeliefert)',
+            show(data['observed_at_supplied']),
+          ),
+          const Text(
+            'Keine Bestätigung von Quelle, Kandidatenbindung oder Landung.',
           ),
         ],
         if (data['findings'] is List) ...[
