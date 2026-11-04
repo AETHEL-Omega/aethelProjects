@@ -873,6 +873,15 @@ seine Existenz belegt keinen delegierten MCP-Zugriff. Der lesende
 `/api/orders`-Endpunkt liefert zudem nur eine Auftragsprojektion und ist kein
 autorisierter Auftrags- oder Werkzeugport.
 
+Für den gemeldeten isolierten `AIX_HOME`-Reparaturfall wurde ergänzend der
+Quellstand `codex/aix-pom-v2-y1` lesend geprüft: `AccessService` und
+`NativeIdentityProvider` sind vorhanden, aber in den untersuchten produktiven
+Terminal-Einstiegen nicht an einen nachgewiesenen Principal-/Challenge-/Session-
+Handoff angeschlossen. Deshalb ist kein authentifizierter Terminal-Delegationsweg
+für diesen Auftrag belegt. Dies ist eine begrenzte Quellprüfung, kein Nachweis,
+dass es in allen anderen Versionen keinen solchen Weg gibt; es wurde keine
+Identität angelegt, kein Token kopiert und kein Auftrag ausgelöst.
+
 Die Produktansicht schlüsselt einen ausgewählten AIX-Engineering-Input nach
 Spezifikationsdigest, Modellreferenzen, Produktionsmodus, Hostprofil, Compute-
 Modus und erwartetem Output auf. Die Felder bleiben Angaben der gewählten
