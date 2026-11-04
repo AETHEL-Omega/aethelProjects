@@ -6,6 +6,61 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test(
+    'AIX order projection preserves identity without inventing lease or output',
+    () {
+      final response = {
+        'ok': true,
+        'ergebnis': {
+          'schema': 'aix.auftrag.leseprojektion.v1',
+          'beobachtet_epoch': 100,
+          'auftraege': [
+            {
+              'auftrag_ref': 'a1',
+              'lesestatus': 'gebunden',
+              'revision': 2,
+              'projekt': '/p',
+              'kandidat': 'abc',
+              'zustand': 'aktiv',
+              'besitz': {'eigentuemer': 'x', 'generation': 3},
+              'private': 'secret',
+              'host_lease': {'private': 'secret'},
+            },
+          ],
+        },
+      };
+      final value = readAixOrders(response, 'AIX');
+      final row = (value['auftraege'] as List).single;
+      expect(row['auftrag_ref'], 'a1');
+      expect(row['owner_generation'], 3);
+      expect(row['host_lease'], isNull);
+      expect(row['output'], isNull);
+      expect(value.toString(), isNot(contains('secret')));
+      final mixed = Map<String, dynamic>.from(response);
+      final resultData = Map<String, dynamic>.from(response['ergebnis'] as Map);
+      resultData['auftraege'] = [
+        ...resultData['auftraege'] as List,
+        {'auftrag_ref': 'a2', 'lesestatus': 'unlesbar', 'private': 'secret'},
+        {
+          'auftrag_ref': 'a3',
+          'lesestatus': 'historisch_nicht_rekonstruiert',
+          'revision': 1,
+          'projekt': '/old',
+          'kandidat': 'abc',
+          'quelle_zeit': '1000',
+          'private': 'secret',
+        },
+      ];
+      mixed['ergebnis'] = resultData;
+      final entries = readAixOrders(mixed, 'AIX')['auftraege'] as List;
+      expect(entries.length, 3);
+      expect(entries[1]['lesestatus'], 'unlesbar');
+      expect(entries.last['lesestatus'], 'historisch_nicht_rekonstruiert');
+      expect(entries.last['owner'], isNull);
+      expect(entries.toString(), isNot(contains('secret')));
+      expect(() => readAixOrders({'ok': false}, 'AIX'), throwsFormatException);
+    },
+  );
   final projectsPath = Platform.environment['PROJECTS_COCKPIT_TEST'];
   final aixPath = Platform.environment['AIX_DASHBOARD_TEST'];
   if (projectsPath != null && aixPath != null) {

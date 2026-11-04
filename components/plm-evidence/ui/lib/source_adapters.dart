@@ -1,4 +1,79 @@
 /// Adapts explicitly selected source documents for display; never grants authority.
+Map<String, dynamic> readAixOrders(
+  Map<String, dynamic> response,
+  String source,
+) {
+  final data = response['ergebnis'];
+  if (response['ok'] != true ||
+      data is! Map ||
+      data['schema'] != 'aix.auftrag.leseprojektion.v1' ||
+      data['beobachtet_epoch'] is! int ||
+      data['auftraege'] is! List) {
+    throw const FormatException('Ungültige AIX-Auftragsprojektion');
+  }
+  final orders = <Map<String, dynamic>>[];
+  for (final row in data['auftraege'] as List) {
+    if (row is Map &&
+        row['lesestatus'] == 'historisch_nicht_rekonstruiert' &&
+        row['auftrag_ref'] is String &&
+        row['revision'] is int &&
+        row['projekt'] is String &&
+        row['kandidat'] is String &&
+        row['quelle_zeit'] is String) {
+      orders.add({
+        'auftrag_ref': row['auftrag_ref'],
+        'lesestatus': 'historisch_nicht_rekonstruiert',
+        'revision': row['revision'],
+        'projekt': row['projekt'],
+        'kandidat': row['kandidat'],
+        'quelle_zeit': row['quelle_zeit'],
+        'zustand': null,
+        'owner': null,
+        'host_lease': null,
+        'output': null,
+      });
+      continue;
+    }
+    if (row is Map &&
+        row['auftrag_ref'] is String &&
+        row['lesestatus'] == 'unlesbar') {
+      orders.add({'auftrag_ref': row['auftrag_ref'], 'lesestatus': 'unlesbar'});
+      continue;
+    }
+    if (row is! Map ||
+        row['lesestatus'] != 'gebunden' ||
+        row['auftrag_ref'] is! String ||
+        row['revision'] is! int ||
+        row['projekt'] is! String ||
+        row['kandidat'] is! String ||
+        row['zustand'] is! String) {
+      throw const FormatException('Ungültiger AIX-Auftrag');
+    }
+    final owner = row['besitz'];
+    orders.add({
+      'lesestatus': 'gebunden',
+      'auftrag_ref': row['auftrag_ref'],
+      'revision': row['revision'],
+      'projekt': row['projekt'],
+      'kandidat': row['kandidat'],
+      'zustand': row['zustand'],
+      'owner': owner is Map && owner['eigentuemer'] is String
+          ? owner['eigentuemer']
+          : null,
+      'owner_generation': owner is Map && owner['generation'] is int
+          ? owner['generation']
+          : null,
+      'host_lease': null,
+      'output': null,
+    });
+  }
+  return {
+    'source': source,
+    'beobachtet_epoch': data['beobachtet_epoch'],
+    'auftraege': orders,
+  };
+}
+
 Map<String, dynamic> readCockpit(Map<String, dynamic> data, String source) {
   if (data['schema'] != 'aethel.projects.cockpit/v1' ||
       data['kacheln'] is! List ||

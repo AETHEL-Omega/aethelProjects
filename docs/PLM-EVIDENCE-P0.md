@@ -856,6 +856,13 @@ Ein angegebener Spec-Session-Pfad wird ebenfalls gezeigt. Ein lesender Adapter
 für eine AIX-Copilot-Input-Vorschau liegt für die spätere UI-Integration vor;
 er ist noch nicht an den Dateieingang angeschlossen. Die Datei ist eine
 Quellenbehauptung, keine verifizierte Auftragsbindung oder automatische Quelle.
+Der separate Adapter `readAixOrders` kann die Antwort von `aix-kernel auftrag
+liste_lesend` übernehmen. Er ist noch nicht in die App eingebunden; ein
+aktualisierter installierter AIX-Kernel ist ebenfalls Voraussetzung.
+Eine Produktionsprobe der neuen AIX-Lesefunktion zeigte 22 Altaufträge und
+keinen vollständig rekonstruierbaren Auftrag. Eine eng begrenzte ältere
+Methodenform wird als `historisch_nicht_rekonstruiert` mit Projekt und damals
+gebundenem Kandidaten gezeigt; Besitzer, Zustand und Belege bleiben unbekannt.
 
 Bei aktivierter lokaler AIX-Dashboardverbindung zeigt die Produktansicht auch
 die dort bereits vorhandene letzte Kernel-Transaktionsprojektion mit Kennung,
