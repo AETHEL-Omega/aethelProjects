@@ -64,5 +64,28 @@ class InstallerRecoveryTests(unittest.TestCase):
         self.assertTrue(self.plist.is_file())
 
 
+    def test_tampered_existing_release_is_rejected_without_overwrite(self):
+        payload = io.BytesIO()
+        with tarfile.open(fileobj=payload, mode='w') as archive:
+            data = b'original\n'
+            info = tarfile.TarInfo('bin/aethel-projects')
+            info.size = len(data)
+            archive.addfile(info, io.BytesIO(data))
+        release = self.output.parent / 'service' / 'releases' / ('a' * 40) / 'bin'
+        release.mkdir(parents=True)
+        executable = release / 'aethel-projects'
+        executable.write_text('modified\n')
+        def run(command, **kwargs):
+            if 'rev-parse' in command: return SimpleNamespace(stdout='a' * 40 + '\n', returncode=0)
+            if 'status' in command: return SimpleNamespace(stdout='', returncode=0)
+            if 'archive' in command: return SimpleNamespace(stdout=payload.getvalue(), returncode=0)
+            raise AssertionError(command)
+        with patch('sys.argv', self.args('install')), patch('subprocess.run', side_effect=run):
+            with self.assertRaises(SystemExit):
+                self.main()
+        self.assertEqual(executable.read_text(), 'modified\n')
+        self.assertFalse(self.plist.exists())
+
+
 if __name__ == '__main__':
     unittest.main()
